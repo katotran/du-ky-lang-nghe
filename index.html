@@ -8486,7 +8486,7 @@ function createVietnameseCostumePawn3D(player) {
         g.scale.setScalar(.95); return g;
     };
     window.addEventListener('load', () => { decorateMoodboardUI(); addOnlineButton(); updateGfxLabel(); });
-    window.addEventListener('load', () => { requestAnimationFrame(() => requestAnimationFrame(() => { const o = document.getElementById('dk-loading'); if (o) { o.style.opacity = 0; o.style.pointerEvents = 'none'; setTimeout(() => o.remove(), 450); } })); });
+    window.addEventListener('load', () => { requestAnimationFrame(() => requestAnimationFrame(() => { if (/perf/.test(location.hash)) { try { const nv = performance.getEntriesByType('navigation')[0], lt = nv.loadEventStart / 1000, it = (performance.now() - nv.loadEventStart) / 1000; showBanner(`Tải trang ${lt.toFixed(1)}s · dựng sa bàn ${it.toFixed(1)}s`, '⏱️', 15000); console.log('[perf] tải trang', lt.toFixed(1), 's; dựng sa bàn', it.toFixed(1), 's'); } catch (e) { } } const o = document.getElementById('dk-loading'); if (o) { o.style.opacity = 0; o.style.pointerEvents = 'none'; setTimeout(() => o.remove(), 450); } })); });
     </script>
 
     <script>
