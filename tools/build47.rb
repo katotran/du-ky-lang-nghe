@@ -32,7 +32,8 @@ r s, '<i class="fa-solid fa-compass"></i> 36 Địa Danh', '<i class="fa-solid f
 r s, 'Danh Mục 36 Địa Danh', 'Danh Mục 47 Địa Danh'
 r s, 'Hành Trình Vòng Tròn Khép Kín 36 Địa Danh', 'Hành Trình Vòng Tròn Khép Kín 47 Địa Danh'
 s.sub!(/(Mỗi người khởi nghiệp với <b>300 đồng<\/b>\. )Quân cờ đi theo vòng tròn khép kín.*?<\/p>/m) { $1 + 'Quân cờ đi theo vòng tròn khép kín qua <b>47 địa danh đặt đúng vị trí địa lý</b>: từ <b>Lăng Bác - Hà Nội (#0)</b> xuôi Duyên hải Bắc Bộ, miền Trung (ra đảo Lý Sơn #11) xuống Nam Bộ, vượt biển sang <b>Phú Quốc (#24)</b> → ngược lên Miền Tây, Đông Nam Bộ, Tây Nguyên (#25–#35) → Thành Cổ Quảng Trị, Nghệ An, Tây Bắc, Đông Bắc (#36–#46) rồi khép vòng về Hà Nội. Có 6 ô Biến Động / Bản Lĩnh và 4 Trạm Công Cụ (Vân Đồn, Tiên Sa, Cái Răng, Chợ phiên Tây Bắc).</p>' } or abort('rules')
-k = %w[k1_data.js k2_map.js k2b_islands.js k3_models.js].map { |f| File.read(File.join(dir, f), encoding: "UTF-8") }.join("\n")
+r s, '• <b>Đất Trống:</b> Dùng tiền mặt đầu tư mua làng nghề để cắm cờ thương hiệu.<br>', '• <b>Bước 1 - Mua Đất Trống:</b> Lúc đầu các ô di sản đều là đất trống. Dừng tại ô chưa có chủ, bạn chi tiền <b>Mua Đất</b> để cắm cờ sở hữu và thu phí thuê đất cơ bản.<br>• <b>Bước 2 - Xây Dựng Làng Nghề 3D:</b> Khi đi hết vòng và <b>dẫm lại đúng vào ô đất của mình ở lượt sau</b>, bạn được quyền đầu tư <b>Xây dựng Làng nghề</b> — mô hình kiến trúc 3D của làng nghề sẽ mọc lên trên bản đồ và phí dịch vụ tăng vọt!<br>'
+k = %w[k1_data.js k2_map.js k2b_islands.js k3_models.js k4_monopoly.js].map { |f| File.read(File.join(dir, f), encoding: "UTF-8") }.join("\n")
 block = "\n    <script>\n    /* ===== K. 47 ĐỊA DANH · BẢN ĐỒ MỞ RỘNG · BIỂN & HOÀNG SA – TRƯỜNG SA ===== */\n    (function () {\n" + k + "\n    })();\n    </script>\n"
 idx = s.rindex("</body>") or abort("body")
 s.insert(idx, block)

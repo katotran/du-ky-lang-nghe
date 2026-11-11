@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Du Ký Làng Nghề - Sa Bàn 3D Bản Đồ Di Sản Việt Nam</title>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js r128 & OrbitControls -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <!-- GSAP for smooth 3D animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <!-- PeerJS: kết nối WebRTC cho chế độ chơi Online nhiều máy -->
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script defer src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,700;0,800;1,600&display=swap" rel="stylesheet">
 
@@ -191,6 +197,14 @@
     </style>
 </head>
 <body class="relative w-screen h-screen overflow-hidden select-none">
+<div id="dk-loading" style="position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0f171e;color:#f3e9d2;font-family:Georgia,serif;transition:opacity .4s">
+  <div style="font-size:42px">🏯</div>
+  <div style="font-size:22px;font-weight:700;letter-spacing:2px">Du Ký Làng Nghề</div>
+  <div style="width:180px;height:4px;border-radius:2px;background:#ffffff22;overflow:hidden"><div style="width:40%;height:100%;background:#e09f3e;animation:dkld 1.1s ease-in-out infinite alternate"></div></div>
+  <div style="font-size:13px;opacity:.7">Đang dựng sa bàn 3D…</div>
+</div>
+<style>@keyframes dkld{from{transform:translateX(-100%)}to{transform:translateX(350%)}}</style>
+
 
     <!-- 3D WebGL Canvas Container -->
     <div id="canvas-container"></div>
@@ -1633,7 +1647,7 @@
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
             renderer.domElement.addEventListener('pointerdown', onCanvasPointerDown);
-            renderer.domElement.addEventListener('pointermove', onCanvasPointerMove);
+            { let _pmEv = null; renderer.domElement.addEventListener('pointermove', e => { if (_pmEv) { _pmEv = e; return; } _pmEv = e; requestAnimationFrame(() => { const ev = _pmEv; _pmEv = null; onCanvasPointerMove(ev); }); }); }
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('keydown', onGlobalKeyDown);
 
@@ -6785,7 +6799,7 @@ function createVietnameseCostumePawn3D(player) {
         }
         playerPawns.forEach((pw, i) => { const f = pw.userData.figure; if (f) { f.scale.y = 1 + Math.sin(time * 1.6 + i) * 0.008; f.rotation.y = pw.userData.faceY + Math.sin(time * 0.9 + i * 1.3) * 0.06; } });
         if (window.__mapUpdate) window.__mapUpdate(time);
-        if (FX3.length) { fx3Tick(performance.now()); renderer.shadowMap.needsUpdate = true; }
+        if (FX3.length) { fx3Tick(performance.now()); if ((PERF.frame & 1) === 0) renderer.shadowMap.needsUpdate = true; }
         if (++PERF.frame % GFX_LEVELS[PERF.level].every === 0) renderer.shadowMap.needsUpdate = true;
         renderer.render(scene, camera);
         PERF._n++;
@@ -6838,6 +6852,10 @@ function createVietnameseCostumePawn3D(player) {
      * --------------------------------------------------------------------------------- */
     const NET = { role: null, peer: null, code: '', conns: [], hostConn: null, myId: -1, hostName: '', routed: null, remoteModal: false, hopChains: {}, animating: {}, lobby: [], pendingJoin: [] };
     const ROOM_PREFIX = 'dukylangnghe2-';
+    // Nhiều máy chủ STUN để tìm đường kết nối nhanh hơn (mặc định PeerJS chỉ có 1–2 máy chủ)
+    const PEER_OPTS = { debug: 1, config: { iceCandidatePoolSize: 4, iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }] } };
     const _addLog0 = addLog, _showBanner0 = showBanner, _playSFX0 = playSFX, _dice0 = animate3DDiceRoll, _openModal0 = openModal, _closeModal0 = closeModal,
         _updHUD0 = updateAllHUD, _roll0 = handleUserRollClick, _skill0 = activateUserSkillCard, _finish0 = finishGameAndAudit, _saveCostume0 = saveCostumeSelection;
 
@@ -7038,7 +7056,7 @@ function createVietnameseCostumePawn3D(player) {
         NET.hostName = (name || PLAYERS[0].shortName).trim().slice(0, 16) || 'Chủ phòng';
         const code = makeCode();
         _showBanner0('Đang tạo phòng online…', '⏳', 2000);
-        const peer = new Peer(ROOM_PREFIX + code.toLowerCase(), { debug: 1 }); NET.peer = peer;
+        const peer = new Peer(ROOM_PREFIX + code.toLowerCase(), PEER_OPTS); NET.peer = peer;
         peer.on('open', () => { NET.role = 'host'; NET.code = code; setNetChip(); _addLog0(`🌐 Đã tạo phòng online <b>${code}</b>. Gửi mã cho bạn bè để vào chơi.`, '🌐', 'text-emerald-300 font-semibold'); openOnlineModal(); });
         peer.on('error', e => { if (e.type === 'unavailable-id') { peer.destroy(); startHost(name); return; } _showBanner0('Lỗi kết nối: ' + (e.type || e.message), '⚠️', 2500); });
         peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { } });
@@ -7107,18 +7125,29 @@ function createVietnameseCostumePawn3D(player) {
         if (!/^[A-Z0-9]{6}$/.test(code)) return _showBanner0('Mã phòng gồm 6 ký tự, ví dụ K7Q2MX', '⚠️', 2200);
         name = String(name || '').trim().slice(0, 16) || 'Khách';
         _showBanner0(`Đang vào phòng ${code}…`, '⏳', 2500);
-        const peer = new Peer({ debug: 1 }); NET.peer = peer;
-        peer.on('open', () => {
+        const peer = new Peer(PEER_OPTS); NET.peer = peer;
+        let tries = 0, done = false;
+        // Nếu 8 giây chưa thông thì huỷ và thử lại (tối đa 4 lần) thay vì chờ treo cả phút
+        const attempt = () => {
+            if (done || NET.peer !== peer) return;
+            tries++;
             const conn = peer.connect(ROOM_PREFIX + code.toLowerCase(), { reliable: true, serialization: 'json' });
             NET.hostConn = conn;
-            conn.on('open', () => { NET.role = 'guest'; NET.code = code; conn.send({ t: 'hello', name }); });
+            const timer = setTimeout(() => {
+                if (done) return;
+                try { conn.close(); } catch (err) { }
+                if (tries < 4) { _showBanner0(`Đang thử kết nối lại (lần ${tries + 1})…`, '⏳', 1500); attempt(); }
+                else { done = true; _showBanner0('Không kết nối được. Kiểm tra mạng hoặc mã phòng rồi thử lại', '❌', 3500); try { peer.destroy(); } catch (err) { } NET.peer = null; }
+            }, 8000);
+            conn.on('open', () => { if (done) return; done = true; clearTimeout(timer); NET.role = 'guest'; NET.code = code; conn.send({ t: 'hello', name }); });
             conn.on('data', guestOnData);
-            conn.on('close', guestLost);
-        });
+            conn.on('close', () => { clearTimeout(timer); if (done && NET.hostConn === conn) guestLost(); });
+        };
+        peer.on('open', attempt);
         peer.on('error', e => {
-            if (e.type === 'peer-unavailable') _showBanner0(`Không tìm thấy phòng ${code}`, '❌', 2600);
+            if (e.type === 'peer-unavailable') { done = true; _showBanner0(`Không tìm thấy phòng ${code}`, '❌', 2600); }
             else _showBanner0('Lỗi kết nối: ' + (e.type || e.message), '⚠️', 2500);
-            if (NET.role !== 'guest') { try { peer.destroy(); } catch (err) { } NET.peer = null; }
+            if (NET.role !== 'guest' && (e.type === 'peer-unavailable' || e.type !== 'webrtc')) { try { peer.destroy(); } catch (err) { } NET.peer = null; }
         });
     }
     function guestOnData(m) {
@@ -8457,6 +8486,7 @@ function createVietnameseCostumePawn3D(player) {
         g.scale.setScalar(.95); return g;
     };
     window.addEventListener('load', () => { decorateMoodboardUI(); addOnlineButton(); updateGfxLabel(); });
+    window.addEventListener('load', () => { requestAnimationFrame(() => requestAnimationFrame(() => { if (/perf/.test(location.hash)) { try { const nv = performance.getEntriesByType('navigation')[0], lt = nv.loadEventStart / 1000, it = (performance.now() - nv.loadEventStart) / 1000; showBanner(`Tải trang ${lt.toFixed(1)}s · dựng sa bàn ${it.toFixed(1)}s`, '⏱️', 15000); console.log('[perf] tải trang', lt.toFixed(1), 's; dựng sa bàn', it.toFixed(1), 's'); } catch (e) { } } const o = document.getElementById('dk-loading'); if (o) { o.style.opacity = 0; o.style.pointerEvents = 'none'; setTimeout(() => o.remove(), 450); } })); });
     </script>
 </body>
 </html>
