@@ -6852,6 +6852,10 @@ function createVietnameseCostumePawn3D(player) {
      * --------------------------------------------------------------------------------- */
     const NET = { role: null, peer: null, code: '', conns: [], hostConn: null, myId: -1, hostName: '', routed: null, remoteModal: false, hopChains: {}, animating: {}, lobby: [], pendingJoin: [] };
     const ROOM_PREFIX = 'dukylangnghe2-';
+    // Nhiều máy chủ STUN để tìm đường kết nối nhanh hơn (mặc định PeerJS chỉ có 1–2 máy chủ)
+    const PEER_OPTS = { debug: 1, config: { iceCandidatePoolSize: 4, iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }] } };
     const _addLog0 = addLog, _showBanner0 = showBanner, _playSFX0 = playSFX, _dice0 = animate3DDiceRoll, _openModal0 = openModal, _closeModal0 = closeModal,
         _updHUD0 = updateAllHUD, _roll0 = handleUserRollClick, _skill0 = activateUserSkillCard, _finish0 = finishGameAndAudit, _saveCostume0 = saveCostumeSelection;
 
@@ -7052,7 +7056,7 @@ function createVietnameseCostumePawn3D(player) {
         NET.hostName = (name || PLAYERS[0].shortName).trim().slice(0, 16) || 'Chủ phòng';
         const code = makeCode();
         _showBanner0('Đang tạo phòng online…', '⏳', 2000);
-        const peer = new Peer(ROOM_PREFIX + code.toLowerCase(), { debug: 1 }); NET.peer = peer;
+        const peer = new Peer(ROOM_PREFIX + code.toLowerCase(), PEER_OPTS); NET.peer = peer;
         peer.on('open', () => { NET.role = 'host'; NET.code = code; setNetChip(); _addLog0(`🌐 Đã tạo phòng online <b>${code}</b>. Gửi mã cho bạn bè để vào chơi.`, '🌐', 'text-emerald-300 font-semibold'); openOnlineModal(); });
         peer.on('error', e => { if (e.type === 'unavailable-id') { peer.destroy(); startHost(name); return; } _showBanner0('Lỗi kết nối: ' + (e.type || e.message), '⚠️', 2500); });
         peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { } });
@@ -7121,18 +7125,29 @@ function createVietnameseCostumePawn3D(player) {
         if (!/^[A-Z0-9]{6}$/.test(code)) return _showBanner0('Mã phòng gồm 6 ký tự, ví dụ K7Q2MX', '⚠️', 2200);
         name = String(name || '').trim().slice(0, 16) || 'Khách';
         _showBanner0(`Đang vào phòng ${code}…`, '⏳', 2500);
-        const peer = new Peer({ debug: 1 }); NET.peer = peer;
-        peer.on('open', () => {
+        const peer = new Peer(PEER_OPTS); NET.peer = peer;
+        let tries = 0, done = false;
+        // Nếu 8 giây chưa thông thì huỷ và thử lại (tối đa 4 lần) thay vì chờ treo cả phút
+        const attempt = () => {
+            if (done || NET.peer !== peer) return;
+            tries++;
             const conn = peer.connect(ROOM_PREFIX + code.toLowerCase(), { reliable: true, serialization: 'json' });
             NET.hostConn = conn;
-            conn.on('open', () => { NET.role = 'guest'; NET.code = code; conn.send({ t: 'hello', name }); });
+            const timer = setTimeout(() => {
+                if (done) return;
+                try { conn.close(); } catch (err) { }
+                if (tries < 4) { _showBanner0(`Đang thử kết nối lại (lần ${tries + 1})…`, '⏳', 1500); attempt(); }
+                else { done = true; _showBanner0('Không kết nối được. Kiểm tra mạng hoặc mã phòng rồi thử lại', '❌', 3500); try { peer.destroy(); } catch (err) { } NET.peer = null; }
+            }, 8000);
+            conn.on('open', () => { if (done) return; done = true; clearTimeout(timer); NET.role = 'guest'; NET.code = code; conn.send({ t: 'hello', name }); });
             conn.on('data', guestOnData);
-            conn.on('close', guestLost);
-        });
+            conn.on('close', () => { clearTimeout(timer); if (done && NET.hostConn === conn) guestLost(); });
+        };
+        peer.on('open', attempt);
         peer.on('error', e => {
-            if (e.type === 'peer-unavailable') _showBanner0(`Không tìm thấy phòng ${code}`, '❌', 2600);
+            if (e.type === 'peer-unavailable') { done = true; _showBanner0(`Không tìm thấy phòng ${code}`, '❌', 2600); }
             else _showBanner0('Lỗi kết nối: ' + (e.type || e.message), '⚠️', 2500);
-            if (NET.role !== 'guest') { try { peer.destroy(); } catch (err) { } NET.peer = null; }
+            if (NET.role !== 'guest' && (e.type === 'peer-unavailable' || e.type !== 'webrtc')) { try { peer.destroy(); } catch (err) { } NET.peer = null; }
         });
     }
     function guestOnData(m) {
