@@ -1,6 +1,6 @@
     /* =================================================================================
      * L. CƠ CHẾ CỜ TỶ PHÚ 2 BƯỚC: BẢN ĐỒ ĐẤT TRỐNG BAN ĐẦU -> MUA ĐẤT -> XÂY DỰNG LÀNG NGHỀ 3D
-     *    · Lúc đầu toàn bộ 36 ô tài sản (PROPERTY) là Đất Trống (chưa hiện sa bàn làng nghề 3D)
+     *    · Lúc đầu toàn bộ 37 ô tài sản (PROPERTY) là Đất Trống (chưa hiện sa bàn làng nghề 3D)
      *    · Bước 1 (Lần đầu dừng ở ô đất trống): Mua Đất Quy Hoạch -> cắm cờ sở hữu, thu phí thuê đất cơ bản
      *    · Bước 2 (Khi đi hết vòng và dẫm lại vào ô đất của mình ở lượt sau): Xây Dựng Làng Nghề 3D
      *      -> Sa bàn kiến trúc 3D của làng nghề mọc lên trên bản đồ, phí dịch vụ tăng mạnh!
@@ -844,7 +844,7 @@
         }
     };
 
-    // 13. Cập nhật giao diện Inspector, Tooltip rê chuột, Danh mục 46 địa danh & Luật chơi
+    // 13. Cập nhật giao diện Inspector, Tooltip rê chuột, Danh mục 47 địa danh & Luật chơi
     updateTileInspector = function (tileIndex) {
         gameState.selectedTileIndex = tileIndex;
         const tile = BOARD_TILES[tileIndex];
@@ -963,7 +963,7 @@
                 <div class="text-left">
                     <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3">
                         <div>
-                            <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Danh Mục ${BOARD_TILES.length} Địa Danh Làng Nghề Việt Nam</h2>
+                            <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Danh Mục 47 Địa Danh Làng Nghề Việt Nam</h2>
                             <p class="text-[11px] text-amber-900/80">🌱 Đất trống → 🏳️ Mua đất → 🏯 Quay lại ở vòng sau để Xây dựng Làng nghề 3D!</p>
                         </div>
                         <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button>

@@ -97,5 +97,5 @@
             if (window.__sun) { const R = BOARD_RECT, s = window.__sun; s.target.position.set(R.cx, 0, R.cz); scene.add(s.target); s.position.set(R.cx - 30, 70, R.cz - 26); const d = Math.max(R.W, R.D) * .56; Object.assign(s.shadow.camera, { left: -d, right: d, top: d, bottom: -d, far: 240 }); s.shadow.camera.updateProjectionMatrix(); renderer.shadowMap.needsUpdate = true; }
             if (scene.fog) scene.fog.density = .0016;
         } catch (e) { console.warn('camK', e); }
-        console.log('[' + BOARD_TILES.length + ' địa danh] ' + BOARD_TILES.length + ' ô · lệch tối đa ' + Math.max(...BOARD_TILES.map(t => Math.hypot(t.lon - t.realLon, t.lat - t.realLat))).toFixed(2) + '°');
+        console.log('[47 địa danh] ' + BOARD_TILES.length + ' ô · lệch tối đa ' + Math.max(...BOARD_TILES.map(t => Math.hypot(t.lon - t.realLon, t.lat - t.realLat))).toFixed(2) + '°');
     };
