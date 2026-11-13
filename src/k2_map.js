@@ -29,13 +29,13 @@
         const isl = (window.__ISLANDS || []).map(s => { const [x, y] = toC(s.lon, s.lat); return [x, y, s.rx / R.W * CW, s.rz / R.D * CH]; });
         const reefs = [[HS_GEO, 46], [TS_GEO, 50], [[111.6, 16.9], 18], [[112.4, 16.0], 16], [[114.0, 10.3], 18], [[113.8, 8.6], 16], [[111.9, 8.6], 14], [[112.6, 10.6], 15]];
         const color = document.createElement('canvas'); color.width = CW; color.height = CH; const g = color.getContext('2d');
-        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#1597c4'); gr.addColorStop(.5, '#0b7fb8'); gr.addColorStop(1, '#075a9a'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#3a6e73'); gr.addColorStop(.5, '#2f5d62'); gr.addColorStop(1, '#22474b'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
         const halo = (blur, fill, grow) => { g.filter = `blur(${blur}px)`; g.fillStyle = fill; g.strokeStyle = fill; g.lineWidth = grow; g.lineJoin = 'round'; landPath(g); g.fill(); g.stroke(); isl.forEach(([x, y, rx, ry]) => { g.beginPath(); g.ellipse(x, y, rx + grow / 2, ry + grow / 2, 0, 0, 7); g.fill(); }); reefs.forEach(([p, r]) => { const [x, y] = toC(p[0], p[1]); g.beginPath(); g.arc(x, y, r * (grow / 40 + .4), 0, 7); g.fill(); }); };
-        halo(40, 'rgba(22,170,200,.75)', 90); halo(18, 'rgba(48,200,212,.85)', 40); halo(7, 'rgba(110,226,220,.95)', 14);
+        halo(40, 'rgba(70,118,116,.6)', 90); halo(18, 'rgba(92,136,128,.65)', 40); halo(7, 'rgba(150,160,130,.7)', 14);
         g.filter = 'none';
-        for (let i = 0; i < 5200; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * .045})`; g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 6, 1); }
-        g.fillStyle = 'rgba(255,248,214,.55)'; g.font = '800 34px "Playfair Display", serif'; g.textAlign = 'center';
-        [['BIỂN ĐÔNG', 110.6, 13.4], ['VỊNH BẮC BỘ', 107.9, 19.4], ['VỊNH THÁI LAN', 102.4, 9.6]].forEach(([t, lo, la]) => { const [x, y] = toC(lo, la); g.save(); g.translate(x, y); g.fillText(t, 0, 0); g.restore(); });
+        for (let i = 0; i < 5200; i++) { g.fillStyle = `rgba(230,220,190,${Math.random() * .03})`; g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 6, 1); }
+        g.fillStyle = 'rgba(214,190,140,.32)'; g.font = '700 26px "Playfair Display", serif'; g.textAlign = 'center';
+        [['BIỂN ĐÔNG', 111.2, 13.4]].forEach(([t, lo, la]) => { const [x, y] = toC(lo, la); g.save(); g.translate(x, y); g.fillText(t, 0, 0); g.restore(); });
         const coast = document.createElement('canvas'); coast.width = CW; coast.height = CH; const c = coast.getContext('2d');
         c.fillStyle = '#000'; c.fillRect(0, 0, CW, CH); c.filter = 'blur(5px)'; c.strokeStyle = '#fff'; c.lineWidth = 11; landPath(c); c.stroke();
         isl.forEach(([x, y, rx, ry]) => { c.beginPath(); c.ellipse(x, y, rx + 2, ry + 2, 0, 0, 7); c.stroke(); });
@@ -53,8 +53,8 @@
                 vec3 v=normalize(cameraPosition-vW); vec3 r=reflect(-uSun,n); float sp=pow(max(dot(r,v),0.),90.)*1.4;
                 float fr=pow(1.-max(dot(n,v),0.),3.)*.35; float dif=.82+.18*dot(n,uSun);
                 float foam=cst*smoothstep(.55,1.,sin(cst*22.-uT*2.4)*.5+.5)*.75+smoothstep(.75,1.,cst)*.35;
-                vec3 col=base*dif+vec3(.75,.9,1.)*fr+vec3(1.,.97,.85)*sp; col=mix(col,vec3(.97,1.,1.),clamp(foam,0.,1.));
-                gl_FragColor=vec4(col,.9); }`
+                vec3 col=base*dif+vec3(.55,.6,.55)*fr*.6+vec3(1.,.86,.62)*sp*.55; col=mix(col,vec3(.82,.78,.66),clamp(foam*.7,0.,1.));
+                gl_FragColor=vec4(col,.94); }`
         });
         const geo = new THREE.PlaneGeometry(R.W, R.D, 1, 1); geo.rotateX(-Math.PI / 2);
         const mesh = new THREE.Mesh(geo, mat); mesh.position.set(R.cx, .1, R.cz); mesh.renderOrder = 1; scene.add(mesh);
@@ -198,9 +198,9 @@
         loops.forEach(([kind, lo, la, R, Rz], i) => { const q = geoToBoardXZ(lo, la), RR = R * GEO_K, RZ = Rz * GEO_K; if (!loopOk(q.x, q.z, RR, RZ)) return; sailLoop(mkShip(kind), q.x, q.z, RR, RZ, (.04 + (i % 4) * .012) * (i % 2 ? 1 : -1) * (kind === 'cargo' || kind === 'cruise' ? .7 : 1), i * 1.9); });
         // Phà ra đảo
         BOARD_TILES.filter(t => t.island).forEach((t, i) => {
-            const a = geoToBoardXZ(t.lon, t.lat), dir = t.index === 24 ? 1 : -1; let b = null;
-            for (let d = 2.4; d < 9; d += .3) { const q = { x: a.x + dir * d, z: a.z + (t.index === 3 ? -.4 : .2) }; if (isPointInPolygon(...toGeo(q.x, q.z), VIETNAM_BORDER_LONLAT)) { b = { x: q.x - dir * 1.2, z: q.z }; break; } }
-            if (!b) return; const s = { x: a.x + dir * 2.1, z: a.z + (t.index === 3 ? -.4 : .2) }; if (Math.abs(b.x - s.x) < .8) return;
+            const a = geoToBoardXZ(t.lon, t.lat), dir = t.modelType === 'PHU_QUOC2' ? 1 : -1; let b = null;
+            for (let d = 2.4; d < 9; d += .3) { const q = { x: a.x + dir * d, z: a.z + (t.modelType === 'HA_LONG_PORT' ? -.4 : .2) }; if (isPointInPolygon(...toGeo(q.x, q.z), VIETNAM_BORDER_LONLAT)) { b = { x: q.x - dir * 1.2, z: q.z }; break; } }
+            if (!b) return; const s = { x: a.x + dir * 2.1, z: a.z + (t.modelType === 'HA_LONG_PORT' ? -.4 : .2) }; if (Math.abs(b.x - s.x) < .8) return;
             ferry(mkShip(i % 2 ? 'trawler' : 'sail'), s, b, .18, i);
         });
         try { buildMarineLife(); } catch (e) { console.warn('marine', e); }

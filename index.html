@@ -254,7 +254,7 @@
                         <div class="flex items-center gap-1.5">
                             <h1 class="font-serif-vn font-extrabold text-xs md:text-sm text-amber-300 tracking-wider">DU KÝ LÀNG NGHỀ 3D</h1>
                             <button onclick="openDirectoryModal()" class="text-[10px] bg-emerald-700 hover:bg-emerald-600 text-emerald-100 border border-emerald-400/50 px-2 py-0.5 rounded-full font-bold transition flex items-center gap-1 shadow" title="Mở danh sách 36 Địa Danh để phóng Camera đến xem ngay">
-                                <i class="fa-solid fa-compass"></i> 47 Địa Danh
+                                <i class="fa-solid fa-compass"></i> 46 Địa Danh
                             </button>
                         </div>
                     </div>
@@ -1918,7 +1918,7 @@
                   vec3 c=mix(vec3(.12,.55,.62),vec3(.35,.78,.82),flow*.35+f2*.2); c=mix(c,vec3(.85,.97,1.),smoothstep(.72,1.,e)*.7);
                   gl_FragColor=vec4(c,(1.-smoothstep(.85,1.,e))*.9); }`
             });
-            RIVERS.forEach(pts => {
+            (window.__RIVERS || RIVERS).forEach(pts => {
                 const cv = new THREE.CatmullRomCurve3(pts.map(p => { const q = geoToBoardXZ(p[0], p[1]); return new THREE.Vector3(q.x, 0, q.z); }));
                 const N = 90, pos = [], uv = [], idx = [];
                 for (let i = 0; i <= N; i++) {
@@ -1934,22 +1934,22 @@
             // 2. Rừng cây InstancedMesh theo vùng sinh thái
             const tiles = BOARD_TILES.map(t => geoToBoardXZ(t.lon, t.lat));
             const kinds = [
-                { geo: new THREE.ConeGeometry(.05, .17, 6), pts: [], col: [0x2fa04a, 0x45b85a] },   // thông / rừng thường
-                { geo: new THREE.IcosahedronGeometry(.055, 0), pts: [], col: [0x5cc24a, 0x7ad85a, 0x3fae45] }, // rừng nhiệt đới
-                { geo: new THREE.CylinderGeometry(.008, .014, .2, 5), pts: [], col: [0x6b4f2a] },    // thân dừa
-                { geo: new THREE.ConeGeometry(.04, .09, 5), pts: [], col: [0x2f9f5a, 0x3fb36a] }     // đước, mắm
+                { geo: new THREE.ConeGeometry(.05, .17, 6), pts: [], col: [0x3f5a30, 0x4f6b3a] },   // thông / rừng thường
+                { geo: new THREE.IcosahedronGeometry(.055, 0), pts: [], col: [0x5e7a45, 0x6b7f48, 0x4f6b3a] }, // rừng nhiệt đới
+                { geo: new THREE.CylinderGeometry(.008, .014, .2, 5), pts: [], col: [0x5a3e2b] },    // thân dừa
+                { geo: new THREE.ConeGeometry(.04, .09, 5), pts: [], col: [0x46603a, 0x55703f] }     // đước, mắm
             ];
             let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
             for (let n = 0; n < 60000 && kinds[0].pts.length + kinds[1].pts.length + kinds[2].pts.length + kinds[3].pts.length < 1500; n++) {
                 const lon = 102.2 + rnd() * 7.3, lat = 8.5 + rnd() * 14.9;
                 if (!isPointInPolygon(lon, lat, VIETNAM_BORDER_LONLAT)) continue;
                 const q = geoToBoardXZ(lon, lat); if (tiles.some(t => Math.hypot(t.x - q.x, t.z - q.z) < 1.6)) continue;
-                const h = sampleVietnamElevation(lon, lat), delta = lat < 10.9 && lon > 104.7;
+                const h = (window.__elevShape || sampleVietnamElevation)(lon, lat), delta = lat < 10.9 && lon > 104.7;
                 let k;
                 if (delta) { if (lat < 9.6 && rnd() < .8) k = 3; else if (rnd() < .22) k = 2; else continue; }
                 else if (lon > 107.6 && lat > 11.3 && lat < 12.6 && h > .5) k = 0;
                 else if (h > .12 && rnd() < (h > 1.1 ? .35 : .75)) k = h > .85 ? 0 : 1; else continue;
-                kinds[k].pts.push([q.x, .36 + h * .92, q.z, k === 2 ? 1 : 0]);
+                kinds[k].pts.push([q.x, landY(lon, lat), q.z, k === 2 ? 1 : 0]);
             }
             const dm = new THREE.Object3D(), col = new THREE.Color();
             kinds.forEach((K, ki) => {
@@ -1961,7 +1961,7 @@
                     im.setMatrixAt(i, dm.matrix); im.setColorAt(i, col.setHex(K.col[(rnd() * K.col.length) | 0]).multiplyScalar(.85 + rnd() * .3));
                 });
                 im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true; scene.add(im);
-                if (ki === 2) { const crown = new THREE.InstancedMesh(new THREE.SphereGeometry(.05, 7, 5), new THREE.MeshStandardMaterial({ color: 0x2f8f3a, roughness: .8 }), K.pts.length); K.pts.forEach((p, i) => { dm.position.set(p[0], p[1] + .22, p[2]); dm.rotation.set(0, 0, 0); dm.scale.set(1.2, .35, 1.2); dm.updateMatrix(); crown.setMatrixAt(i, dm.matrix); }); scene.add(crown); }
+                if (ki === 2) { const crown = new THREE.InstancedMesh(new THREE.SphereGeometry(.05, 7, 5), new THREE.MeshStandardMaterial({ color: 0x4f6b3a, roughness: .8 }), K.pts.length); K.pts.forEach((p, i) => { dm.position.set(p[0], p[1] + .22, p[2]); dm.rotation.set(0, 0, 0); dm.scale.set(1.2, .35, 1.2); dm.updateMatrix(); crown.setMatrixAt(i, dm.matrix); }); scene.add(crown); }
             });
             // 3. Nhãn thành phố: hiện khi zoom xa, ẩn khi zoom gần
             const labels = [['Hà Nội', 105.85, 21.03], ['Sa Pa', 103.84, 22.34], ['Huế', 107.59, 16.46], ['Đà Nẵng', 108.2, 16.05], ['Nha Trang', 109.19, 12.24], ['Đà Lạt', 108.44, 11.94], ['TP. Hồ Chí Minh', 106.7, 10.78], ['Cần Thơ', 105.78, 10.04]].map(a => {
@@ -2517,7 +2517,7 @@
             };
 
             // Sông Hồng & Sông Đà
-            ctx.globalAlpha = .9; drawGeoRiver([[103.8, 22.6], [104.8, 21.7], [105.4, 21.3], [105.85, 21.05], [106.1, 20.6], [106.55, 20.25]], 6);
+            drawGeoRiver([[103.8, 22.6], [104.8, 21.7], [105.4, 21.3], [105.85, 21.05], [106.1, 20.6], [106.55, 20.25]], 6);
             drawGeoRiver([[103.1, 22.1], [103.9, 21.3], [104.7, 20.8], [105.3, 21.25]], 5);
             // Sông Tiền & Sông Hậu (Mekong Delta)
             drawGeoRiver([[105.1, 10.85], [105.6, 10.45], [106.15, 10.28], [106.7, 10.05]], 7);
@@ -2550,7 +2550,7 @@
             baseGeo.rotateX(-Math.PI / 2);
 
             const baseMat = new THREE.MeshStandardMaterial({
-                color: 0x4fae7c,
+                color: 0x7c6a4a,
                 roughness: 0.55,
                 metalness: 0.08
             });
@@ -2669,7 +2669,7 @@
             forestSpots.filter((s, i) => i % 2 === 0 && !BOARD_TILES.some(t => Math.hypot(geoToBoardXZ(s[0], s[1]).x - t.mapX, geoToBoardXZ(s[0], s[1]).z - t.mapZ) < 2.4)).forEach(([lon, lat, type, sc]) => {
                 const { x, z } = geoToBoardXZ(lon, lat);
                 const h = sampleVietnamElevation(lon, lat);
-                const tree = create3DTreeCluster(x, 0.36 + h * 0.9, z, type, sc);
+                const tree = create3DTreeCluster(x, landY(lon, lat), z, type, sc);
                 scene.add(tree);
             });
 
@@ -2692,7 +2692,7 @@
                 );
                 mossTop.position.y = kh * 0.78;
                 kGroup.add(rock, mossTop);
-                kGroup.position.set(x, 0.12, z);
+                kGroup.position.set(x, landY(lon, lat) - .02, z);
                 scene.add(kGroup);
             });
         }
@@ -4473,7 +4473,7 @@
                 tileGroup.position.set(tile.mapX, tile.elevation, tile.mapZ);
 
                 // 1. Octagonal / Circular Carved Wooden & Kraft Platform Base
-                const baseRadius = tile.type === 'START' || tile.type === 'SHOP' ? 1.28 : 1.15;
+                const baseRadius = TILE_R;
                 const baseGeo = new THREE.CylinderGeometry(baseRadius, baseRadius * 1.08, 0.28, 28);
 
                 const canvas = document.createElement('canvas');
@@ -5178,7 +5178,7 @@ function createVietnameseCostumePawn3D(player) {
                 <div class="text-left">
                     <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3">
                         <div>
-                            <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Danh Mục 47 Địa Danh Làng Nghề Việt Nam</h2>
+                            <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Danh Mục 46 Địa Danh Làng Nghề Việt Nam</h2>
                             <p class="text-[11px] text-amber-900/80">Bấm vào bất kỳ địa danh nào để phóng Camera 3D đến chiêm ngưỡng mô hình kiến trúc tại chỗ!</p>
                         </div>
                         <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button>
@@ -6539,8 +6539,8 @@ function createVietnameseCostumePawn3D(player) {
                         </div>
 
                         <div class="p-3 rounded-2xl bg-emerald-900/10 border border-emerald-800/30">
-                            <div class="font-extrabold text-sm text-emerald-900 mb-1">🗺️ 2. Hành Trình Vòng Tròn Khép Kín 47 Địa Danh</div>
-                            <p>Mỗi người khởi nghiệp với <b>300 đồng</b>. Quân cờ đi theo vòng tròn khép kín qua <b>47 địa danh đặt đúng vị trí địa lý</b>: từ <b>Lăng Bác - Hà Nội (#0)</b> xuôi Duyên hải Bắc Bộ, miền Trung (ra đảo Lý Sơn #11) xuống Nam Bộ, vượt biển sang <b>Phú Quốc (#24)</b> → ngược lên Miền Tây, Đông Nam Bộ, Tây Nguyên (#25–#35) → Thành Cổ Quảng Trị, Nghệ An, Tây Bắc, Đông Bắc (#36–#46) rồi khép vòng về Hà Nội. Có 6 ô Biến Động / Bản Lĩnh và 4 Trạm Công Cụ (Vân Đồn, Tiên Sa, Cái Răng, Chợ phiên Tây Bắc).</p>
+                            <div class="font-extrabold text-sm text-emerald-900 mb-1">🗺️ 2. Hành Trình Vòng Tròn Khép Kín 46 Địa Danh</div>
+                            <p>Mỗi người khởi nghiệp với <b>300 đồng</b>. Quân cờ đi theo vòng tròn khép kín qua <b>46 địa danh đặt đúng vị trí địa lý</b>: từ <b>Lăng Bác - Hà Nội (#0)</b> xuôi Duyên hải Bắc Bộ, miền Trung (ra đảo Lý Sơn #11) xuống Nam Bộ, vượt biển sang <b>Phú Quốc (#23)</b> → ngược lên Miền Tây, Đông Nam Bộ, Tây Nguyên (#24–#34) → Thành Cổ Quảng Trị, Nghệ An, Tây Bắc, Đông Bắc (#35–#45) rồi khép vòng về Hà Nội. Có 6 ô Biến Động / Bản Lĩnh và 4 Trạm Công Cụ (Vân Đồn, Tiên Sa, Cái Răng, Chợ phiên Tây Bắc).</p>
                         </div>
 
                         <div class="p-3 rounded-2xl bg-teal-900/10 border border-teal-800/30">
@@ -8053,7 +8053,7 @@ function createVietnameseCostumePawn3D(player) {
     }
     // 🚂 Chuyến tàu di sản: đoàn tàu chạy dọc tuyến hành trình từ Hà Nội vào Nam
     function fxTrain() {
-        const pts = BOARD_TILES.slice(0, 25).map(t => new THREE.Vector3(t.mapX, t.elevation + .35, t.mapZ));
+        const pts = BOARD_TILES.slice(0, 24).map(t => new THREE.Vector3(t.mapX, t.elevation + .35, t.mapZ));
         const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
         const mk = (hex, loco) => { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(.32, .2, .6), S(hex, .5)); b.position.y = .12; g.add(b); const r = new THREE.Mesh(new THREE.BoxGeometry(.34, .04, .62), S(0x2a2a2a, .6)); r.position.y = .24; g.add(r); if (loco) { const c = new THREE.Mesh(new THREE.CylinderGeometry(.03, .04, .14, 8), S(0x222222)); c.position.set(0, .3, .18); g.add(c); } [-1, 1].forEach(a => [-.18, .18].forEach(z => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .03, 10), S(0x333333)); w.rotation.z = Math.PI / 2; w.position.set(a * .16, .04, z); g.add(w); })); g.scale.setScalar(1.3); return g; };
         const cars = [mk(0xb3261e, true), mk(0x2e7d5b), mk(0xe8c04a), mk(0x2e7d5b)];
@@ -8490,7 +8490,7 @@ function createVietnameseCostumePawn3D(player) {
     </script>
 
     <script>
-    /* ===== K. 47 ĐỊA DANH · BẢN ĐỒ MỞ RỘNG · BIỂN & HOÀNG SA – TRƯỜNG SA ===== */
+    /* ===== K. 46 ĐỊA DANH · BẢN ĐỒ MỞ RỘNG · BIỂN & HOÀNG SA – TRƯỜNG SA ===== */
     (function () {
     /* =================================================================================
      * K. BẢN ĐỒ 47 ĐỊA DANH (theo 47 sa bàn mẫu của nhóm, đúng thứ tự & vị trí địa lý thật)
@@ -8506,86 +8506,109 @@ function createVietnameseCostumePawn3D(player) {
     TOOL_CATEGORIES.CERAMIC_ART.name = 'Bàn xoay, Đục chạm & Lò rèn';
     TOOL_CATEGORIES.CERAMIC_ART.shortName = 'Công cụ Gốm, Mộc & Rèn';
     TOOL_CATEGORIES.CERAMIC_ART.desc = 'Miễn phí dịch vụ tại Bát Tràng, Đông Hồ, Hương Thủy Xuân, Gốm Thanh Hà, Gốm Chăm Bàu Trúc, Trống Bình An, Đá Bửu Long, Tượng gỗ Jrai, Rèn Phúc Sen.';
-    TOOL_CATEGORIES.WEAVING_CRAFT.desc = 'Miễn phí dịch vụ tại Thêu ren Văn Lâm, Chiếu cói Nga Sơn, Nón lá Ba Đồn, Lồng đèn Phú Bình, Lụa Tân Châu, Thổ cẩm Kon Tum, Khăn Piêu Sơn La, Dệt lanh Lùng Tám.';
+    TOOL_CATEGORIES.WEAVING_CRAFT.desc = 'Miễn phí dịch vụ tại Thêu ren Văn Lâm, Chiếu cói Nga Sơn, Nón lá Ba Đồn, Lụa Tân Châu, Thổ cẩm Kon Tum, Khăn Piêu Sơn La, Dệt lanh Lùng Tám.';
     TOOL_CATEGORIES.HIGHLAND_AGRI.name = 'Giàn phơi, Nhà lưới & Chảo sao';
     TOOL_CATEGORIES.HIGHLAND_AGRI.shortName = 'Nông cụ & Bếp nghề';
     TOOL_CATEGORIES.HIGHLAND_AGRI.desc = 'Miễn phí dịch vụ tại Bánh tráng An Ngãi, Kẹo dừa Bến Tre, Bánh tét Trà Cuôn, Bánh pía Vũ Thơm, Hoa Sa Đéc, Bánh tráng Trảng Bàng, Nhà kính Đà Lạt, Cà phê Buôn Ma Thuột, Tương Nam Đàn, Rượu cần Mường Vang, Miến dong Bình Lư, Mỳ Chũ, Chè Tân Cương.';
     TOOL_CATEGORIES.COASTAL_AQUA.desc = 'Miễn phí dịch vụ tại Tỏi Lý Sơn, Yến sào Nha Trang, Nước mắm Phan Thiết, Muối Bạc Liêu, Tôm Cà Mau, Ngọc trai Phú Quốc.';
 
-    const TOOL_HEX = { CERAMIC_ART: '#c2410c', WEAVING_CRAFT: '#0f766e', HIGHLAND_AGRI: '#15803d', COASTAL_AQUA: '#0369a1' };
+    // Bảng màu di sản: đỏ son (gốm, mộc, rèn) · nâu gỗ (dệt, đan) · xanh rêu (nông nghiệp) · xanh teal trầm (biển)
+    const TOOL_HEX = { CERAMIC_ART: '#a93a2c', WEAVING_CRAFT: '#8b5e3c', HIGHLAND_AGRI: '#4f6b3a', COASTAL_AQUA: '#2f5d62' };
+    // Mặt đất phẳng thống nhất: mọi ô, cây, đá đều đặt ở cùng một cao độ mặt đất
+    const LAND_H = 0.2, LAND_Y = 0.36 + LAND_H * 0.92;
     const P47 = (name, region, lon, lat, modelType, toolId, price, toolSpec, icon, situation, extra) => Object.assign({ type: 'PROPERTY', name, region, lon, lat, modelType, toolId, price, rent: Math.round(price / 2 / 5) * 5, toolSpec, icon, color: TOOL_HEX[toolId], situation }, extra || {});
     const X47 = (type, name, region, lon, lat, modelType, subtitle, color, icon, desc, extra) => Object.assign({ type, name, region, lon, lat, modelType, subtitle, color, icon, desc }, extra || {});
     const TILES47 = [
-        X47('START', 'Lăng Chủ tịch Hồ Chí Minh', 'Ba Đình - Hà Nội', 105.835, 21.037, 'KHUE_VAN_CAC', 'Bến Khởi Hành (+300đ)', '#b91c1c', '🇻🇳', 'Bến Khởi Hành tại Lăng Chủ tịch Hồ Chí Minh - Quảng trường Ba Đình. Mỗi khi đi qua hoặc dừng lại, nhận ngay 300 đồng Tiền Lương.'),
+        X47('START', 'Lăng Chủ tịch Hồ Chí Minh', 'Ba Đình - Hà Nội', 105.835, 21.037, 'KHUE_VAN_CAC', 'Bến Khởi Hành (+300đ)', '#a93a2c', '🇻🇳', 'Bến Khởi Hành tại Lăng Chủ tịch Hồ Chí Minh - Quảng trường Ba Đình. Mỗi khi đi qua hoặc dừng lại, nhận ngay 300 đồng Tiền Lương.'),
         P47('Làng Gốm Bát Tràng', 'Gia Lâm - Hà Nội', 105.913, 20.976, 'BAT_TRANG_KILN', 'CERAMIC_ART', 100, 'Đất sét trắng & Bàn xoay', '🏺', 'Khách vãng lai phải tự tay chuốt khối đất sét trên bàn xoay và tráng men lam nung trong lò bầu cổ.'),
         P47('Làng Tranh Đông Hồ', 'Thuận Thành - Bắc Ninh', 106.08, 21.06, 'DONG_HO_ART', 'CERAMIC_ART', 105, 'Ván khắc gỗ & Giấy điệp', '🖼️', 'Khách vãng lai phải phết điệp lên giấy dó và in 5 bản khắc màu bức tranh "Vinh Hoa - Phú Quý".'),
-        X47('SHOP', 'Thương Cảng Vân Đồn', 'Vân Đồn - Quảng Ninh', 108.05, 20.82, 'HA_LONG_PORT', 'Trạm Công Cụ Đông Bắc', '#0d9488', '⛵', 'Thương cảng cổ Vân Đồn giữa vịnh Bái Tử Long! Ghé mua Thẻ Công Cụ chuẩn bị cho hành trình xuôi Nam.', { island: true }),
+        X47('SHOP', 'Thương Cảng Vân Đồn', 'Vân Đồn - Quảng Ninh', 108.05, 20.82, 'HA_LONG_PORT', 'Trạm Công Cụ Đông Bắc', '#c79a3b', '⛵', 'Thương cảng cổ Vân Đồn giữa vịnh Bái Tử Long! Ghé mua Thẻ Công Cụ chuẩn bị cho hành trình xuôi Nam.', { island: true }),
         P47('Làng Thêu Ren Văn Lâm', 'Hoa Lư - Ninh Bình', 105.93, 20.22, 'NINH_BINH_HOA_LU', 'WEAVING_CRAFT', 110, 'Khung thêu & Chỉ tơ', '🪡', 'Khách vãng lai phải thêu một bức ren hoa sen tinh xảo giữa non nước Tràng An.'),
         P47('Làng Chiếu Cói Nga Sơn', 'Nga Sơn - Thanh Hóa', 106.0, 19.98, 'NGA_SON_MAT', 'WEAVING_CRAFT', 115, 'Khung dệt & Cói nhuộm', '🎋', 'Khách vãng lai phải chẻ cói, nhuộm màu điều đỏ thắm và dập khung dệt đôi chiếu hoa.'),
-        X47('BIEN_DONG', 'Biến Động Lam Giang', 'Cửa Hội - Nghệ An', 105.72, 18.78, 'LAM_GIANG', 'Bốc Thẻ Biến Động (!)', '#991b1b', '❗', 'Cửa sông Lam lộng gió! Bốc 1 Thẻ Biến Động và thực thi ngay lập tức.'),
+        X47('BIEN_DONG', 'Biến Động Lam Giang', 'Cửa Hội - Nghệ An', 105.72, 18.78, 'LAM_GIANG', 'Bốc Thẻ Biến Động (!)', '#7f2a1f', '❗', 'Cửa sông Lam lộng gió! Bốc 1 Thẻ Biến Động và thực thi ngay lập tức.'),
         P47('Làng Nón Lá Ba Đồn', 'Ba Đồn - Quảng Bình', 106.42, 17.75, 'NON_CHUONG', 'WEAVING_CRAFT', 125, 'Khuôn nón & Lá nón rừng', '👒', 'Khách vãng lai phải sấy lá nón trắng muốt và chằm chiếc nón bên dòng sông Gianh.'),
         P47('Làng Hương Thủy Xuân', 'Cố đô Huế', 107.57, 16.44, 'THUY_XUAN_INCENSE', 'CERAMIC_ART', 130, 'Bột trầm quế & Tâm tre', '💐', 'Khách vãng lai phải se hương trầm ngũ sắc và xếp thành những đóa hoa hương rực rỡ dưới nắng Huế.'),
-        X47('SHOP', 'Thương Cảng Tiên Sa', 'Sơn Trà - Đà Nẵng', 108.21, 16.10, 'FAIFO_PORT', 'Trạm Công Cụ Miền Trung', '#0d9488', '🛠️', 'Thương cảng sầm uất bên bán đảo Sơn Trà! Nơi thương thuyền tấp nập tiếp tế Thẻ Công Cụ.'),
+        X47('SHOP', 'Thương Cảng Tiên Sa', 'Sơn Trà - Đà Nẵng', 108.21, 16.10, 'FAIFO_PORT', 'Trạm Công Cụ Miền Trung', '#c79a3b', '🛠️', 'Thương cảng sầm uất bên bán đảo Sơn Trà! Nơi thương thuyền tấp nập tiếp tế Thẻ Công Cụ.'),
         P47('Làng Gốm Thanh Hà', 'Hội An - Quảng Nam', 108.32, 15.86, 'HOI_AN_ANCIENT', 'CERAMIC_ART', 140, 'Đất sét Thu Bồn & Bàn xoay', '🏮', 'Khách vãng lai phải chuốt gốm đất nung đỏ au bên dòng Thu Bồn, cạnh phố cổ Hội An.'),
         P47('Tỏi Lý Sơn', 'Đảo Lý Sơn - Quảng Ngãi', 109.62, 15.36, 'LY_SON_ISLAND', 'COASTAL_AQUA', 150, 'Cát san hô & Thuyền câu', '🧄', 'Khách vãng lai phải phủ cát san hô trồng tỏi cô đơn trên đảo núi lửa và đóng thuyền khao lề thế lính Hoàng Sa.', { island: true }),
-        X47('BAN_LINH', 'Bản Lĩnh Đất Võ Bình Định', 'Tây Sơn - Bình Định', 109.05, 13.88, 'BINH_DINH', 'Bốc Thẻ Bản Lĩnh (?)', '#d97706', '❓', 'Miền đất võ Tây Sơn! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
+        X47('BAN_LINH', 'Bản Lĩnh Đất Võ Bình Định', 'Tây Sơn - Bình Định', 109.05, 13.88, 'BINH_DINH', 'Bốc Thẻ Bản Lĩnh (?)', '#b07a2a', '❓', 'Miền đất võ Tây Sơn! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
         P47('Yến Sào Nha Trang', 'Nha Trang - Khánh Hòa', 109.18, 12.25, 'NHA_TRANG_AGARWOOD', 'COASTAL_AQUA', 160, 'Thang dây & Giỏ yến', '🪺', 'Khách vãng lai phải leo vách đá Hòn Nội khai thác tổ yến và làm sạch từng sợi yến trắng ngà.'),
         P47('Gốm Chăm Bàu Trúc', 'Phan Rang - Ninh Thuận', 108.93, 11.55, 'BAU_TRUC_CHAM', 'CERAMIC_ART', 165, 'Đất sét sông Quao & Rơm nung', '🏛️', 'Khách vãng lai phải đi vòng quanh bàn gốm không dùng bàn xoay và nung lộ thiên bằng rơm củi.'),
         P47('Nước Mắm Phan Thiết', 'Mũi Né - Bình Thuận', 108.10, 10.95, 'PHAN_THIET_SAUCE', 'COASTAL_AQUA', 170, 'Thùng gỗ ủ chượp & Muối hột', '🫙', 'Khách vãng lai phải ủ cá cơm với muối trong thùng gỗ suốt mùa nắng để rút giọt mắm nhĩ.'),
         P47('Bánh Tráng An Ngãi', 'Long Điền - Bà Rịa Vũng Tàu', 107.24, 10.47, 'AN_NGAI', 'HIGHLAND_AGRI', 170, 'Nồi tráng & Vỉ tre phơi', '🫓', 'Khách vãng lai phải tráng bánh trên bếp củi và xếp kín vỉ tre phơi nắng giữa sân làng.'),
-        P47('Làng Lồng Đèn Phú Bình', 'Quận 11 - TP. Hồ Chí Minh', 106.645, 10.765, 'PHU_BINH_LANTERN', 'WEAVING_CRAFT', 175, 'Nan tre & Giấy kiếng', '🏮', 'Khách vãng lai phải chẻ nan tre, uốn khung ông sao và dán giấy kiếng thành chiếc lồng đèn Trung Thu.'),
-        X47('BIEN_DONG', 'Biến Động Cồn Thới Sơn', 'Cồn Thới Sơn - Tiền Giang', 106.36, 10.34, 'THOI_SON', 'Bốc Thẻ Biến Động (!)', '#991b1b', '❗', 'Cồn xanh giữa sông Tiền, đờn ca tài tử vang vọng! Bốc 1 Thẻ Biến Động và thực thi ngay.'),
+        X47('BIEN_DONG', 'Biến Động Cồn Thới Sơn', 'Cồn Thới Sơn - Tiền Giang', 106.36, 10.34, 'THOI_SON', 'Bốc Thẻ Biến Động (!)', '#7f2a1f', '❗', 'Cồn xanh giữa sông Tiền, đờn ca tài tử vang vọng! Bốc 1 Thẻ Biến Động và thực thi ngay.'),
         P47('Làng Kẹo Dừa Bến Tre', 'Châu Thành - Bến Tre', 106.37, 10.20, 'BEN_TRE_COCONUT', 'HIGHLAND_AGRI', 180, 'Chảo sên & Khuôn cắt kẹo', '🥥', 'Khách vãng lai phải nạo dừa, sên mạch nha trên chảo gang và cắt gói từng viên kẹo dừa.'),
         P47('Bánh Tét Trà Cuôn', 'Cầu Ngang - Trà Vinh', 106.45, 9.80, 'TRA_CUON', 'HIGHLAND_AGRI', 180, 'Lá chuối & Nồi luộc lớn', '🍃', 'Khách vãng lai phải gói đòn bánh tét lá cẩm, nhân đậu thịt và canh nồi luộc suốt đêm.'),
         P47('Bánh Pía Vũ Thơm', 'Vĩnh Châu - Sóc Trăng', 105.97, 9.60, 'VU_THOM', 'HIGHLAND_AGRI', 185, 'Lò than & Khuôn ép', '🥮', 'Khách vãng lai phải cán vỏ bánh ngàn lớp, gói nhân sầu riêng trứng muối và nướng trong lò than.'),
         P47('Cánh Đồng Muối Bạc Liêu', 'Đông Hải - Bạc Liêu', 105.72, 9.28, 'BAC_LIEU_SALT2', 'COASTAL_AQUA', 190, 'Trang cào & Gánh muối', '🧂', 'Khách vãng lai phải dẫn nước biển vào ô kết tinh và cào những đụn muối trắng lấp lánh.'),
         P47('Ao Tôm Cà Mau', 'Đất Mũi - Cà Mau', 104.85, 8.75, 'CA_MAU2', 'COASTAL_AQUA', 195, 'Quạt nước oxy & Lưới đăng', '🦐', 'Khách vãng lai phải vận hành dàn quạt nước nuôi tôm sú dưới tán rừng đước Đất Mũi.'),
         P47('Ngọc Trai Phú Quốc', 'Đảo Phú Quốc - Kiên Giang', 103.72, 10.12, 'PHU_QUOC2', 'COASTAL_AQUA', 220, 'Bè nuôi & Dao cấy ngọc', '🦪', 'Khách vãng lai phải lặn kiểm tra bè nuôi và cấy nhân ngọc vào trai biển giữa làn nước trong xanh.', { island: true }),
-        X47('SHOP', 'Chợ Nổi Cái Răng', 'Cái Răng - Cần Thơ', 105.77, 10.02, 'CAI_RANG2', 'Trạm Công Cụ Miền Tây', '#0d9488', '🛶', 'Ghe xuồng treo "cây bẹo" tấp nập trên sông Hậu! Ghé mua Thẻ Công Cụ cho hành trình ngược lên Bắc.'),
+        X47('SHOP', 'Chợ Nổi Cái Răng', 'Cái Răng - Cần Thơ', 105.77, 10.02, 'CAI_RANG2', 'Trạm Công Cụ Miền Tây', '#c79a3b', '🛶', 'Ghe xuồng treo "cây bẹo" tấp nập trên sông Hậu! Ghé mua Thẻ Công Cụ cho hành trình ngược lên Bắc.'),
         P47('Làng Lụa Tân Châu', 'Tân Châu - An Giang', 105.24, 10.80, 'TAN_CHAU2', 'WEAVING_CRAFT', 190, 'Trái mặc nưa & Khung dệt lụa', '🧣', 'Khách vãng lai phải nhuộm lụa Lãnh Mỹ A bằng trái mặc nưa và phơi trên bãi cỏ ven sông Tiền.'),
         P47('Làng Hoa Sa Đéc', 'Sa Đéc - Đồng Tháp', 105.76, 10.30, 'SA_DEC2', 'HIGHLAND_AGRI', 195, 'Giàn tre trên nước & Chậu hoa', '🌼', 'Khách vãng lai phải chèo xuồng chăm những giàn cúc mâm xôi đặt trên mặt nước.'),
         P47('Làng Trống Bình An', 'Thủ Thừa - Long An', 106.38, 10.62, 'BINH_AN', 'CERAMIC_ART', 185, 'Gỗ mít & Da trâu', '🥁', 'Khách vãng lai phải ghép thân trống gỗ mít, căng mặt da trâu và thử tiếng trống vang.'),
         P47('Bánh Tráng Phơi Sương Trảng Bàng', 'Trảng Bàng - Tây Ninh', 106.36, 11.03, 'TRANG_BANG2', 'HIGHLAND_AGRI', 180, 'Bếp tráng & Vỉ phơi sương', '🫓', 'Khách vãng lai phải tráng bánh hai lớp, nướng phồng và thức đêm đón sương làm dẻo bánh.'),
         P47('Điêu Khắc Đá Bửu Long', 'Biên Hòa - Đồng Nai', 106.80, 10.96, 'BUU_LONG', 'CERAMIC_ART', 200, 'Đục thép & Đá xanh', '🗿', 'Khách vãng lai phải đục đẽo khối đá xanh thành tượng sư tử dưới chân núi Bửu Long.'),
-        X47('BAN_LINH', 'Bản Lĩnh Nam Tây Nguyên', 'Thác Liêng Nung - Đắk Nông', 107.69, 12.00, 'LIENG_NUNG', 'Bốc Thẻ Bản Lĩnh (?)', '#d97706', '❓', 'Chinh phục thác Liêng Nung giữa đại ngàn! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
+        X47('BAN_LINH', 'Bản Lĩnh Nam Tây Nguyên', 'Thác Liêng Nung - Đắk Nông', 107.69, 12.00, 'LIENG_NUNG', 'Bốc Thẻ Bản Lĩnh (?)', '#b07a2a', '❓', 'Chinh phục thác Liêng Nung giữa đại ngàn! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
         P47('Nhà Kính Đà Lạt', 'Đà Lạt - Lâm Đồng', 108.44, 11.94, 'DA_LAT2', 'HIGHLAND_AGRI', 210, 'Nhà lồng kính & Tưới nhỏ giọt', '🍓', 'Khách vãng lai phải vận hành nhà kính công nghệ cao chăm dâu tây và hoa cẩm tú cầu.'),
         P47('Cà Phê Buôn Ma Thuột', 'Buôn Ma Thuột - Đắk Lắk', 108.04, 12.67, 'BMT2', 'HIGHLAND_AGRI', 205, 'Sân phơi & Chảo rang củi', '☕', 'Khách vãng lai phải hái cà phê chín đỏ, phơi trên sân đất đỏ bazan và rang mẻ cà phê thơm lừng.'),
         P47('Tượng Gỗ Jrai', 'Ia Nueng - Gia Lai', 107.98, 13.98, 'JRAI', 'CERAMIC_ART', 195, 'Rìu đẽo & Gỗ rừng', '🪵', 'Khách vãng lai phải đẽo tượng nhà mồ Jrai từ thân gỗ nguyên khối bên mái nhà rông.'),
         P47('Thổ Cẩm Kon Tum', 'Kon Tum - Tây Nguyên', 108.0, 14.35, 'KON_TUM2', 'WEAVING_CRAFT', 190, 'Khung dệt lưng & Sợi bông', '🧶', 'Khách vãng lai phải ngồi dệt khung lưng hoa văn Ba Na dưới mái nhà rông cao vút.'),
-        X47('BIEN_DONG', 'Biến Động Thành Cổ Quảng Trị', 'Thành Cổ - Quảng Trị', 107.19, 16.75, 'THANH_CO', 'Bốc Thẻ Biến Động (!)', '#991b1b', '❗', 'Di tích quốc gia đặc biệt - khát vọng hòa bình! Bốc 1 Thẻ Biến Động và thực thi ngay.'),
+        X47('BIEN_DONG', 'Biến Động Thành Cổ Quảng Trị', 'Thành Cổ - Quảng Trị', 107.19, 16.75, 'THANH_CO', 'Bốc Thẻ Biến Động (!)', '#7f2a1f', '❗', 'Di tích quốc gia đặc biệt - khát vọng hòa bình! Bốc 1 Thẻ Biến Động và thực thi ngay.'),
         P47('Làng Tương Nam Đàn', 'Nam Đàn - Nghệ An', 105.50, 18.70, 'NAM_DAN', 'HIGHLAND_AGRI', 160, 'Chum sành & Mốc tương', '🫘', 'Khách vãng lai phải rang đậu, ủ mốc xôi và phơi những chum tương dưới nắng gió Lào.'),
         P47('Rượu Cần Mường Vang', 'Lạc Sơn - Hòa Bình', 105.45, 20.45, 'MUONG_VANG', 'HIGHLAND_AGRI', 150, 'Men lá & Ché rượu', '🏺', 'Khách vãng lai phải ủ men lá rừng vào ché sành và mời rượu cần bên nhà sàn Mường.'),
         P47('Khăn Piêu Sơn La', 'Mường Chanh - Sơn La', 103.91, 21.33, 'SON_LA2', 'WEAVING_CRAFT', 155, 'Kim thêu & Chỉ ngũ sắc', '🧕', 'Khách vãng lai phải thêu cút piêu hoa văn sặc sỡ trên nền vải chàm của người Thái.'),
         P47('Miến Dong Bình Lư', 'Tam Đường - Lai Châu', 103.60, 22.33, 'BINH_LU', 'HIGHLAND_AGRI', 150, 'Bột dong & Giàn phơi', '🍜', 'Khách vãng lai phải tráng bột dong, thái sợi và phơi miến trên giàn tre lưng đồi.'),
-        X47('SHOP', 'Chợ Phiên Tây Bắc', 'Bắc Hà - Lào Cai', 104.29, 22.54, 'CHO_PHIEN', 'Trạm Công Cụ Tây Bắc', '#0d9488', '🏔️', 'Chợ phiên vùng cao rực sắc thổ cẩm và hoa đào! Trạm tiếp tế Thẻ Công Cụ trước khi khép vòng về Thủ đô.'),
+        X47('SHOP', 'Chợ Phiên Tây Bắc', 'Bắc Hà - Lào Cai', 104.29, 22.54, 'CHO_PHIEN', 'Trạm Công Cụ Tây Bắc', '#c79a3b', '🏔️', 'Chợ phiên vùng cao rực sắc thổ cẩm và hoa đào! Trạm tiếp tế Thẻ Công Cụ trước khi khép vòng về Thủ đô.'),
         P47('Dệt Lanh Lùng Tám', 'Quản Bạ - Hà Giang', 105.0, 23.07, 'LUNG_TAM', 'WEAVING_CRAFT', 160, 'Khung cửi & Chàm nhuộm', '🧵', 'Khách vãng lai phải tước sợi lanh, dệt vải và nhuộm chàm cùng phụ nữ H\'Mông.'),
         P47('Làng Rèn Phúc Sen', 'Quảng Hòa - Cao Bằng', 106.42, 22.53, 'PHUC_SEN', 'CERAMIC_ART', 165, 'Bễ thổi & Đe búa', '⚒️', 'Khách vãng lai phải kéo bễ, quai búa rèn con dao sắc bén của người Nùng An.'),
-        X47('BAN_LINH', 'Bản Lĩnh Hòn Vọng Phu', 'Núi Tô Thị - Lạng Sơn', 106.75, 21.85, 'TO_THI', 'Bốc Thẻ Bản Lĩnh (?)', '#d97706', '❓', 'Leo núi Tô Thị, viếng thành nhà Mạc! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
+        X47('BAN_LINH', 'Bản Lĩnh Hòn Vọng Phu', 'Núi Tô Thị - Lạng Sơn', 106.75, 21.85, 'TO_THI', 'Bốc Thẻ Bản Lĩnh (?)', '#b07a2a', '❓', 'Leo núi Tô Thị, viếng thành nhà Mạc! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
         P47('Mỳ Chũ Thủ Dương', 'Chũ - Bắc Giang', 106.57, 21.37, 'MY_CHU', 'HIGHLAND_AGRI', 155, 'Cối xay bột & Giàn phơi', '🍝', 'Khách vãng lai phải xay gạo, tráng bánh và cắt sợi mỳ Chũ phơi trắng sân làng.'),
         P47('Đồi Chè Tân Cương', 'Tân Cương - Thái Nguyên', 105.75, 21.57, 'TAN_CUONG2', 'HIGHLAND_AGRI', 170, 'Gùi tre & Chảo sao chè', '🍵', 'Khách vãng lai phải hái búp chè "một tôm hai lá" và sao chè bằng chảo gang trên bếp củi.')
     ];
 
     // Giãn cách: giữ gần vị trí thật nhất có thể, mỗi sa bàn cách nhau tối thiểu 2.75 đơn vị
     (function relax47() {
-        const kx = 2.55 * GEO_K, kz = 2.75 * GEO_K, MIN = 2.75;
+        // Bệ ô là hình vuông cạnh ~2.28 (TILE_R 1.2 × 0.95 × 2): giữ cách nhau theo cả khoảng cách tròn (MIN)
+        // lẫn theo cạnh vuông (MINC) để góc các bệ không chồng lên nhau
+        const kx = 2.55 * GEO_K, kz = 2.75 * GEO_K, MIN = 2.75, MINC = 2.46, FOOT = 1.2;
         const P = TILES47.map(t => { const q = geoToBoardXZ(t.lon, t.lat); return { x: q.x, z: q.z, ax: q.x, az: q.z, w: t.island ? .25 : 1 }; });
         const land = (x, z) => isPointInPolygon(x / kx + 106.15, 16 - z / kz, VIETNAM_BORDER_LONLAT);
+        const RIM = []; for (let k = -2; k <= 2; k++) { const u = k / 2 * FOOT; RIM.push([u, -FOOT], [u, FOOT]); if (k > -2 && k < 2) RIM.push([-FOOT, u], [FOOT, u]); }
+        const separate = () => {
+            for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+                const a = P[i], b = P[j], dx = b.x - a.x, dz = b.z - a.z, W = a.w + b.w; let L = Math.hypot(dx, dz);
+                if (L < MIN) { if (L < 1e-3) L = 1e-3; const m = (MIN - L) / L / W; a.x -= dx * m * a.w; a.z -= dz * m * a.w; b.x += dx * m * b.w; b.z += dz * m * b.w; }
+                const ax = Math.abs(b.x - a.x), az = Math.abs(b.z - a.z);
+                if (Math.max(ax, az) < MINC) { // đẩy theo trục dễ tách nhất
+                    if (ax >= az) { const s = Math.sign(b.x - a.x) || 1, m = (MINC - ax) / W; a.x -= s * m * a.w; b.x += s * m * b.w; }
+                    else { const s = Math.sign(b.z - a.z) || 1, m = (MINC - az) / W; a.z -= s * m * a.w; b.z += s * m * b.w; }
+                }
+            }
+        };
         for (let it = 0; it < 520; it++) {
             P.forEach(p => { p.x += (p.ax - p.x) * .03; p.z += (p.az - p.z) * .03; });
-            for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
-                const a = P[i], b = P[j], dx = b.x - a.x, dz = b.z - a.z; let L = Math.hypot(dx, dz);
-                if (L >= MIN) continue; if (L < 1e-3) L = 1e-3;
-                const m = (MIN - L) / L / (a.w + b.w); a.x -= dx * m * a.w; a.z -= dz * m * a.w; b.x += dx * m * b.w; b.z += dz * m * b.w;
-            }
-            P.forEach((p, i) => { if (!TILES47[i].island && !land(p.x, p.z)) { p.x += (p.ax - p.x) * .12 - .05; p.z += (p.az - p.z) * .12; } });
+            separate();
+            P.forEach((p, i) => { if (!TILES47[i].island) keepOnLand(p); });
+        }
+        // Chốt lại (không kéo về vị trí thật nữa): không chồng nhau và cả mặt bệ ô nằm gọn trong đất liền
+        for (let it = 0; it < 300; it++) { separate(); P.forEach((p, i) => { if (!TILES47[i].island) keepOnLand(p); }); }
+        function keepOnLand(p) {
+            // Lấy mẫu viền vuông của bệ ô; điểm nào rơi xuống biển thì đẩy ô ngược hướng đó vào trong đất liền
+            let ox = 0, oz = 0, n = 0;
+            RIM.forEach(([dx, dz]) => { if (!land(p.x + dx, p.z + dz)) { ox += dx; oz += dz; n++; } });
+            if (!land(p.x, p.z)) { p.x += (p.ax - p.x) * .12 - .05; p.z += (p.az - p.z) * .12; return; }
+            if (n) { p.x -= ox / n * .1; p.z -= oz / n * .1; }
         }
         TILES47.forEach((t, i) => { t.realLon = t.lon; t.realLat = t.lat; t.lon = P[i].x / kx + 106.15; t.lat = 16 - P[i].z / kz; t.index = i; });
     })();
     BOARD_TILES.length = 0; TILES47.forEach(t => BOARD_TILES.push(t));
 
     // Đảo nâng đỡ các ô nằm ngoài khơi (Vân Đồn, Lý Sơn, Phú Quốc) + Côn Đảo, Phú Quý
-    window.__ISLANDS = BOARD_TILES.filter(t => t.island).map(t => ({ lon: t.lon, lat: t.lat, rx: t.index === 24 ? 1.75 : 1.5, rz: t.index === 24 ? 2.1 : 1.5, h: .42, color: 0x3f9a55 }))
-        .concat([{ lon: 106.6, lat: 8.68, rx: .55, rz: .45, h: .34, color: 0x3f9a55 }, { lon: 108.94, lat: 10.52, rx: .32, rz: .28, h: .3, color: 0x4fa860 }]);
+    // (Đảo mang ô cờ cao bằng mặt đất liền để mọi bệ ô cùng một cao độ)
+    const isPQ = t => t.modelType === 'PHU_QUOC2';
+    window.__ISLANDS = BOARD_TILES.filter(t => t.island).map(t => ({ lon: t.lon, lat: t.lat, rx: isPQ(t) ? 1.75 : 1.5, rz: isPQ(t) ? 2.1 : 1.5, h: LAND_Y, color: 0x5e7a45 }))
+        .concat([{ lon: 106.6, lat: 8.68, rx: .55, rz: .45, h: .34, color: 0x4f6b3a }, { lon: 108.94, lat: 10.52, rx: .32, rz: .28, h: .3, color: 0x4f6b3a }]);
 
     /* ---------- Thẻ Biến Động & Bản Lĩnh bổ sung ---------- */
     const NEW_BD = [
@@ -8720,13 +8743,13 @@ function createVietnameseCostumePawn3D(player) {
         const isl = (window.__ISLANDS || []).map(s => { const [x, y] = toC(s.lon, s.lat); return [x, y, s.rx / R.W * CW, s.rz / R.D * CH]; });
         const reefs = [[HS_GEO, 46], [TS_GEO, 50], [[111.6, 16.9], 18], [[112.4, 16.0], 16], [[114.0, 10.3], 18], [[113.8, 8.6], 16], [[111.9, 8.6], 14], [[112.6, 10.6], 15]];
         const color = document.createElement('canvas'); color.width = CW; color.height = CH; const g = color.getContext('2d');
-        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#1597c4'); gr.addColorStop(.5, '#0b7fb8'); gr.addColorStop(1, '#075a9a'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#3a6e73'); gr.addColorStop(.5, '#2f5d62'); gr.addColorStop(1, '#22474b'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
         const halo = (blur, fill, grow) => { g.filter = `blur(${blur}px)`; g.fillStyle = fill; g.strokeStyle = fill; g.lineWidth = grow; g.lineJoin = 'round'; landPath(g); g.fill(); g.stroke(); isl.forEach(([x, y, rx, ry]) => { g.beginPath(); g.ellipse(x, y, rx + grow / 2, ry + grow / 2, 0, 0, 7); g.fill(); }); reefs.forEach(([p, r]) => { const [x, y] = toC(p[0], p[1]); g.beginPath(); g.arc(x, y, r * (grow / 40 + .4), 0, 7); g.fill(); }); };
-        halo(40, 'rgba(22,170,200,.75)', 90); halo(18, 'rgba(48,200,212,.85)', 40); halo(7, 'rgba(110,226,220,.95)', 14);
+        halo(40, 'rgba(70,118,116,.6)', 90); halo(18, 'rgba(92,136,128,.65)', 40); halo(7, 'rgba(150,160,130,.7)', 14);
         g.filter = 'none';
-        for (let i = 0; i < 5200; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * .045})`; g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 6, 1); }
-        g.fillStyle = 'rgba(255,248,214,.55)'; g.font = '800 34px "Playfair Display", serif'; g.textAlign = 'center';
-        [['BIỂN ĐÔNG', 110.6, 13.4], ['VỊNH BẮC BỘ', 107.9, 19.4], ['VỊNH THÁI LAN', 102.4, 9.6]].forEach(([t, lo, la]) => { const [x, y] = toC(lo, la); g.save(); g.translate(x, y); g.fillText(t, 0, 0); g.restore(); });
+        for (let i = 0; i < 5200; i++) { g.fillStyle = `rgba(230,220,190,${Math.random() * .03})`; g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 6, 1); }
+        g.fillStyle = 'rgba(214,190,140,.32)'; g.font = '700 26px "Playfair Display", serif'; g.textAlign = 'center';
+        [['BIỂN ĐÔNG', 111.2, 13.4]].forEach(([t, lo, la]) => { const [x, y] = toC(lo, la); g.save(); g.translate(x, y); g.fillText(t, 0, 0); g.restore(); });
         const coast = document.createElement('canvas'); coast.width = CW; coast.height = CH; const c = coast.getContext('2d');
         c.fillStyle = '#000'; c.fillRect(0, 0, CW, CH); c.filter = 'blur(5px)'; c.strokeStyle = '#fff'; c.lineWidth = 11; landPath(c); c.stroke();
         isl.forEach(([x, y, rx, ry]) => { c.beginPath(); c.ellipse(x, y, rx + 2, ry + 2, 0, 0, 7); c.stroke(); });
@@ -8744,8 +8767,8 @@ function createVietnameseCostumePawn3D(player) {
                 vec3 v=normalize(cameraPosition-vW); vec3 r=reflect(-uSun,n); float sp=pow(max(dot(r,v),0.),90.)*1.4;
                 float fr=pow(1.-max(dot(n,v),0.),3.)*.35; float dif=.82+.18*dot(n,uSun);
                 float foam=cst*smoothstep(.55,1.,sin(cst*22.-uT*2.4)*.5+.5)*.75+smoothstep(.75,1.,cst)*.35;
-                vec3 col=base*dif+vec3(.75,.9,1.)*fr+vec3(1.,.97,.85)*sp; col=mix(col,vec3(.97,1.,1.),clamp(foam,0.,1.));
-                gl_FragColor=vec4(col,.9); }`
+                vec3 col=base*dif+vec3(.55,.6,.55)*fr*.6+vec3(1.,.86,.62)*sp*.55; col=mix(col,vec3(.82,.78,.66),clamp(foam*.7,0.,1.));
+                gl_FragColor=vec4(col,.94); }`
         });
         const geo = new THREE.PlaneGeometry(R.W, R.D, 1, 1); geo.rotateX(-Math.PI / 2);
         const mesh = new THREE.Mesh(geo, mat); mesh.position.set(R.cx, .1, R.cz); mesh.renderOrder = 1; scene.add(mesh);
@@ -8889,9 +8912,9 @@ function createVietnameseCostumePawn3D(player) {
         loops.forEach(([kind, lo, la, R, Rz], i) => { const q = geoToBoardXZ(lo, la), RR = R * GEO_K, RZ = Rz * GEO_K; if (!loopOk(q.x, q.z, RR, RZ)) return; sailLoop(mkShip(kind), q.x, q.z, RR, RZ, (.04 + (i % 4) * .012) * (i % 2 ? 1 : -1) * (kind === 'cargo' || kind === 'cruise' ? .7 : 1), i * 1.9); });
         // Phà ra đảo
         BOARD_TILES.filter(t => t.island).forEach((t, i) => {
-            const a = geoToBoardXZ(t.lon, t.lat), dir = t.index === 24 ? 1 : -1; let b = null;
-            for (let d = 2.4; d < 9; d += .3) { const q = { x: a.x + dir * d, z: a.z + (t.index === 3 ? -.4 : .2) }; if (isPointInPolygon(...toGeo(q.x, q.z), VIETNAM_BORDER_LONLAT)) { b = { x: q.x - dir * 1.2, z: q.z }; break; } }
-            if (!b) return; const s = { x: a.x + dir * 2.1, z: a.z + (t.index === 3 ? -.4 : .2) }; if (Math.abs(b.x - s.x) < .8) return;
+            const a = geoToBoardXZ(t.lon, t.lat), dir = t.modelType === 'PHU_QUOC2' ? 1 : -1; let b = null;
+            for (let d = 2.4; d < 9; d += .3) { const q = { x: a.x + dir * d, z: a.z + (t.modelType === 'HA_LONG_PORT' ? -.4 : .2) }; if (isPointInPolygon(...toGeo(q.x, q.z), VIETNAM_BORDER_LONLAT)) { b = { x: q.x - dir * 1.2, z: q.z }; break; } }
+            if (!b) return; const s = { x: a.x + dir * 2.1, z: a.z + (t.modelType === 'HA_LONG_PORT' ? -.4 : .2) }; if (Math.abs(b.x - s.x) < .8) return;
             ferry(mkShip(i % 2 ? 'trawler' : 'sail'), s, b, .18, i);
         });
         try { buildMarineLife(); } catch (e) { console.warn('marine', e); }
@@ -9000,7 +9023,7 @@ function createVietnameseCostumePawn3D(player) {
             if (window.__sun) { const R = BOARD_RECT, s = window.__sun; s.target.position.set(R.cx, 0, R.cz); scene.add(s.target); s.position.set(R.cx - 30, 70, R.cz - 26); const d = Math.max(R.W, R.D) * .56; Object.assign(s.shadow.camera, { left: -d, right: d, top: d, bottom: -d, far: 240 }); s.shadow.camera.updateProjectionMatrix(); renderer.shadowMap.needsUpdate = true; }
             if (scene.fog) scene.fog.density = .0016;
         } catch (e) { console.warn('camK', e); }
-        console.log('[47 địa danh] ' + BOARD_TILES.length + ' ô · lệch tối đa ' + Math.max(...BOARD_TILES.map(t => Math.hypot(t.lon - t.realLon, t.lat - t.realLat))).toFixed(2) + '°');
+        console.log('[' + BOARD_TILES.length + ' địa danh] ' + BOARD_TILES.length + ' ô · lệch tối đa ' + Math.max(...BOARD_TILES.map(t => Math.hypot(t.lon - t.realLon, t.lat - t.realLat))).toFixed(2) + '°');
     };
 
     /* ---------- 8. Hàm dựng dùng chung cho 29 sa bàn mới ---------- */
@@ -9393,7 +9416,7 @@ function createVietnameseCostumePawn3D(player) {
 
     /* =================================================================================
      * L. CƠ CHẾ CỜ TỶ PHÚ 2 BƯỚC: BẢN ĐỒ ĐẤT TRỐNG BAN ĐẦU -> MUA ĐẤT -> XÂY DỰNG LÀNG NGHỀ 3D
-     *    · Lúc đầu toàn bộ 37 ô tài sản (PROPERTY) là Đất Trống (chưa hiện sa bàn làng nghề 3D)
+     *    · Lúc đầu toàn bộ 36 ô tài sản (PROPERTY) là Đất Trống (chưa hiện sa bàn làng nghề 3D)
      *    · Bước 1 (Lần đầu dừng ở ô đất trống): Mua Đất Quy Hoạch -> cắm cờ sở hữu, thu phí thuê đất cơ bản
      *    · Bước 2 (Khi đi hết vòng và dẫm lại vào ô đất của mình ở lượt sau): Xây Dựng Làng Nghề 3D
      *      -> Sa bàn kiến trúc 3D của làng nghề mọc lên trên bản đồ, phí dịch vụ tăng mạnh!
@@ -10237,7 +10260,7 @@ function createVietnameseCostumePawn3D(player) {
         }
     };
 
-    // 13. Cập nhật giao diện Inspector, Tooltip rê chuột, Danh mục 47 địa danh & Luật chơi
+    // 13. Cập nhật giao diện Inspector, Tooltip rê chuột, Danh mục 46 địa danh & Luật chơi
     updateTileInspector = function (tileIndex) {
         gameState.selectedTileIndex = tileIndex;
         const tile = BOARD_TILES[tileIndex];
@@ -10356,7 +10379,7 @@ function createVietnameseCostumePawn3D(player) {
                 <div class="text-left">
                     <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3">
                         <div>
-                            <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Danh Mục 47 Địa Danh Làng Nghề Việt Nam</h2>
+                            <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Danh Mục ${BOARD_TILES.length} Địa Danh Làng Nghề Việt Nam</h2>
                             <p class="text-[11px] text-amber-900/80">🌱 Đất trống → 🏳️ Mua đất → 🏯 Quay lại ở vòng sau để Xây dựng Làng nghề 3D!</p>
                         </div>
                         <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button>
@@ -10454,6 +10477,175 @@ function createVietnameseCostumePawn3D(player) {
         } catch (e) {
             console.warn('initMonopoly', e);
         }
+    };
+
+    /* =================================================================================
+     * M. TINH CHỈNH HIỂN THỊ: TÔNG ẤM TRẦM · MẶT ĐẤT PHẲNG THỐNG NHẤT · Ô THẲNG HÀNG
+     *    · Bảng màu di sản: nâu gỗ, vàng đất, xanh rêu, đỏ son, vàng đồng (bớt chói, bớt bão hòa)
+     *    · Bỏ sông suối trên bản đồ; nắng chiều ấm, bóng đổ mềm, nền và sương mù hài hòa
+     *    · Mặt đất phẳng: mọi ô cờ, cây, đá cùng một cao độ (LAND_Y), không vật nào lơ lửng
+     *    · Bệ ô cùng kích thước; sa bàn, cờ chủ đất nằm gọn trong biên ô
+     * ================================================================================= */
+    const PAL = {
+        soil: [0x6b5a3e, 0x7c6a4a, 0x8a7752], moss: [0x4f6b3a, 0x5e7a45], water: [0x2f5d62, 0x3a6e73],
+        wood: [0x5a3e2b, 0x8b5e3c], red: 0xa93a2c, bronze: 0xc79a3b, bg: 0x2b2219
+    };
+    window.TILE_R = 1.2;   // bán kính chuẩn cho mọi bệ ô (Xuất phát, Trạm, Làng nghề như nhau)
+    window.__RIVERS = [];  // không vẽ sông suối
+
+    // 1. Mặt đất phẳng: cao độ thật chỉ còn dùng để tô màu & đổ bóng địa hình trên texture
+    window.__elevShape = (lon, lat) => _baseElev(lon, lat);
+    sampleVietnamElevation = function () { return LAND_H; };
+
+    // 2. Texture địa hình: tông đất ấm theo độ cao + bóng đồi hướng Tây Bắc (tạo chiều sâu), không sông
+    createAuthenticShadedReliefTexture = function () {
+        const w = 1024, h = 1536, lonMin = 101.5, lonMax = 110.2, latMin = 8.2, latMax = 23.8;
+        const E = new Float32Array(w * h);
+        for (let py = 0; py < h; py++) { const lat = latMax - (py / h) * (latMax - latMin); for (let px = 0; px < w; px++) E[py * w + px] = _elev0(lonMin + (px / w) * (lonMax - lonMin), lat); }
+        // Làm mượt (box blur 2 lượt) để bỏ nhiễu hình sin đều của DEM gốc -> không còn vân lưới chéo
+        const T = new Float32Array(w * h), R = 10;
+        for (let pass = 0; pass < 2; pass++) {
+            for (let py = 0; py < h; py++) { let acc = 0; const o = py * w; for (let px = -R; px <= R; px++) acc += E[o + Math.min(w - 1, Math.max(0, px))]; for (let px = 0; px < w; px++) { T[o + px] = acc / (2 * R + 1); acc += E[o + Math.min(w - 1, px + R + 1)] - E[o + Math.max(0, px - R)]; } }
+            for (let px = 0; px < w; px++) { let acc = 0; for (let py = -R; py <= R; py++) acc += T[Math.min(h - 1, Math.max(0, py)) * w + px]; for (let py = 0; py < h; py++) { E[py * w + px] = acc / (2 * R + 1); acc += T[Math.min(h - 1, py + R + 1) * w + px] - T[Math.max(0, py - R) * w + px]; } }
+        }
+        // đồng bằng xanh rêu -> trung du ô liu -> cao nguyên nâu đất -> núi vàng đất
+        const stops = [[0, [86, 112, 63]], [.18, [94, 122, 69]], [.45, [104, 108, 66]], [.8, [124, 106, 74]], [1.2, [138, 119, 82]], [1.9, [152, 134, 96]]];
+        const col = e => { let i = 0; while (i < stops.length - 2 && e > stops[i + 1][0]) i++; const [e0, a] = stops[i], [e1, b] = stops[i + 1], k = Math.max(0, Math.min(1, (e - e0) / (e1 - e0))); return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k]; };
+        const c = document.createElement('canvas'); c.width = w; c.height = h; const ctx = c.getContext('2d');
+        const img = ctx.createImageData(w, h), d = img.data; let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        for (let py = 0; py < h; py++) for (let px = 0; px < w; px++) {
+            const i = py * w + px, e = E[i], ex = E[i + (px < w - 2 ? 2 : 0)] - E[i - (px > 1 ? 2 : 0)], ey = E[i + (py < h - 2 ? 2 * w : 0)] - E[i - (py > 1 ? 2 * w : 0)];
+            const shade = Math.max(.74, Math.min(1.16, 1 - (ex + ey) * 22)), grain = .96 + rnd() * .08, rgb = col(e), k = shade * grain;
+            d[i * 4] = Math.min(255, rgb[0] * k); d[i * 4 + 1] = Math.min(255, rgb[1] * k); d[i * 4 + 2] = Math.min(255, rgb[2] * k); d[i * 4 + 3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+        // mảng ruộng/rừng mờ cho mặt đất bớt đơn điệu (hoa văn nhẹ, tối giản)
+        for (let i = 0; i < 900; i++) { ctx.fillStyle = rnd() < .5 ? 'rgba(70,92,50,.07)' : 'rgba(150,126,86,.06)'; ctx.beginPath(); ctx.ellipse(rnd() * w, rnd() * h, 6 + rnd() * 22, 4 + rnd() * 14, rnd() * 3, 0, 7); ctx.fill(); }
+        const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+    };
+
+    // 3. Bệ ô cắt lớp theo bảng màu mới (cỏ rêu – đất nâu – đá)
+    drawGrassTop = function (g, w, h) {
+        g.fillStyle = '#5e7a45'; g.fillRect(0, 0, w, h);
+        for (let i = 0; i < 2600; i++) { const v = _vrand(); g.fillStyle = v < .33 ? 'rgba(79,107,58,.55)' : v < .66 ? 'rgba(107,127,72,.45)' : 'rgba(124,106,74,.3)'; g.fillRect(_vrand() * w, _vrand() * h, 2 + _vrand() * 3, 2 + _vrand() * 6); }
+    };
+    drawSoilSide = function (g, w, h) {
+        const grassH = h * .16, soilH = h * .5;
+        g.fillStyle = '#6b5a3e'; g.fillRect(0, grassH, w, soilH);
+        g.fillStyle = '#7a705f'; g.fillRect(0, grassH + soilH, w, h - grassH - soilH);
+        for (let i = 0; i < 260; i++) { g.fillStyle = `rgba(${70 + _vrand() * 30},${52 + _vrand() * 20},${34 + _vrand() * 12},.55)`; g.beginPath(); g.ellipse(_vrand() * w, grassH + _vrand() * soilH, 2 + _vrand() * 5, 1.5 + _vrand() * 3, 0, 0, 7); g.fill(); }
+        for (let i = 0; i < 70; i++) { const x = _vrand() * w, y = grassH + soilH + _vrand() * (h - grassH - soilH); g.fillStyle = `rgba(${120 + _vrand() * 30},${110 + _vrand() * 28},${92 + _vrand() * 24},1)`; g.beginPath(); g.ellipse(x, y, 6 + _vrand() * 12, 4 + _vrand() * 7, _vrand(), 0, 7); g.fill(); g.strokeStyle = 'rgba(60,48,36,.5)'; g.stroke(); }
+        g.fillStyle = '#4f6b3a'; g.fillRect(0, 0, w, grassH);
+        for (let x = 0; x < w; x += 3) { g.fillStyle = _vrand() < .5 ? '#5e7a45' : '#46603a'; g.fillRect(x, grassH - 2, 3, 4 + _vrand() * 9); }
+    };
+    drawRoad = function (g, w, h) {
+        g.fillStyle = '#8a7752'; g.fillRect(0, 0, w, h);
+        for (let i = 0; i < 900; i++) { const v = _vrand(); g.fillStyle = v < .5 ? 'rgba(107,90,62,.45)' : 'rgba(170,148,108,.35)'; g.fillRect(_vrand() * w, _vrand() * h, 2 + _vrand() * 3, 2 + _vrand() * 3); }
+        g.fillStyle = 'rgba(90,62,43,.3)'; g.fillRect(w * .28, 0, w * .08, h); g.fillRect(w * .64, 0, w * .08, h);
+        const gr = g.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, 'rgba(79,107,58,.9)'); gr.addColorStop(.12, 'rgba(79,107,58,0)'); gr.addColorStop(.88, 'rgba(79,107,58,0)'); gr.addColorStop(1, 'rgba(79,107,58,.9)');
+        g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    };
+    V_MAT.tuft =new THREE.MeshStandardMaterial({ color: 0x4f6b3a, roughness: .9, flatShading: true });
+
+    // 4. Mây cát tường: đỏ son & xanh rêu trầm thay cho đỏ tươi / xanh lá chói
+    buildMoodboardClouds = function () {
+        const mk = (fill, line, flip) => { const c = document.createElement('canvas'); c.width = 512; c.height = 256; drawCloud(c.getContext('2d'), flip ? 330 : 180, 140, 66, fill, line, flip); return new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, opacity: .85 }); };
+        const RED = ['#8f3a2c', '#d9b07a'], GREEN = ['#4f6b3a', '#b9b98a'];
+        [[101.0, 23.0, 6.2, RED, 0], [110.6, 21.8, 5.4, GREEN, 1], [100.9, 13.5, 5.0, GREEN, 0], [112.2, 13.0, 6.0, RED, 1], [110.4, 7.6, 5.2, GREEN, 0], [101.4, 8.4, 5.8, RED, 0], [104.0, 25.0, 7.0, GREEN, 1]].forEach(([lo, la, y, c, f], i) => {
+            const p = geoToBoardXZ(lo, la), sp = new THREE.Sprite(mk(c[0], c[1], f)); sp.scale.set(9, 4.5, 1); sp.position.set(p.x, y, p.z); scene.add(sp);
+            animatedElements.push({ type: 'FN', fn: t => { sp.position.y = y + Math.sin(t * .3 + i) * .35; sp.position.x = p.x + Math.sin(t * .08 + i * 2) * .9; } });
+        });
+    };
+
+    // 5. Mọi ô cùng một cao độ nền (kể cả ô trên đảo) -> không ô nào đội cao hay chìm xuống
+    const _terrainK5 = build3DVietnamMapTerrain;
+    build3DVietnamMapTerrain = function () {
+        _terrainK5.apply(this, arguments);
+        BOARD_TILES.forEach(t => { t.elevation = LAND_Y; });
+    };
+
+    // 6. Sa bàn quá lớn thì thu nhỏ cho vừa bệ ô (đo bounding box thật của mô hình)
+    const FIT = TILE_R * .95 - .06;
+    const _dioK5 = createBespokeTileDiorama;
+    createBespokeTileDiorama = function (tile) {
+        const g = _dioK5(tile);
+        try {
+            const s0 = g.scale.x; g.scale.setScalar(1); g.updateMatrixWorld(true);
+            const b = new THREE.Box3().setFromObject(g), ext = Math.max(-b.min.x, b.max.x, -b.min.z, b.max.z);
+            g.scale.setScalar(s0);
+            const k = FIT / (ext * .95);   // k4 phóng sa bàn tới 0.95 khi xây xong
+            if (isFinite(k) && k < 1) {
+                const fit = new THREE.Group(); fit.name = 'fitToTile'; [...g.children].forEach(ch => fit.add(ch)); fit.scale.setScalar(k); g.add(fit);
+                tile.__fit = +k.toFixed(3);
+            }
+        } catch (e) { console.warn('fit', tile.index, e); }
+        return g;
+    };
+
+    // 7. Cờ chủ đất cắm thẳng trên mặt bệ ô, nằm trong biên ô
+    const _bannerK5 = spawnOwnerBannerOnTile;
+    spawnOwnerBannerOnTile = function (i, ownerId) {
+        _bannerK5(i, ownerId);
+        const f = ownerFlags[i], t = BOARD_TILES[i];
+        if (f && t) f.position.set(t.mapX + TILE_R * .95 - .62, t.elevation + .14, t.mapZ - TILE_R * .95 + .1);
+    };
+
+    // 8. Ánh sáng, nền, sương mù & màu môi trường (chạy trước khi gộp khối tĩnh)
+    const ENV_REMAP = new Map([
+        [0x451a03, PAL.wood[0]],   // bàn gỗ
+        [0xf59e0b, PAL.bronze],    // viền bàn vàng đồng
+        [0x22b0dc, PAL.water[0]],  // khối biển dưới mặt nước
+        [0xfde68a, 0xa8916a],      // bãi cát quanh đảo
+        [0x40e0d0, PAL.water[1]],  // phá san hô
+        [0x065f46, 0x46553a],      // núi đá vôi
+        [0x22c55e, PAL.moss[1]], [0x15803d, PAL.moss[0]], [0x16a34a, PAL.moss[1]], [0x2f7d32, PAL.moss[0]], [0x3f7a3a, PAL.moss[0]],
+        [0xecfdf5, PAL.bronze]     // đường viền biên giới
+    ]);
+    function skipRoots() {
+        const s = new Set(); (playerPawns || []).forEach(p => p && s.add(p)); if (diceMesh) s.add(diceMesh);
+        scene.children.forEach(c => { let tile = false; c.traverse(o => { if (o.userData && o.userData.tileIndex !== undefined) tile = true; }); if (tile) s.add(c); });
+        return s;
+    }
+    function remapEnv() {
+        const skip = skipRoots(), seen = new Set();
+        scene.children.forEach(root => {
+            if (skip.has(root)) return;
+            root.traverse(o => {
+                if (!o.isMesh) return;
+                (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
+                    if (!m || seen.has(m) || !m.color) return; seen.add(m);
+                    const to = ENV_REMAP.get(m.color.getHex()); if (to === undefined) return;
+                    m.color.setHex(to);
+                    if (m.emissive && m.emissive.getHex() === 0x34d399) { m.emissive.setHex(0x6b4a1e); m.emissiveIntensity = .25; }
+                    if (to === PAL.bronze && m.metalness !== undefined) { m.metalness = .45; m.roughness = .5; }
+                });
+            });
+        });
+    }
+    applyC4DLook = function () {
+        scene.background = new THREE.Color(PAL.bg); scene.fog = new THREE.FogExp2(PAL.bg, .0016);
+        renderer.toneMappingExposure = .8;
+        scene.traverse(o => {
+            if (o.isHemisphereLight) { o.color.setHex(0xe9d9bd); o.groundColor.setHex(0x4a3b28); o.intensity = .3; }
+            else if (o.isAmbientLight) { o.color.setHex(0xffe6c8); o.intensity = .1; }
+            else if (o.isDirectionalLight && o !== window.__sun) { const fill = o.color.getHex() === 0x38bdf8; o.color.setHex(fill ? 0x9aa69a : 0xffc48a); o.intensity = fill ? .1 : .14; }
+        });
+        if (window.__sun) { window.__sun.color.setHex(0xffcf98); window.__sun.intensity = 1.5; }
+        try { remapEnv(); } catch (e) { console.warn('remap', e); }
+    };
+
+    const _initK5 = init3DScene;
+    init3DScene = function () {
+        _initK5();
+        try {
+            // Nắng chiều: mặt trời thấp hơn ở hướng Tây Bắc -> bóng dài, mềm, tạo khối
+            const s = window.__sun, R = BOARD_RECT;
+            if (s) { s.position.set(R.cx - 58, 52, R.cz - 34); s.shadow.bias = -.0008; s.shadow.normalBias = .06; s.shadow.camera.updateProjectionMatrix(); }
+            if (scene.fog) scene.fog.density = .0015;
+            renderer.shadowMap.needsUpdate = true;
+            const big = BOARD_TILES.filter(t => t.__fit).map(t => `#${t.index} ${t.name} ×${t.__fit}`);
+            if (big.length) console.log('[Vừa bệ ô] thu nhỏ ' + big.length + ' sa bàn: ' + big.join(', '));
+        } catch (e) { console.warn('lookK5', e); }
     };
 
     })();
