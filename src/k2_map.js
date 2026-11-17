@@ -1,15 +1,18 @@
     window.BOARD_RECT = BOARD_RECT;
     window.DECK = (() => { const q = geoToBoardXZ(100.9, 16.3); return { x: q.x, z: q.z, dx: geoToBoardXZ(101.9, 16).x }; })();
     const HS_XZ = geoToBoardXZ(HS_GEO[0], HS_GEO[1]), TS_XZ = geoToBoardXZ(TS_GEO[0], TS_GEO[1]);
+    const ATOLLS = [[505, 392, .5], [522, 472, .42], [612, 398, .46], [603, 458, .4], [545, 788, .45], [558, 852, .5], [652, 790, .42], [642, 852, .46], [574, 690, .42], [539, 716, .36], [152, 852, .38], [372, 958, .4], [505, 215, .34], [300, 965, .36]].map(([x, y, r]) => { const q = PXZ(x, y); return { x: q.x, z: q.z, r, geo: PX(x, y) }; });
     const kx2 = () => 2.55 * GEO_K, kz2 = () => 2.75 * GEO_K;
     const toGeo = (x, z) => [x / kx2() + 106.15, 16 - z / kz2()];
     const tilesXZ = () => BOARD_TILES.map(t => geoToBoardXZ(t.lon, t.lat));
     function seaAt(x, z, pad) {
         const [lon, lat] = toGeo(x, z), R = BOARD_RECT, m = pad === undefined ? 1.2 : pad;
-        if (x < R.x0 + 1 || x > R.x1 - 1 || z < R.z0 + 1 || z > R.z1 - 1) return false;
+        if (poolSD(x, z) > -2.4) return false;
+        if (Math.hypot(x - (DECK.x + 1.8), (z - DECK.z) * .72) < 7.4) return false; // đảo ngân hàng & bộ bài
         if (isPointInPolygon(lon, lat, VIETNAM_BORDER_LONLAT)) return false;
         if (Math.hypot(x - HS_XZ.x, z - HS_XZ.z) < 4.4 || Math.hypot(x - TS_XZ.x, z - TS_XZ.z) < 4.4) return false;
         if ((window.__ISLANDS || []).some(s => { const q = geoToBoardXZ(s.lon, s.lat); return Math.hypot(q.x - x, q.z - z) < Math.max(s.rx, s.rz) + .4; })) return false;
+        if (ATOLLS.some(a => Math.hypot(a.x - x, a.z - z) < a.r + .9)) return false;
         return !tilesXZ().some(t => Math.hypot(t.x - x, t.z - z) < 1.6 + m);
     }
     function mergeGeos(list) {
@@ -27,18 +30,21 @@
         const toC = (lon, lat) => { const q = geoToBoardXZ(lon, lat); return [(q.x - R.x0) / R.W * CW, (q.z - R.z0) / R.D * CH]; };
         const landPath = g => { g.beginPath(); VIETNAM_BORDER_LONLAT.forEach(([lo, la], i) => { const [x, y] = toC(lo, la); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); };
         const isl = (window.__ISLANDS || []).map(s => { const [x, y] = toC(s.lon, s.lat); return [x, y, s.rx / R.W * CW, s.rz / R.D * CH]; });
-        const reefs = [[HS_GEO, 46], [TS_GEO, 50], [[111.6, 16.9], 18], [[112.4, 16.0], 16], [[114.0, 10.3], 18], [[113.8, 8.6], 16], [[111.9, 8.6], 14], [[112.6, 10.6], 15]];
+        const reefs = [[HS_GEO, 40], [TS_GEO, 44]].concat(ATOLLS.map(a => [a.geo, 9 + a.r * 14]));
+        const toCx = (x, z) => [(x - R.x0) / R.W * CW, (z - R.z0) / R.D * CH];
+        const poolPath = (g, off) => { g.beginPath(); poolPts(off, 200).forEach(([x, z], i) => { const [cx, cy] = toCx(x, z); i ? g.lineTo(cx, cy) : g.moveTo(cx, cy); }); g.closePath(); };
         const color = document.createElement('canvas'); color.width = CW; color.height = CH; const g = color.getContext('2d');
-        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#1597c4'); gr.addColorStop(.5, '#0b7fb8'); gr.addColorStop(1, '#075a9a'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#1fa6ee'); gr.addColorStop(.5, '#1a9be9'); gr.addColorStop(1, '#168fe2'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
         const halo = (blur, fill, grow) => { g.filter = `blur(${blur}px)`; g.fillStyle = fill; g.strokeStyle = fill; g.lineWidth = grow; g.lineJoin = 'round'; landPath(g); g.fill(); g.stroke(); isl.forEach(([x, y, rx, ry]) => { g.beginPath(); g.ellipse(x, y, rx + grow / 2, ry + grow / 2, 0, 0, 7); g.fill(); }); reefs.forEach(([p, r]) => { const [x, y] = toC(p[0], p[1]); g.beginPath(); g.arc(x, y, r * (grow / 40 + .4), 0, 7); g.fill(); }); };
-        halo(40, 'rgba(22,170,200,.75)', 90); halo(18, 'rgba(48,200,212,.85)', 40); halo(7, 'rgba(110,226,220,.95)', 14);
+        halo(34, 'rgba(40,190,240,.55)', 70); halo(14, 'rgba(64,214,240,.8)', 30); halo(5, 'rgba(150,240,246,.95)', 12);
+        g.filter = 'blur(10px)'; g.strokeStyle = 'rgba(70,214,240,.7)'; g.lineWidth = 34; poolPath(g, 0); g.stroke(); g.filter = 'blur(4px)'; g.strokeStyle = 'rgba(150,240,246,.8)'; g.lineWidth = 12; poolPath(g, 0); g.stroke();
         g.filter = 'none';
-        for (let i = 0; i < 5200; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * .045})`; g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 6, 1); }
-        g.fillStyle = 'rgba(255,248,214,.55)'; g.font = '800 34px "Playfair Display", serif'; g.textAlign = 'center';
-        [['BIỂN ĐÔNG', 110.6, 13.4], ['VỊNH BẮC BỘ', 107.9, 19.4], ['VỊNH THÁI LAN', 102.4, 9.6]].forEach(([t, lo, la]) => { const [x, y] = toC(lo, la); g.save(); g.translate(x, y); g.fillText(t, 0, 0); g.restore(); });
+        g.lineCap = 'round'; g.lineWidth = 1.6;
+        for (let i = 0; i < 1500; i++) { const x = Math.random() * CW, y = Math.random() * CH, w = 5 + Math.random() * 9, k = Math.random(); g.strokeStyle = k < .6 ? `rgba(140,222,255,${.25 + Math.random() * .3})` : k < .85 ? `rgba(10,110,205,${.14 + Math.random() * .14})` : `rgba(255,255,255,${.25 + Math.random() * .25})`; g.beginPath(); g.moveTo(x - w, y); g.quadraticCurveTo(x - w / 2, y - 3.2, x, y); g.quadraticCurveTo(x + w / 2, y + 3.2, x + w, y); g.stroke(); }
         const coast = document.createElement('canvas'); coast.width = CW; coast.height = CH; const c = coast.getContext('2d');
         c.fillStyle = '#000'; c.fillRect(0, 0, CW, CH); c.filter = 'blur(5px)'; c.strokeStyle = '#fff'; c.lineWidth = 11; landPath(c); c.stroke();
         isl.forEach(([x, y, rx, ry]) => { c.beginPath(); c.ellipse(x, y, rx + 2, ry + 2, 0, 0, 7); c.stroke(); });
+        poolPath(c, .3); c.stroke();
         c.filter = 'none';
         const tColor = new THREE.CanvasTexture(color), tCoast = new THREE.CanvasTexture(coast);
         const u = { uT: { value: 0 }, uColor: { value: tColor }, uCoast: { value: tCoast }, uSun: { value: new THREE.Vector3(-.45, .8, -.38).normalize() } };
@@ -136,7 +142,7 @@
     function fishGeo(s) { const b = new THREE.SphereGeometry(.05 * s, 8, 6); b.scale(1.9, .62, .7); const t = new THREE.ConeGeometry(.035 * s, .06 * s, 4); t.rotateZ(Math.PI / 2); t.translate(-.11 * s, 0, 0); t.scale(1, 1, .3); const f = new THREE.ConeGeometry(.02 * s, .04 * s, 3); f.translate(0, .035 * s, 0); f.scale(1, 1, .3); return mergeGeos([b, t, f]); }
     function buildMarineLife() {
         // Đàn cá bơi ngay dưới mặt nước trong (nhìn thấy qua làn nước)
-        const spots = [[107.6, 19.6], [108.9, 18.0], [109.8, 16.6], [110.4, 14.6], [110.2, 12.8], [109.6, 10.6], [108.0, 9.5], [106.4, 8.2], [104.2, 8.7], [102.9, 10.6], [111.3, 17.4], [112.9, 15.6], [111.2, 9.9], [113.9, 10.9], [113.4, 7.9], [110.8, 19.8], [107.2, 9.1], [111.8, 12.4]];
+        const spots = [[445, 250], [500, 330], [545, 455], [592, 560], [580, 650], [530, 742], [470, 850], [400, 940], [300, 945], [160, 890], [90, 800], [70, 650], [110, 450], [150, 330], [600, 345], [645, 600], [622, 900], [520, 950]].map(([x, y]) => PX(x, y));
         const schools = spots.map(([lo, la], i) => { const q = geoToBoardXZ(lo, la); return { x: q.x, z: q.z, r: .7 + (i % 3) * .3, w: (.25 + (i % 4) * .07) * (i % 2 ? 1 : -1), n: 14 + (i % 3) * 4, ph: i * 1.3, col: [0x9fc4d8, 0xf2b13a, 0xc0d6e0, 0xff7a3a, 0x7fb8e0, 0xe8e2c8][i % 6] }; }).filter(s => seaAt(s.x, s.z, .4));
         const total = schools.reduce((a, s) => a + s.n, 0);
         const im = new THREE.InstancedMesh(fishGeo(1.25), new THREE.MeshStandardMaterial({ roughness: .35, metalness: .25 }), total);
@@ -149,20 +155,20 @@
         });
         // Cá chuồn nhảy khỏi mặt nước
         const fj = fishGeo(1.6), fjm = M(0x8fb3cc, .3, .3);
-        [[109.3, 17.2], [110.9, 15.2], [109.9, 11.6], [108.4, 8.9], [103.4, 9.4], [112.6, 13.4], [111.0, 18.6], [113.6, 12.0]].forEach(([lo, la], i) => {
+        [[480, 300], [572, 540], [552, 700], [430, 900], [120, 880], [632, 660], [100, 500], [612, 870]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la); if (!seaAt(q.x, q.z, .3)) return; const m = new THREE.Mesh(fj, fjm); m.castShadow = true; scene.add(m);
             _mapAnim.push(t => { const k = ((t * .45 + i * .27) % 1); m.visible = k < .35; const u = k / .35; m.position.set(q.x + u * 1.1, .1 + Math.sin(u * Math.PI) * .55, q.z + u * .3); m.rotation.set(0, -.27, Math.cos(u * Math.PI) * .8); });
         });
         // Cá heo
         const dGeo = (() => { const b = new THREE.SphereGeometry(.2, 14, 10); b.scale(2, .62, .62); const n = new THREE.ConeGeometry(.06, .2, 8); n.rotateZ(-Math.PI / 2); n.translate(.47, -.02, 0); const f = new THREE.ConeGeometry(.08, .2, 4); f.translate(-.02, .17, 0); f.scale(1, 1, .3); const t1 = new THREE.ConeGeometry(.1, .14, 4); t1.rotateX(Math.PI / 2); t1.translate(-.45, 0, 0); t1.scale(1, .25, 1.6); return mergeGeos([b, n, f, t1]); })();
         const dMat = M(0x6f8fb0, .3, .1), belly = M(0xdfe8ef, .4);
-        [[110.4, 17.6], [110.0, 13.6], [108.6, 9.2], [112.2, 11.2]].forEach(([lo, la], i) => {
+        [[540, 330], [600, 600], [440, 930], [90, 700]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la); if (!seaAt(q.x, q.z, .3)) return;
             for (let j = 0; j < 3; j++) { const d = new THREE.Mesh(dGeo, dMat); d.castShadow = true; scene.add(d); const ph = i * .31 + j * .11;
                 _mapAnim.push(t => { const k = ((t * .33 + ph) % 1); d.visible = k < .5; const u = k / .5; d.position.set(q.x + u * 1.6 + j * .25, .06 + Math.sin(u * Math.PI) * .75, q.z + j * .35); d.rotation.z = Math.cos(u * Math.PI) * .95; }); }
         });
         // Cá voi phun nước gần Hoàng Sa
-        const wq = geoToBoardXZ(110.9, 17.9);
+        const wq = PXZ(625, 250);
         if (seaAt(wq.x, wq.z, .3)) {
             const wg = new THREE.Group(); const body = new THREE.Mesh(new THREE.SphereGeometry(.5, 18, 12), M(0x3d4f63, .45)); body.scale.set(2.4, .55, .8); wg.add(body);
             const tail = new THREE.Mesh(new THREE.ConeGeometry(.3, .3, 4), M(0x3d4f63, .45)); tail.rotation.x = Math.PI / 2; tail.scale.set(1, .2, 2); tail.position.set(-1.25, .05, 0); wg.add(tail); scene.add(wg);
@@ -170,7 +176,7 @@
             _mapAnim.push(t => { const k = (t * .12) % 1, up = Math.max(0, Math.sin(k * Math.PI * 2)); wg.position.set(wq.x + Math.cos(t * .05) * 1.2, -.12 + up * .26, wq.z + Math.sin(t * .05) * .6); wg.rotation.y = -t * .05 - Math.PI / 2; tail.rotation.z = Math.sin(t * 2) * .2; spout.position.set(wg.position.x + .3 * Math.sin(t * .05), .55 + up * .2, wg.position.z); spout.visible = up > .6; spout.scale.set(1, .5 + up * .7, 1); spout.material.opacity = .6 * up; });
         }
         // Rùa biển
-        [[112.4, 9.0], [106.9, 8.4], [113.4, 10.0]].forEach(([lo, la], i) => {
+        [[660, 905], [330, 985], [590, 760]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la); if (!seaAt(q.x, q.z, .2)) return; const g = new THREE.Group();
             const sh = new THREE.Mesh(new THREE.SphereGeometry(.16, 12, 8), M(0x5a6b3a, .6)); sh.scale.set(1.2, .4, 1); g.add(sh); const hd = new THREE.Mesh(new THREE.SphereGeometry(.05, 8, 6), M(0x8a9a6a, .6)); hd.position.set(.22, 0, 0); g.add(hd);
             const fl = [[.1, .14], [.1, -.14], [-.12, .12], [-.12, -.12]].map(([x, z]) => { const f = new THREE.Mesh(new THREE.BoxGeometry(.14, .015, .05), M(0x8a9a6a, .6)); f.position.set(x, -.01, z); g.add(f); return f; }); scene.add(g);
@@ -178,7 +184,7 @@
         });
         // Hải âu bay theo đàn
         const bird = (() => { const w1 = new THREE.BoxGeometry(.2, .008, .05); w1.translate(.1, 0, 0); return w1; })(), bm = M(0xffffff, .6);
-        [[108.4, 20.3], [109.4, 15.8], [109.8, 12.4], [106.9, 9.6], [111.95, 16.45], [112.95, 9.35], [104.1, 10.4]].forEach(([lo, la], i) => {
+        [[430, 190], [520, 480], [545, 700], [380, 880], [555, 424], [599, 809], [140, 800]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la);
             for (let j = 0; j < 4; j++) { const g = new THREE.Group(); const L = new THREE.Mesh(bird, bm), R2 = new THREE.Mesh(bird, bm); R2.rotation.y = Math.PI; g.add(L, R2, new THREE.Mesh(new THREE.SphereGeometry(.025, 6, 4), bm)); scene.add(g); const ph = j * .5 + i;
                 _mapAnim.push(t => { const a = t * .25 + ph; g.position.set(q.x + Math.cos(a) * (1.4 + j * .2), 2.4 + j * .15 + Math.sin(t + j) * .1, q.z + Math.sin(a) * (1.1 + j * .2)); g.rotation.y = -a; const f = Math.sin(t * 7 + j) * .5; L.rotation.z = f; R2.rotation.z = -f; }); }
@@ -189,12 +195,13 @@
     buildSeaLife = function () {
         try { buildWaterSurface(); } catch (e) { console.warn('water', e); }
         const loops = [
-            ['cargo', 110.6, 20.2, 1.6, 1.0], ['cruise', 109.6, 18.3, 1.5, 1.1], ['trawler', 107.6, 19.2, .9, .6], ['junk', 108.7, 20.5, .8, .5], ['trawler', 109.0, 17.0, .8, .6],
-            ['coastguard', 110.8, 15.6, 1.4, 1.0], ['trawler', 110.4, 13.0, 1.0, .7], ['cargo', 111.5, 13.8, 2.0, 1.3], ['sail', 109.9, 11.6, 1.0, .7], ['trawler', 109.2, 10.2, .9, .6],
-            ['basket', 109.85, 12.9, .5, .4], ['cruise', 108.0, 9.0, 1.6, 1.0], ['trawler', 106.8, 8.0, 1.0, .6], ['raft', 105.6, 8.1, .6, .4], ['trawler', 103.0, 9.0, .9, .6],
-            ['junk', 102.8, 10.9, .8, .6], ['navy', 112.6, 11.8, 1.6, 1.1], ['coastguard', 113.6, 8.2, 1.3, .9], ['trawler', 111.0, 18.8, 1.0, .7], ['trawler', 112.2, 14.6, 1.0, .7],
-            ['basket', 108.9, 15.1, .5, .4], ['sail', 107.9, 10.1, .8, .5], ['cargo', 109.2, 8.4, 1.8, 1.0], ['trawler', 113.8, 12.8, 1.0, .7], ['navy', 110.9, 10.6, 1.4, .9]
-        ];
+            ['cargo', 470, 268, 1.5, 1.0], ['trawler', 432, 312, .8, .6], ['junk', 462, 212, .8, .5], ['cruise', 528, 292, 1.5, 1.0], ['trawler', 520, 352, .8, .6],
+            ['coastguard', 590, 522, 1.3, .9], ['trawler', 565, 575, .9, .6], ['cargo', 615, 630, 1.8, 1.2], ['sail', 562, 500, .7, .5], ['basket', 548, 655, .5, .4],
+            ['trawler', 545, 752, .9, .6], ['navy', 640, 715, 1.4, 1.0], ['cruise', 500, 872, 1.5, 1.0], ['trawler', 388, 892, .8, .5], ['cargo', 452, 962, 1.7, .9],
+            ['coastguard', 600, 915, 1.2, .8], ['sail', 425, 838, .7, .5], ['trawler', 245, 978, .9, .6], ['raft', 128, 902, .6, .4], ['junk', 78, 760, .8, .6],
+            ['trawler', 62, 868, .9, .6], ['sail', 150, 700, .8, .5], ['cargo', 92, 560, 1.6, 1.0], ['trawler', 120, 335, .9, .6], ['junk', 62, 250, .8, .6],
+            ['trawler', 205, 478, .8, .6], ['navy', 640, 300, 1.4, .9], ['trawler', 480, 130, .7, .5]
+        ].map(([k, x, y, R, Rz]) => { const p = PX(x, y); return [k, p[0], p[1], R, Rz]; });
         loops.forEach(([kind, lo, la, R, Rz], i) => { const q = geoToBoardXZ(lo, la), RR = R * GEO_K, RZ = Rz * GEO_K; if (!loopOk(q.x, q.z, RR, RZ)) return; sailLoop(mkShip(kind), q.x, q.z, RR, RZ, (.04 + (i % 4) * .012) * (i % 2 ? 1 : -1) * (kind === 'cargo' || kind === 'cruise' ? .7 : 1), i * 1.9); });
         // Phà ra đảo
         BOARD_TILES.filter(t => t.island).forEach((t, i) => {
@@ -203,9 +210,16 @@
             if (!b) return; const s = { x: a.x + dir * 2.1, z: a.z + (t.index === 3 ? -.4 : .2) }; if (Math.abs(b.x - s.x) < .8) return;
             ferry(mkShip(i % 2 ? 'trawler' : 'sail'), s, b, .18, i);
         });
+        ATOLLS.forEach((a, i) => {
+            const g = new THREE.Group(); g.position.set(a.x, .1, a.z); g.rotation.y = i * 1.3;
+            const sand = new THREE.Mesh(new THREE.CylinderGeometry(a.r, a.r * 1.25, .1, 20), M(0xf4e7b8, .9)); sand.scale.z = .8; sand.position.y = .03; g.add(sand);
+            const top = new THREE.Mesh(new THREE.SphereGeometry(a.r * .66, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), M(0x7cc457, .85)); top.scale.set(1, .5, .8); top.position.y = .08; g.add(top);
+            if (i % 2 === 0) { const tr = new THREE.Mesh(new THREE.CylinderGeometry(.018, .028, .32, 5), M(0x8a6a46, .9)); tr.position.set(.05, .3, 0); tr.rotation.z = -.15; g.add(tr); const cr = new THREE.Mesh(new THREE.IcosahedronGeometry(.13, 0), M(0x3f9a45, .8)); cr.scale.y = .45; cr.position.set(.08, .48, 0); g.add(cr); }
+            g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(g);
+        });
         try { buildMarineLife(); } catch (e) { console.warn('marine', e); }
         // Phao tiêu nhấp nháy & hải đăng
         const C = miniCol, T = miniMat;
-        [[110.2, 19.2], [110.5, 15.2], [109.9, 11.9], [107.0, 8.9], [104.2, 9.2], [108.6, 18.4], [109.9, 13.0], [112.4, 12.9]].forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, .2)) return; const bu = new THREE.Group(); bu.position.set(c.x, .1, c.z); bu.add(new THREE.Mesh(new THREE.CylinderGeometry(.08, .12, .22, 12), C(i % 2 ? 0xd63a3a : 0xf2f2f2, .4))); const lm = new THREE.MeshStandardMaterial({ color: 0xffe08a, emissive: 0xffb000, emissiveIntensity: 1 }); const l = new THREE.Mesh(new THREE.SphereGeometry(.045, 8, 6), lm); l.position.y = .28; bu.add(l); scene.add(bu); _mapAnim.push(t => { lm.emissiveIntensity = .3 + Math.abs(Math.sin(t * 2 + i)) * .9; bu.position.y = .1 + Math.sin(t * 2 + i) * .02; bu.rotation.z = Math.sin(t * 1.4 + i) * .1; }); });
-        [[108.75, 21.1], [105.45, 8.35], [109.75, 12.05]].forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, 0)) return; const g = new THREE.Group(); g.position.set(c.x, .08, c.z); const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(.5, 1), T('stone', 2, 1)); rk.scale.y = .55; rk.position.y = .1; g.add(rk); [0, 1, 2].forEach(k => { const s = new THREE.Mesh(new THREE.CylinderGeometry(.12 - k * .015, .15 - k * .015, .26, 14), C(k % 2 ? 0xd63a3a : 0xffffff, .5)); s.position.y = .45 + k * .26; g.add(s); }); const lm = new THREE.MeshStandardMaterial({ color: 0xfff0a0, emissive: 0xffc030, emissiveIntensity: 1 }); const lamp = new THREE.Mesh(new THREE.SphereGeometry(.1, 10, 8), lm); lamp.position.y = 1.32; g.add(lamp); const cap = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 10), C(0xd63a3a)); cap.position.y = 1.47; g.add(cap); g.traverse(m => { if (m.isMesh) m.castShadow = true; }); scene.add(g); _mapAnim.push(t => { lm.emissiveIntensity = .5 + Math.abs(Math.sin(t * 1.5 + i)) * 1.2; }); });
+        [[500, 250], [560, 560], [565, 735], [350, 905], [165, 870], [470, 335], [548, 622], [632, 560]].map(([x, y]) => PX(x, y)).forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, .2)) return; const bu = new THREE.Group(); bu.position.set(c.x, .1, c.z); bu.add(new THREE.Mesh(new THREE.CylinderGeometry(.08, .12, .22, 12), C(i % 2 ? 0xd63a3a : 0xf2f2f2, .4))); const lm = new THREE.MeshStandardMaterial({ color: 0xffe08a, emissive: 0xffb000, emissiveIntensity: 1 }); const l = new THREE.Mesh(new THREE.SphereGeometry(.045, 8, 6), lm); l.position.y = .28; bu.add(l); scene.add(bu); _mapAnim.push(t => { lm.emissiveIntensity = .3 + Math.abs(Math.sin(t * 2 + i)) * .9; bu.position.y = .1 + Math.sin(t * 2 + i) * .02; bu.rotation.z = Math.sin(t * 1.4 + i) * .1; }); });
+        [[468, 150], [232, 955], [548, 668]].map(([x, y]) => PX(x, y)).forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, 0)) return; const g = new THREE.Group(); g.position.set(c.x, .08, c.z); const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(.5, 1), T('stone', 2, 1)); rk.scale.y = .55; rk.position.y = .1; g.add(rk); [0, 1, 2].forEach(k => { const s = new THREE.Mesh(new THREE.CylinderGeometry(.12 - k * .015, .15 - k * .015, .26, 14), C(k % 2 ? 0xd63a3a : 0xffffff, .5)); s.position.y = .45 + k * .26; g.add(s); }); const lm = new THREE.MeshStandardMaterial({ color: 0xfff0a0, emissive: 0xffc030, emissiveIntensity: 1 }); const lamp = new THREE.Mesh(new THREE.SphereGeometry(.1, 10, 8), lm); lamp.position.y = 1.32; g.add(lamp); const cap = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 10), C(0xd63a3a)); cap.position.y = 1.47; g.add(cap); g.traverse(m => { if (m.isMesh) m.castShadow = true; }); scene.add(g); _mapAnim.push(t => { lm.emissiveIntensity = .5 + Math.abs(Math.sin(t * 1.5 + i)) * 1.2; }); });
     };

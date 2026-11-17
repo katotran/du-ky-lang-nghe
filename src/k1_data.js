@@ -5,9 +5,14 @@
      *    · Thêm nhiều Thẻ Biến Động / Bản Lĩnh · Biển, thuyền, cá, Hoàng Sa, Trường Sa chi tiết
      * ================================================================================= */
     GEO_K = 2.0;
-    const KB = { lon0: 99.4, lon1: 114.6, lat0: 7.1, lat1: 24.3 };
+    const KB = { lon0: 98.9, lon1: 113.5, lat0: 6.7, lat1: 24.6 };
     const BOARD_RECT = (() => { const a = geoToBoardXZ(KB.lon0, KB.lat1), b = geoToBoardXZ(KB.lon1, KB.lat0); return { x0: a.x, z0: a.z, x1: b.x, z1: b.z, cx: (a.x + b.x) / 2, cz: (a.z + b.z) / 2, W: b.x - a.x, D: b.z - a.z }; })();
-    const HS_GEO = [111.95, 16.45], TS_GEO = [112.95, 9.35];
+    const HS_GEO = [110.5, 16.9], TS_GEO = [111.3, 10.5];
+    // Lòng biển bo tròn (siêu elip) nằm giữa bờ đất bao quanh: poolSD < 0 là trong biển, poolPt cho điểm trên mép bờ
+    const POOL = { a: BOARD_RECT.W / 2 - 1.2, b: BOARD_RECT.D / 2 - 1.2, p: 4.5 };
+    const poolSD = (x, z) => (Math.pow(Math.pow(Math.abs(x - BOARD_RECT.cx) / POOL.a, POOL.p) + Math.pow(Math.abs(z - BOARD_RECT.cz) / POOL.b, POOL.p), 1 / POOL.p) - 1) * Math.min(POOL.a, POOL.b);
+    const poolPt = (th, off) => { const c = Math.cos(th), s = Math.sin(th), e = 2 / POOL.p, w = 1 + .010 * Math.sin(th * 7 + .6) + .007 * Math.sin(th * 13 + 2.1); return [BOARD_RECT.cx + (POOL.a + (off || 0)) * w * Math.sign(c) * Math.pow(Math.abs(c), e), BOARD_RECT.cz + (POOL.b + (off || 0)) * w * Math.sign(s) * Math.pow(Math.abs(s), e)]; };
+    const poolPts = (off, n) => { const o = []; for (let i = 0; i < n; i++) o.push(poolPt(i / n * Math.PI * 2, off)); return o; };
 
     TOOL_CATEGORIES.CERAMIC_ART.name = 'Bàn xoay, Đục chạm & Lò rèn';
     TOOL_CATEGORIES.CERAMIC_ART.shortName = 'Công cụ Gốm, Mộc & Rèn';
@@ -33,7 +38,7 @@
         P47('Làng Hương Thủy Xuân', 'Cố đô Huế', 107.57, 16.44, 'THUY_XUAN_INCENSE', 'CERAMIC_ART', 130, 'Bột trầm quế & Tâm tre', '💐', 'Khách vãng lai phải se hương trầm ngũ sắc và xếp thành những đóa hoa hương rực rỡ dưới nắng Huế.'),
         X47('SHOP', 'Thương Cảng Tiên Sa', 'Sơn Trà - Đà Nẵng', 108.21, 16.10, 'FAIFO_PORT', 'Trạm Công Cụ Miền Trung', '#0d9488', '🛠️', 'Thương cảng sầm uất bên bán đảo Sơn Trà! Nơi thương thuyền tấp nập tiếp tế Thẻ Công Cụ.'),
         P47('Làng Gốm Thanh Hà', 'Hội An - Quảng Nam', 108.32, 15.86, 'HOI_AN_ANCIENT', 'CERAMIC_ART', 140, 'Đất sét Thu Bồn & Bàn xoay', '🏮', 'Khách vãng lai phải chuốt gốm đất nung đỏ au bên dòng Thu Bồn, cạnh phố cổ Hội An.'),
-        P47('Tỏi Lý Sơn', 'Đảo Lý Sơn - Quảng Ngãi', 109.62, 15.36, 'LY_SON_ISLAND', 'COASTAL_AQUA', 150, 'Cát san hô & Thuyền câu', '🧄', 'Khách vãng lai phải phủ cát san hô trồng tỏi cô đơn trên đảo núi lửa và đóng thuyền khao lề thế lính Hoàng Sa.', { island: true }),
+        P47('Tỏi Lý Sơn', 'Đảo Lý Sơn - Quảng Ngãi', 110.45, 15.2, 'LY_SON_ISLAND', 'COASTAL_AQUA', 150, 'Cát san hô & Thuyền câu', '🧄', 'Khách vãng lai phải phủ cát san hô trồng tỏi cô đơn trên đảo núi lửa và đóng thuyền khao lề thế lính Hoàng Sa.', { island: true }),
         X47('BAN_LINH', 'Bản Lĩnh Đất Võ Bình Định', 'Tây Sơn - Bình Định', 109.05, 13.88, 'BINH_DINH', 'Bốc Thẻ Bản Lĩnh (?)', '#d97706', '❓', 'Miền đất võ Tây Sơn! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
         P47('Yến Sào Nha Trang', 'Nha Trang - Khánh Hòa', 109.18, 12.25, 'NHA_TRANG_AGARWOOD', 'COASTAL_AQUA', 160, 'Thang dây & Giỏ yến', '🪺', 'Khách vãng lai phải leo vách đá Hòn Nội khai thác tổ yến và làm sạch từng sợi yến trắng ngà.'),
         P47('Gốm Chăm Bàu Trúc', 'Phan Rang - Ninh Thuận', 108.93, 11.55, 'BAU_TRUC_CHAM', 'CERAMIC_ART', 165, 'Đất sét sông Quao & Rơm nung', '🏛️', 'Khách vãng lai phải đi vòng quanh bàn gốm không dùng bàn xoay và nung lộ thiên bằng rơm củi.'),
@@ -46,7 +51,7 @@
         P47('Bánh Pía Vũ Thơm', 'Vĩnh Châu - Sóc Trăng', 105.97, 9.60, 'VU_THOM', 'HIGHLAND_AGRI', 185, 'Lò than & Khuôn ép', '🥮', 'Khách vãng lai phải cán vỏ bánh ngàn lớp, gói nhân sầu riêng trứng muối và nướng trong lò than.'),
         P47('Cánh Đồng Muối Bạc Liêu', 'Đông Hải - Bạc Liêu', 105.72, 9.28, 'BAC_LIEU_SALT2', 'COASTAL_AQUA', 190, 'Trang cào & Gánh muối', '🧂', 'Khách vãng lai phải dẫn nước biển vào ô kết tinh và cào những đụn muối trắng lấp lánh.'),
         P47('Ao Tôm Cà Mau', 'Đất Mũi - Cà Mau', 104.85, 8.75, 'CA_MAU2', 'COASTAL_AQUA', 195, 'Quạt nước oxy & Lưới đăng', '🦐', 'Khách vãng lai phải vận hành dàn quạt nước nuôi tôm sú dưới tán rừng đước Đất Mũi.'),
-        P47('Ngọc Trai Phú Quốc', 'Đảo Phú Quốc - Kiên Giang', 103.72, 10.12, 'PHU_QUOC2', 'COASTAL_AQUA', 220, 'Bè nuôi & Dao cấy ngọc', '🦪', 'Khách vãng lai phải lặn kiểm tra bè nuôi và cấy nhân ngọc vào trai biển giữa làn nước trong xanh.', { island: true }),
+        P47('Ngọc Trai Phú Quốc', 'Đảo Phú Quốc - Kiên Giang', 102.87, 10.5, 'PHU_QUOC2', 'COASTAL_AQUA', 220, 'Bè nuôi & Dao cấy ngọc', '🦪', 'Khách vãng lai phải lặn kiểm tra bè nuôi và cấy nhân ngọc vào trai biển giữa làn nước trong xanh.', { island: true }),
         X47('SHOP', 'Chợ Nổi Cái Răng', 'Cái Răng - Cần Thơ', 105.77, 10.02, 'CAI_RANG2', 'Trạm Công Cụ Miền Tây', '#0d9488', '🛶', 'Ghe xuồng treo "cây bẹo" tấp nập trên sông Hậu! Ghé mua Thẻ Công Cụ cho hành trình ngược lên Bắc.'),
         P47('Làng Lụa Tân Châu', 'Tân Châu - An Giang', 105.24, 10.80, 'TAN_CHAU2', 'WEAVING_CRAFT', 190, 'Trái mặc nưa & Khung dệt lụa', '🧣', 'Khách vãng lai phải nhuộm lụa Lãnh Mỹ A bằng trái mặc nưa và phơi trên bãi cỏ ven sông Tiền.'),
         P47('Làng Hoa Sa Đéc', 'Sa Đéc - Đồng Tháp', 105.76, 10.30, 'SA_DEC2', 'HIGHLAND_AGRI', 195, 'Giàn tre trên nước & Chậu hoa', '🌼', 'Khách vãng lai phải chèo xuồng chăm những giàn cúc mâm xôi đặt trên mặt nước.'),
@@ -71,27 +76,43 @@
         P47('Đồi Chè Tân Cương', 'Tân Cương - Thái Nguyên', 105.75, 21.57, 'TAN_CUONG2', 'HIGHLAND_AGRI', 170, 'Gùi tre & Chảo sao chè', '🍵', 'Khách vãng lai phải hái búp chè "một tôm hai lá" và sao chè bằng chảo gang trên bếp củi.')
     ];
 
-    // Giãn cách: giữ gần vị trí thật nhất có thể, mỗi sa bàn cách nhau tối thiểu 2.75 đơn vị
+    // BỐ CỤC TUYẾN ĐI (toạ độ theo điểm ảnh của ảnh mẫu, xem PX trong k0_shape.js):
+    //  · Làn Đông (#0–#23): từ Hà Nội ra Vân Đồn rồi bám mép biển phía Đông xuôi xuống mũi Cà Mau
+    //  · Tây Nam Bộ (#23–#30): vòng qua mũi Cà Mau, ra Phú Quốc, ôm rìa vịnh Thái Lan / biên giới Tây Nam thành chữ U đơn tuyến
+    //  · Làn Tây (#31–#37): bám rìa phía Tây (Tây Nguyên, Trường Sơn) ngược ra Bắc, cách làn Đông một khoảng trống rõ
+    //  · Vòng Bắc (#38–#46): Hòa Bình → Tây Bắc → Hà Giang → Đông Bắc → về Hà Nội
+    // Mỗi ô vẫn ở đúng vùng tỉnh của mình, chỉ dịch trong nội tỉnh để đường đi không giao cắt.
+    const LANE_PX = [
+        [265, 170], [305, 190], [352, 170], [432, 188], [282, 232], [272, 270], [292, 322], [335, 372], [428, 458], [455, 492],
+        [470, 530], [552, 542], [490, 600], [488, 668], [455, 716], [420, 748], [384, 772], [345, 790], [322, 822], [296, 850],
+        [265, 872], [234, 893], [206, 912], [190, 880], [128, 808], [212, 845], [205, 800], [225, 768], [262, 765], [292, 722],
+        [332, 714], [372, 690], [418, 680], [395, 635], [392, 590], [392, 548], [322, 425], [232, 298], [210, 200], [125, 155],
+        [105, 105], [165, 88], [240, 60], [325, 80], [368, 128], [318, 145], [268, 125]
+    ];
+    // Giãn cách: giữ gần vị trí thật nhất có thể, các bệ địa danh cách nhau tối thiểu MIN đơn vị
+    // và CẢ BỆ (không chỉ tâm) phải nằm gọn trong đất liền để không tràn ra biển
+    const TILE_GAP = 3.3, TILE_RAD = 1.5;
     (function relax47() {
-        const kx = 2.55 * GEO_K, kz = 2.75 * GEO_K, MIN = 2.75;
-        const P = TILES47.map(t => { const q = geoToBoardXZ(t.lon, t.lat); return { x: q.x, z: q.z, ax: q.x, az: q.z, w: t.island ? .25 : 1 }; });
+        const kx = 2.55 * GEO_K, kz = 2.75 * GEO_K, MIN = TILE_GAP, RAD = TILE_RAD;
+        const P = TILES47.map((t, i) => { const q = PXZ(LANE_PX[i][0], LANE_PX[i][1]); return { x: q.x, z: q.z, ax: q.x, az: q.z, w: t.island ? 0 : 1 }; });
         const land = (x, z) => isPointInPolygon(x / kx + 106.15, 16 - z / kz, VIETNAM_BORDER_LONLAT);
-        for (let it = 0; it < 520; it++) {
-            P.forEach(p => { p.x += (p.ax - p.x) * .03; p.z += (p.az - p.z) * .03; });
-            for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
-                const a = P[i], b = P[j], dx = b.x - a.x, dz = b.z - a.z; let L = Math.hypot(dx, dz);
-                if (L >= MIN) continue; if (L < 1e-3) L = 1e-3;
-                const m = (MIN - L) / L / (a.w + b.w); a.x -= dx * m * a.w; a.z -= dz * m * a.w; b.x += dx * m * b.w; b.z += dz * m * b.w;
-            }
-            P.forEach((p, i) => { if (!TILES47[i].island && !land(p.x, p.z)) { p.x += (p.ax - p.x) * .12 - .05; p.z += (p.az - p.z) * .12; } });
+        const RING = []; for (let i = 0; i < 12; i++) RING.push([Math.cos(i / 12 * 6.283) * RAD, Math.sin(i / 12 * 6.283) * RAD]);
+        // đẩy bệ vào trong đất liền: lùi khỏi những điểm trên vành bệ đang nằm ngoài biển
+        const inland = (p, k) => { let px = 0, pz = 0, n = 0; if (!land(p.x, p.z)) n = -1; RING.forEach(([dx, dz]) => { if (!land(p.x + dx, p.z + dz)) { px -= dx; pz -= dz; if (n >= 0) n++; } }); if (n < 0 && !px && !pz) { px = p.ax - p.x; pz = p.az - p.z; } const L = Math.hypot(px, pz); if (L > 1e-6) { p.x += px / L * k; p.z += pz / L * k; } return n !== 0; };
+        const apart = () => { for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) { const a = P[i], b = P[j], dx = b.x - a.x, dz = b.z - a.z; let L = Math.hypot(dx, dz); if (L >= MIN || a.w + b.w === 0) continue; if (L < 1e-3) L = 1e-3; const m = (MIN - L) / L / (a.w + b.w); a.x -= dx * m * a.w; a.z -= dz * m * a.w; b.x += dx * m * b.w; b.z += dz * m * b.w; } };
+        for (let it = 0; it < 1400; it++) {
+            const pull = it < 1100 ? .05 : 0;   // cuối cùng chỉ còn ràng buộc khoảng cách + nằm trong đất liền
+            P.forEach(p => { if (p.w) { p.x += (p.ax - p.x) * pull; p.z += (p.az - p.z) * pull; } });
+            apart();
+            P.forEach(p => { if (p.w) for (let k = 0; k < 4; k++) if (!inland(p, .09)) break; });
         }
         TILES47.forEach((t, i) => { t.realLon = t.lon; t.realLat = t.lat; t.lon = P[i].x / kx + 106.15; t.lat = 16 - P[i].z / kz; t.index = i; });
     })();
     BOARD_TILES.length = 0; TILES47.forEach(t => BOARD_TILES.push(t));
 
     // Đảo nâng đỡ các ô nằm ngoài khơi (Vân Đồn, Lý Sơn, Phú Quốc) + Côn Đảo, Phú Quý
-    window.__ISLANDS = BOARD_TILES.filter(t => t.island).map(t => ({ lon: t.lon, lat: t.lat, rx: t.index === 24 ? 1.75 : 1.5, rz: t.index === 24 ? 2.1 : 1.5, h: .42, color: 0x3f9a55 }))
-        .concat([{ lon: 106.6, lat: 8.68, rx: .55, rz: .45, h: .34, color: 0x3f9a55 }, { lon: 108.94, lat: 10.52, rx: .32, rz: .28, h: .3, color: 0x4fa860 }]);
+    window.__ISLANDS = BOARD_TILES.filter(t => t.island).map(t => ({ lon: t.lon, lat: t.lat, rx: t.index === 24 ? 1.9 : 1.75, rz: t.index === 24 ? 2.5 : 1.7, h: .42, color: 0x3f9a55, tile: t.index, poly: t.index === 24 ? PQ_LONLAT : null }))
+        .concat([{ lon: 106.6, lat: 8.3, rx: .75, rz: .6, h: .34, color: 0x3f9a55 }, { lon: 109.0, lat: 10.25, rx: .5, rz: .42, h: .3, color: 0x4fa860 }]);
 
     /* ---------- Thẻ Biến Động & Bản Lĩnh bổ sung ---------- */
     const NEW_BD = [

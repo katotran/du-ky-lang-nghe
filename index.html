@@ -8493,15 +8493,46 @@ function createVietnameseCostumePawn3D(player) {
     /* ===== K. 47 ĐỊA DANH · BẢN ĐỒ MỞ RỘNG · BIỂN & HOÀNG SA – TRƯỜNG SA ===== */
     (function () {
     /* =================================================================================
+     * K0. HÌNH DÁNG BẢN ĐỒ MỚI (dò từ ảnh mẫu của nhóm): dải đất chữ S mập, bo tròn, mặt phẳng
+     *     · SHAPE_PX / PQ_PX là đường viền đất liền & đảo Phú Quốc tính theo điểm ảnh của ảnh mẫu
+     *     · PX(x, y) đổi điểm ảnh -> kinh/vĩ độ, giữ đúng tỉ lệ nên các làng nghề vẫn nằm đúng vùng miền
+     * ================================================================================= */
+    const SHAPE_PX = [[258,32],[268,32],[279,35],[290,40],[300,44],[311,47],[322,51],[333,52],[342,57],[352,65],[361,75],[365,86],[364,96],[363,103],[368,112],[379,117],[388,120],[399,124],[410,130],[417,139],[418,150],[413,159],[403,165],[392,171],[383,178],[373,183],[364,186],[354,190],[347,200],[341,209],[337,216],[331,222],[323,230],[314,236],[304,243],[297,251],[296,262],[293,272],[291,281],[288,287],[287,292],[293,297],[302,308],[312,318],[320,329],[327,338],[335,348],[345,357],[355,367],[366,374],[377,382],[387,391],[397,400],[407,409],[417,417],[425,424],[436,427],[442,435],[449,446],[457,456],[465,466],[473,476],[479,486],[487,496],[494,507],[500,516],[503,527],[507,538],[510,549],[513,560],[516,570],[520,581],[523,592],[522,601],[522,610],[525,620],[526,631],[524,641],[523,651],[521,661],[521,669],[517,677],[513,686],[509,694],[503,700],[499,703],[494,712],[488,723],[481,732],[473,741],[462,745],[452,749],[444,757],[438,765],[428,772],[418,776],[409,781],[399,788],[388,792],[377,797],[366,802],[359,806],[354,812],[351,823],[346,834],[339,844],[331,853],[322,862],[311,869],[301,875],[290,880],[279,886],[270,892],[260,899],[249,906],[239,913],[230,921],[220,927],[209,929],[198,929],[187,926],[180,918],[176,910],[173,900],[172,890],[173,879],[177,868],[182,857],[186,846],[192,835],[196,824],[192,818],[187,812],[183,804],[180,793],[179,782],[181,771],[188,762],[198,755],[209,751],[217,745],[228,740],[239,738],[250,737],[259,732],[264,721],[267,710],[274,700],[282,694],[293,689],[303,684],[311,679],[321,676],[332,673],[343,668],[352,660],[358,649],[362,638],[366,627],[366,616],[363,607],[362,602],[362,592],[364,582],[367,571],[368,562],[366,552],[365,541],[365,530],[363,519],[360,509],[356,503],[350,493],[342,482],[333,472],[322,462],[311,454],[303,444],[296,433],[289,423],[279,413],[271,402],[265,392],[264,385],[261,377],[257,371],[254,369],[245,359],[238,350],[232,339],[229,329],[225,320],[218,312],[211,302],[202,294],[192,288],[181,282],[172,274],[166,264],[163,254],[163,243],[166,233],[173,222],[181,212],[185,203],[178,200],[167,198],[156,195],[145,192],[135,188],[124,183],[113,179],[103,171],[94,165],[84,159],[75,149],[67,139],[63,128],[60,118],[60,107],[64,96],[71,86],[80,79],[90,73],[100,69],[111,68],[122,67],[133,66],[144,66],[155,66],[166,67],[177,67],[185,63],[196,58],[205,54],[214,49],[225,44],[236,40],[247,35]];
+    const PQ_PX = [[128,784],[134,784],[139,786],[144,792],[146,798],[146,805],[144,811],[141,817],[138,822],[133,825],[129,827],[123,832],[117,835],[111,833],[109,828],[109,822],[111,815],[112,809],[112,802],[114,797],[117,790],[122,787]];
+    // 1 điểm ảnh của ảnh mẫu = 0.0916 đơn vị bàn cờ theo cả hai chiều (GEO_K = 2)
+    const PX = (x, y) => [105.8 + (x - 293) * .017963, 23.45 - (y - 31) * .016648];
+    const PXZ = (x, y) => { const p = PX(x, y); return geoToBoardXZ(p[0], p[1]); };
+    const smoothRing = (P, n) => { for (let k = 0; k < n; k++) P = P.map((p, i) => { const a = P[(i + P.length - 1) % P.length], b = P[(i + 1) % P.length]; return [(a[0] + 2 * p[0] + b[0]) / 4, (a[1] + 2 * p[1] + b[1]) / 4]; }); return P; };
+    const chaikin = P => { const o = []; P.forEach((p, i) => { const q = P[(i + 1) % P.length]; o.push([p[0] * .75 + q[0] * .25, p[1] * .75 + q[1] * .25], [p[0] * .25 + q[0] * .75, p[1] * .25 + q[1] * .75]); }); return o; };
+    const PQ_LONLAT = chaikin(smoothRing(PQ_PX, 1)).map(p => PX(p[0], p[1]));
+    (function applyNewShape() {
+        const P = chaikin(chaikin(smoothRing(SHAPE_PX, 2))).map(p => PX(p[0], p[1]));
+        VIETNAM_BORDER_LONLAT.length = 0; P.forEach(p => VIETNAM_BORDER_LONLAT.push(p));
+        // dựng lại mặt nạ đất liền (isPointInPolygon tra bảng này)
+        const M = _MX, n = P.length; M.mask.fill(0);
+        for (let j = 0; j < M.ny; j++) {
+            const lat = M.y1 - (j + .5) * M.res, xs = [];
+            for (let i = 0; i < n; i++) { const a = P[i], b = P[(i + 1) % n]; if ((a[1] <= lat) !== (b[1] <= lat)) xs.push(a[0] + (lat - a[1]) / (b[1] - a[1]) * (b[0] - a[0])); }
+            xs.sort((u, v) => u - v);
+            for (let k = 0; k + 1 < xs.length; k += 2) { const i0 = Math.max(0, Math.ceil((xs[k] - M.x0) / M.res - .5)), i1 = Math.min(M.nx - 1, Math.floor((xs[k + 1] - M.x0) / M.res - .5)); for (let i = i0; i <= i1; i++) M.mask[j * M.nx + i] = 1; }
+        }
+    })();
+
+    /* =================================================================================
      * K. BẢN ĐỒ 47 ĐỊA DANH (theo 47 sa bàn mẫu của nhóm, đúng thứ tự & vị trí địa lý thật)
      *    · Bản đồ phóng to (GEO_K 2.0), mở rộng mép bàn về phía Tây, giữ trọn Biển Đông
      *    · Toạ độ thật của từng làng nghề, tự giãn cách tối thiểu để các sa bàn không chồng nhau
      *    · Thêm nhiều Thẻ Biến Động / Bản Lĩnh · Biển, thuyền, cá, Hoàng Sa, Trường Sa chi tiết
      * ================================================================================= */
     GEO_K = 2.0;
-    const KB = { lon0: 99.4, lon1: 114.6, lat0: 7.1, lat1: 24.3 };
+    const KB = { lon0: 98.9, lon1: 113.5, lat0: 6.7, lat1: 24.6 };
     const BOARD_RECT = (() => { const a = geoToBoardXZ(KB.lon0, KB.lat1), b = geoToBoardXZ(KB.lon1, KB.lat0); return { x0: a.x, z0: a.z, x1: b.x, z1: b.z, cx: (a.x + b.x) / 2, cz: (a.z + b.z) / 2, W: b.x - a.x, D: b.z - a.z }; })();
-    const HS_GEO = [111.95, 16.45], TS_GEO = [112.95, 9.35];
+    const HS_GEO = [110.5, 16.9], TS_GEO = [111.3, 10.5];
+    // Lòng biển bo tròn (siêu elip) nằm giữa bờ đất bao quanh: poolSD < 0 là trong biển, poolPt cho điểm trên mép bờ
+    const POOL = { a: BOARD_RECT.W / 2 - 1.2, b: BOARD_RECT.D / 2 - 1.2, p: 4.5 };
+    const poolSD = (x, z) => (Math.pow(Math.pow(Math.abs(x - BOARD_RECT.cx) / POOL.a, POOL.p) + Math.pow(Math.abs(z - BOARD_RECT.cz) / POOL.b, POOL.p), 1 / POOL.p) - 1) * Math.min(POOL.a, POOL.b);
+    const poolPt = (th, off) => { const c = Math.cos(th), s = Math.sin(th), e = 2 / POOL.p, w = 1 + .010 * Math.sin(th * 7 + .6) + .007 * Math.sin(th * 13 + 2.1); return [BOARD_RECT.cx + (POOL.a + (off || 0)) * w * Math.sign(c) * Math.pow(Math.abs(c), e), BOARD_RECT.cz + (POOL.b + (off || 0)) * w * Math.sign(s) * Math.pow(Math.abs(s), e)]; };
+    const poolPts = (off, n) => { const o = []; for (let i = 0; i < n; i++) o.push(poolPt(i / n * Math.PI * 2, off)); return o; };
 
     TOOL_CATEGORIES.CERAMIC_ART.name = 'Bàn xoay, Đục chạm & Lò rèn';
     TOOL_CATEGORIES.CERAMIC_ART.shortName = 'Công cụ Gốm, Mộc & Rèn';
@@ -8527,7 +8558,7 @@ function createVietnameseCostumePawn3D(player) {
         P47('Làng Hương Thủy Xuân', 'Cố đô Huế', 107.57, 16.44, 'THUY_XUAN_INCENSE', 'CERAMIC_ART', 130, 'Bột trầm quế & Tâm tre', '💐', 'Khách vãng lai phải se hương trầm ngũ sắc và xếp thành những đóa hoa hương rực rỡ dưới nắng Huế.'),
         X47('SHOP', 'Thương Cảng Tiên Sa', 'Sơn Trà - Đà Nẵng', 108.21, 16.10, 'FAIFO_PORT', 'Trạm Công Cụ Miền Trung', '#0d9488', '🛠️', 'Thương cảng sầm uất bên bán đảo Sơn Trà! Nơi thương thuyền tấp nập tiếp tế Thẻ Công Cụ.'),
         P47('Làng Gốm Thanh Hà', 'Hội An - Quảng Nam', 108.32, 15.86, 'HOI_AN_ANCIENT', 'CERAMIC_ART', 140, 'Đất sét Thu Bồn & Bàn xoay', '🏮', 'Khách vãng lai phải chuốt gốm đất nung đỏ au bên dòng Thu Bồn, cạnh phố cổ Hội An.'),
-        P47('Tỏi Lý Sơn', 'Đảo Lý Sơn - Quảng Ngãi', 109.62, 15.36, 'LY_SON_ISLAND', 'COASTAL_AQUA', 150, 'Cát san hô & Thuyền câu', '🧄', 'Khách vãng lai phải phủ cát san hô trồng tỏi cô đơn trên đảo núi lửa và đóng thuyền khao lề thế lính Hoàng Sa.', { island: true }),
+        P47('Tỏi Lý Sơn', 'Đảo Lý Sơn - Quảng Ngãi', 110.45, 15.2, 'LY_SON_ISLAND', 'COASTAL_AQUA', 150, 'Cát san hô & Thuyền câu', '🧄', 'Khách vãng lai phải phủ cát san hô trồng tỏi cô đơn trên đảo núi lửa và đóng thuyền khao lề thế lính Hoàng Sa.', { island: true }),
         X47('BAN_LINH', 'Bản Lĩnh Đất Võ Bình Định', 'Tây Sơn - Bình Định', 109.05, 13.88, 'BINH_DINH', 'Bốc Thẻ Bản Lĩnh (?)', '#d97706', '❓', 'Miền đất võ Tây Sơn! Bốc 1 Thẻ Bản Lĩnh để nắm giữ đặc quyền chiến thuật.'),
         P47('Yến Sào Nha Trang', 'Nha Trang - Khánh Hòa', 109.18, 12.25, 'NHA_TRANG_AGARWOOD', 'COASTAL_AQUA', 160, 'Thang dây & Giỏ yến', '🪺', 'Khách vãng lai phải leo vách đá Hòn Nội khai thác tổ yến và làm sạch từng sợi yến trắng ngà.'),
         P47('Gốm Chăm Bàu Trúc', 'Phan Rang - Ninh Thuận', 108.93, 11.55, 'BAU_TRUC_CHAM', 'CERAMIC_ART', 165, 'Đất sét sông Quao & Rơm nung', '🏛️', 'Khách vãng lai phải đi vòng quanh bàn gốm không dùng bàn xoay và nung lộ thiên bằng rơm củi.'),
@@ -8540,7 +8571,7 @@ function createVietnameseCostumePawn3D(player) {
         P47('Bánh Pía Vũ Thơm', 'Vĩnh Châu - Sóc Trăng', 105.97, 9.60, 'VU_THOM', 'HIGHLAND_AGRI', 185, 'Lò than & Khuôn ép', '🥮', 'Khách vãng lai phải cán vỏ bánh ngàn lớp, gói nhân sầu riêng trứng muối và nướng trong lò than.'),
         P47('Cánh Đồng Muối Bạc Liêu', 'Đông Hải - Bạc Liêu', 105.72, 9.28, 'BAC_LIEU_SALT2', 'COASTAL_AQUA', 190, 'Trang cào & Gánh muối', '🧂', 'Khách vãng lai phải dẫn nước biển vào ô kết tinh và cào những đụn muối trắng lấp lánh.'),
         P47('Ao Tôm Cà Mau', 'Đất Mũi - Cà Mau', 104.85, 8.75, 'CA_MAU2', 'COASTAL_AQUA', 195, 'Quạt nước oxy & Lưới đăng', '🦐', 'Khách vãng lai phải vận hành dàn quạt nước nuôi tôm sú dưới tán rừng đước Đất Mũi.'),
-        P47('Ngọc Trai Phú Quốc', 'Đảo Phú Quốc - Kiên Giang', 103.72, 10.12, 'PHU_QUOC2', 'COASTAL_AQUA', 220, 'Bè nuôi & Dao cấy ngọc', '🦪', 'Khách vãng lai phải lặn kiểm tra bè nuôi và cấy nhân ngọc vào trai biển giữa làn nước trong xanh.', { island: true }),
+        P47('Ngọc Trai Phú Quốc', 'Đảo Phú Quốc - Kiên Giang', 102.87, 10.5, 'PHU_QUOC2', 'COASTAL_AQUA', 220, 'Bè nuôi & Dao cấy ngọc', '🦪', 'Khách vãng lai phải lặn kiểm tra bè nuôi và cấy nhân ngọc vào trai biển giữa làn nước trong xanh.', { island: true }),
         X47('SHOP', 'Chợ Nổi Cái Răng', 'Cái Răng - Cần Thơ', 105.77, 10.02, 'CAI_RANG2', 'Trạm Công Cụ Miền Tây', '#0d9488', '🛶', 'Ghe xuồng treo "cây bẹo" tấp nập trên sông Hậu! Ghé mua Thẻ Công Cụ cho hành trình ngược lên Bắc.'),
         P47('Làng Lụa Tân Châu', 'Tân Châu - An Giang', 105.24, 10.80, 'TAN_CHAU2', 'WEAVING_CRAFT', 190, 'Trái mặc nưa & Khung dệt lụa', '🧣', 'Khách vãng lai phải nhuộm lụa Lãnh Mỹ A bằng trái mặc nưa và phơi trên bãi cỏ ven sông Tiền.'),
         P47('Làng Hoa Sa Đéc', 'Sa Đéc - Đồng Tháp', 105.76, 10.30, 'SA_DEC2', 'HIGHLAND_AGRI', 195, 'Giàn tre trên nước & Chậu hoa', '🌼', 'Khách vãng lai phải chèo xuồng chăm những giàn cúc mâm xôi đặt trên mặt nước.'),
@@ -8565,27 +8596,43 @@ function createVietnameseCostumePawn3D(player) {
         P47('Đồi Chè Tân Cương', 'Tân Cương - Thái Nguyên', 105.75, 21.57, 'TAN_CUONG2', 'HIGHLAND_AGRI', 170, 'Gùi tre & Chảo sao chè', '🍵', 'Khách vãng lai phải hái búp chè "một tôm hai lá" và sao chè bằng chảo gang trên bếp củi.')
     ];
 
-    // Giãn cách: giữ gần vị trí thật nhất có thể, mỗi sa bàn cách nhau tối thiểu 2.75 đơn vị
+    // BỐ CỤC TUYẾN ĐI (toạ độ theo điểm ảnh của ảnh mẫu, xem PX trong k0_shape.js):
+    //  · Làn Đông (#0–#23): từ Hà Nội ra Vân Đồn rồi bám mép biển phía Đông xuôi xuống mũi Cà Mau
+    //  · Tây Nam Bộ (#23–#30): vòng qua mũi Cà Mau, ra Phú Quốc, ôm rìa vịnh Thái Lan / biên giới Tây Nam thành chữ U đơn tuyến
+    //  · Làn Tây (#31–#37): bám rìa phía Tây (Tây Nguyên, Trường Sơn) ngược ra Bắc, cách làn Đông một khoảng trống rõ
+    //  · Vòng Bắc (#38–#46): Hòa Bình → Tây Bắc → Hà Giang → Đông Bắc → về Hà Nội
+    // Mỗi ô vẫn ở đúng vùng tỉnh của mình, chỉ dịch trong nội tỉnh để đường đi không giao cắt.
+    const LANE_PX = [
+        [265, 170], [305, 190], [352, 170], [432, 188], [282, 232], [272, 270], [292, 322], [335, 372], [428, 458], [455, 492],
+        [470, 530], [552, 542], [490, 600], [488, 668], [455, 716], [420, 748], [384, 772], [345, 790], [322, 822], [296, 850],
+        [265, 872], [234, 893], [206, 912], [190, 880], [128, 808], [212, 845], [205, 800], [225, 768], [262, 765], [292, 722],
+        [332, 714], [372, 690], [418, 680], [395, 635], [392, 590], [392, 548], [322, 425], [232, 298], [210, 200], [125, 155],
+        [105, 105], [165, 88], [240, 60], [325, 80], [368, 128], [318, 145], [268, 125]
+    ];
+    // Giãn cách: giữ gần vị trí thật nhất có thể, các bệ địa danh cách nhau tối thiểu MIN đơn vị
+    // và CẢ BỆ (không chỉ tâm) phải nằm gọn trong đất liền để không tràn ra biển
+    const TILE_GAP = 3.3, TILE_RAD = 1.5;
     (function relax47() {
-        const kx = 2.55 * GEO_K, kz = 2.75 * GEO_K, MIN = 2.75;
-        const P = TILES47.map(t => { const q = geoToBoardXZ(t.lon, t.lat); return { x: q.x, z: q.z, ax: q.x, az: q.z, w: t.island ? .25 : 1 }; });
+        const kx = 2.55 * GEO_K, kz = 2.75 * GEO_K, MIN = TILE_GAP, RAD = TILE_RAD;
+        const P = TILES47.map((t, i) => { const q = PXZ(LANE_PX[i][0], LANE_PX[i][1]); return { x: q.x, z: q.z, ax: q.x, az: q.z, w: t.island ? 0 : 1 }; });
         const land = (x, z) => isPointInPolygon(x / kx + 106.15, 16 - z / kz, VIETNAM_BORDER_LONLAT);
-        for (let it = 0; it < 520; it++) {
-            P.forEach(p => { p.x += (p.ax - p.x) * .03; p.z += (p.az - p.z) * .03; });
-            for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
-                const a = P[i], b = P[j], dx = b.x - a.x, dz = b.z - a.z; let L = Math.hypot(dx, dz);
-                if (L >= MIN) continue; if (L < 1e-3) L = 1e-3;
-                const m = (MIN - L) / L / (a.w + b.w); a.x -= dx * m * a.w; a.z -= dz * m * a.w; b.x += dx * m * b.w; b.z += dz * m * b.w;
-            }
-            P.forEach((p, i) => { if (!TILES47[i].island && !land(p.x, p.z)) { p.x += (p.ax - p.x) * .12 - .05; p.z += (p.az - p.z) * .12; } });
+        const RING = []; for (let i = 0; i < 12; i++) RING.push([Math.cos(i / 12 * 6.283) * RAD, Math.sin(i / 12 * 6.283) * RAD]);
+        // đẩy bệ vào trong đất liền: lùi khỏi những điểm trên vành bệ đang nằm ngoài biển
+        const inland = (p, k) => { let px = 0, pz = 0, n = 0; if (!land(p.x, p.z)) n = -1; RING.forEach(([dx, dz]) => { if (!land(p.x + dx, p.z + dz)) { px -= dx; pz -= dz; if (n >= 0) n++; } }); if (n < 0 && !px && !pz) { px = p.ax - p.x; pz = p.az - p.z; } const L = Math.hypot(px, pz); if (L > 1e-6) { p.x += px / L * k; p.z += pz / L * k; } return n !== 0; };
+        const apart = () => { for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) { const a = P[i], b = P[j], dx = b.x - a.x, dz = b.z - a.z; let L = Math.hypot(dx, dz); if (L >= MIN || a.w + b.w === 0) continue; if (L < 1e-3) L = 1e-3; const m = (MIN - L) / L / (a.w + b.w); a.x -= dx * m * a.w; a.z -= dz * m * a.w; b.x += dx * m * b.w; b.z += dz * m * b.w; } };
+        for (let it = 0; it < 1400; it++) {
+            const pull = it < 1100 ? .05 : 0;   // cuối cùng chỉ còn ràng buộc khoảng cách + nằm trong đất liền
+            P.forEach(p => { if (p.w) { p.x += (p.ax - p.x) * pull; p.z += (p.az - p.z) * pull; } });
+            apart();
+            P.forEach(p => { if (p.w) for (let k = 0; k < 4; k++) if (!inland(p, .09)) break; });
         }
         TILES47.forEach((t, i) => { t.realLon = t.lon; t.realLat = t.lat; t.lon = P[i].x / kx + 106.15; t.lat = 16 - P[i].z / kz; t.index = i; });
     })();
     BOARD_TILES.length = 0; TILES47.forEach(t => BOARD_TILES.push(t));
 
     // Đảo nâng đỡ các ô nằm ngoài khơi (Vân Đồn, Lý Sơn, Phú Quốc) + Côn Đảo, Phú Quý
-    window.__ISLANDS = BOARD_TILES.filter(t => t.island).map(t => ({ lon: t.lon, lat: t.lat, rx: t.index === 24 ? 1.75 : 1.5, rz: t.index === 24 ? 2.1 : 1.5, h: .42, color: 0x3f9a55 }))
-        .concat([{ lon: 106.6, lat: 8.68, rx: .55, rz: .45, h: .34, color: 0x3f9a55 }, { lon: 108.94, lat: 10.52, rx: .32, rz: .28, h: .3, color: 0x4fa860 }]);
+    window.__ISLANDS = BOARD_TILES.filter(t => t.island).map(t => ({ lon: t.lon, lat: t.lat, rx: t.index === 24 ? 1.9 : 1.75, rz: t.index === 24 ? 2.5 : 1.7, h: .42, color: 0x3f9a55, tile: t.index, poly: t.index === 24 ? PQ_LONLAT : null }))
+        .concat([{ lon: 106.6, lat: 8.3, rx: .75, rz: .6, h: .34, color: 0x3f9a55 }, { lon: 109.0, lat: 10.25, rx: .5, rz: .42, h: .3, color: 0x4fa860 }]);
 
     /* ---------- Thẻ Biến Động & Bản Lĩnh bổ sung ---------- */
     const NEW_BD = [
@@ -8692,15 +8739,18 @@ function createVietnameseCostumePawn3D(player) {
     window.BOARD_RECT = BOARD_RECT;
     window.DECK = (() => { const q = geoToBoardXZ(100.9, 16.3); return { x: q.x, z: q.z, dx: geoToBoardXZ(101.9, 16).x }; })();
     const HS_XZ = geoToBoardXZ(HS_GEO[0], HS_GEO[1]), TS_XZ = geoToBoardXZ(TS_GEO[0], TS_GEO[1]);
+    const ATOLLS = [[505, 392, .5], [522, 472, .42], [612, 398, .46], [603, 458, .4], [545, 788, .45], [558, 852, .5], [652, 790, .42], [642, 852, .46], [574, 690, .42], [539, 716, .36], [152, 852, .38], [372, 958, .4], [505, 215, .34], [300, 965, .36]].map(([x, y, r]) => { const q = PXZ(x, y); return { x: q.x, z: q.z, r, geo: PX(x, y) }; });
     const kx2 = () => 2.55 * GEO_K, kz2 = () => 2.75 * GEO_K;
     const toGeo = (x, z) => [x / kx2() + 106.15, 16 - z / kz2()];
     const tilesXZ = () => BOARD_TILES.map(t => geoToBoardXZ(t.lon, t.lat));
     function seaAt(x, z, pad) {
         const [lon, lat] = toGeo(x, z), R = BOARD_RECT, m = pad === undefined ? 1.2 : pad;
-        if (x < R.x0 + 1 || x > R.x1 - 1 || z < R.z0 + 1 || z > R.z1 - 1) return false;
+        if (poolSD(x, z) > -2.4) return false;
+        if (Math.hypot(x - (DECK.x + 1.8), (z - DECK.z) * .72) < 7.4) return false; // đảo ngân hàng & bộ bài
         if (isPointInPolygon(lon, lat, VIETNAM_BORDER_LONLAT)) return false;
         if (Math.hypot(x - HS_XZ.x, z - HS_XZ.z) < 4.4 || Math.hypot(x - TS_XZ.x, z - TS_XZ.z) < 4.4) return false;
         if ((window.__ISLANDS || []).some(s => { const q = geoToBoardXZ(s.lon, s.lat); return Math.hypot(q.x - x, q.z - z) < Math.max(s.rx, s.rz) + .4; })) return false;
+        if (ATOLLS.some(a => Math.hypot(a.x - x, a.z - z) < a.r + .9)) return false;
         return !tilesXZ().some(t => Math.hypot(t.x - x, t.z - z) < 1.6 + m);
     }
     function mergeGeos(list) {
@@ -8718,18 +8768,21 @@ function createVietnameseCostumePawn3D(player) {
         const toC = (lon, lat) => { const q = geoToBoardXZ(lon, lat); return [(q.x - R.x0) / R.W * CW, (q.z - R.z0) / R.D * CH]; };
         const landPath = g => { g.beginPath(); VIETNAM_BORDER_LONLAT.forEach(([lo, la], i) => { const [x, y] = toC(lo, la); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); };
         const isl = (window.__ISLANDS || []).map(s => { const [x, y] = toC(s.lon, s.lat); return [x, y, s.rx / R.W * CW, s.rz / R.D * CH]; });
-        const reefs = [[HS_GEO, 46], [TS_GEO, 50], [[111.6, 16.9], 18], [[112.4, 16.0], 16], [[114.0, 10.3], 18], [[113.8, 8.6], 16], [[111.9, 8.6], 14], [[112.6, 10.6], 15]];
+        const reefs = [[HS_GEO, 40], [TS_GEO, 44]].concat(ATOLLS.map(a => [a.geo, 9 + a.r * 14]));
+        const toCx = (x, z) => [(x - R.x0) / R.W * CW, (z - R.z0) / R.D * CH];
+        const poolPath = (g, off) => { g.beginPath(); poolPts(off, 200).forEach(([x, z], i) => { const [cx, cy] = toCx(x, z); i ? g.lineTo(cx, cy) : g.moveTo(cx, cy); }); g.closePath(); };
         const color = document.createElement('canvas'); color.width = CW; color.height = CH; const g = color.getContext('2d');
-        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#1597c4'); gr.addColorStop(.5, '#0b7fb8'); gr.addColorStop(1, '#075a9a'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+        const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#1fa6ee'); gr.addColorStop(.5, '#1a9be9'); gr.addColorStop(1, '#168fe2'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
         const halo = (blur, fill, grow) => { g.filter = `blur(${blur}px)`; g.fillStyle = fill; g.strokeStyle = fill; g.lineWidth = grow; g.lineJoin = 'round'; landPath(g); g.fill(); g.stroke(); isl.forEach(([x, y, rx, ry]) => { g.beginPath(); g.ellipse(x, y, rx + grow / 2, ry + grow / 2, 0, 0, 7); g.fill(); }); reefs.forEach(([p, r]) => { const [x, y] = toC(p[0], p[1]); g.beginPath(); g.arc(x, y, r * (grow / 40 + .4), 0, 7); g.fill(); }); };
-        halo(40, 'rgba(22,170,200,.75)', 90); halo(18, 'rgba(48,200,212,.85)', 40); halo(7, 'rgba(110,226,220,.95)', 14);
+        halo(34, 'rgba(40,190,240,.55)', 70); halo(14, 'rgba(64,214,240,.8)', 30); halo(5, 'rgba(150,240,246,.95)', 12);
+        g.filter = 'blur(10px)'; g.strokeStyle = 'rgba(70,214,240,.7)'; g.lineWidth = 34; poolPath(g, 0); g.stroke(); g.filter = 'blur(4px)'; g.strokeStyle = 'rgba(150,240,246,.8)'; g.lineWidth = 12; poolPath(g, 0); g.stroke();
         g.filter = 'none';
-        for (let i = 0; i < 5200; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * .045})`; g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 6, 1); }
-        g.fillStyle = 'rgba(255,248,214,.55)'; g.font = '800 34px "Playfair Display", serif'; g.textAlign = 'center';
-        [['BIỂN ĐÔNG', 110.6, 13.4], ['VỊNH BẮC BỘ', 107.9, 19.4], ['VỊNH THÁI LAN', 102.4, 9.6]].forEach(([t, lo, la]) => { const [x, y] = toC(lo, la); g.save(); g.translate(x, y); g.fillText(t, 0, 0); g.restore(); });
+        g.lineCap = 'round'; g.lineWidth = 1.6;
+        for (let i = 0; i < 1500; i++) { const x = Math.random() * CW, y = Math.random() * CH, w = 5 + Math.random() * 9, k = Math.random(); g.strokeStyle = k < .6 ? `rgba(140,222,255,${.25 + Math.random() * .3})` : k < .85 ? `rgba(10,110,205,${.14 + Math.random() * .14})` : `rgba(255,255,255,${.25 + Math.random() * .25})`; g.beginPath(); g.moveTo(x - w, y); g.quadraticCurveTo(x - w / 2, y - 3.2, x, y); g.quadraticCurveTo(x + w / 2, y + 3.2, x + w, y); g.stroke(); }
         const coast = document.createElement('canvas'); coast.width = CW; coast.height = CH; const c = coast.getContext('2d');
         c.fillStyle = '#000'; c.fillRect(0, 0, CW, CH); c.filter = 'blur(5px)'; c.strokeStyle = '#fff'; c.lineWidth = 11; landPath(c); c.stroke();
         isl.forEach(([x, y, rx, ry]) => { c.beginPath(); c.ellipse(x, y, rx + 2, ry + 2, 0, 0, 7); c.stroke(); });
+        poolPath(c, .3); c.stroke();
         c.filter = 'none';
         const tColor = new THREE.CanvasTexture(color), tCoast = new THREE.CanvasTexture(coast);
         const u = { uT: { value: 0 }, uColor: { value: tColor }, uCoast: { value: tCoast }, uSun: { value: new THREE.Vector3(-.45, .8, -.38).normalize() } };
@@ -8827,7 +8880,7 @@ function createVietnameseCostumePawn3D(player) {
     function fishGeo(s) { const b = new THREE.SphereGeometry(.05 * s, 8, 6); b.scale(1.9, .62, .7); const t = new THREE.ConeGeometry(.035 * s, .06 * s, 4); t.rotateZ(Math.PI / 2); t.translate(-.11 * s, 0, 0); t.scale(1, 1, .3); const f = new THREE.ConeGeometry(.02 * s, .04 * s, 3); f.translate(0, .035 * s, 0); f.scale(1, 1, .3); return mergeGeos([b, t, f]); }
     function buildMarineLife() {
         // Đàn cá bơi ngay dưới mặt nước trong (nhìn thấy qua làn nước)
-        const spots = [[107.6, 19.6], [108.9, 18.0], [109.8, 16.6], [110.4, 14.6], [110.2, 12.8], [109.6, 10.6], [108.0, 9.5], [106.4, 8.2], [104.2, 8.7], [102.9, 10.6], [111.3, 17.4], [112.9, 15.6], [111.2, 9.9], [113.9, 10.9], [113.4, 7.9], [110.8, 19.8], [107.2, 9.1], [111.8, 12.4]];
+        const spots = [[445, 250], [500, 330], [545, 455], [592, 560], [580, 650], [530, 742], [470, 850], [400, 940], [300, 945], [160, 890], [90, 800], [70, 650], [110, 450], [150, 330], [600, 345], [645, 600], [622, 900], [520, 950]].map(([x, y]) => PX(x, y));
         const schools = spots.map(([lo, la], i) => { const q = geoToBoardXZ(lo, la); return { x: q.x, z: q.z, r: .7 + (i % 3) * .3, w: (.25 + (i % 4) * .07) * (i % 2 ? 1 : -1), n: 14 + (i % 3) * 4, ph: i * 1.3, col: [0x9fc4d8, 0xf2b13a, 0xc0d6e0, 0xff7a3a, 0x7fb8e0, 0xe8e2c8][i % 6] }; }).filter(s => seaAt(s.x, s.z, .4));
         const total = schools.reduce((a, s) => a + s.n, 0);
         const im = new THREE.InstancedMesh(fishGeo(1.25), new THREE.MeshStandardMaterial({ roughness: .35, metalness: .25 }), total);
@@ -8840,20 +8893,20 @@ function createVietnameseCostumePawn3D(player) {
         });
         // Cá chuồn nhảy khỏi mặt nước
         const fj = fishGeo(1.6), fjm = M(0x8fb3cc, .3, .3);
-        [[109.3, 17.2], [110.9, 15.2], [109.9, 11.6], [108.4, 8.9], [103.4, 9.4], [112.6, 13.4], [111.0, 18.6], [113.6, 12.0]].forEach(([lo, la], i) => {
+        [[480, 300], [572, 540], [552, 700], [430, 900], [120, 880], [632, 660], [100, 500], [612, 870]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la); if (!seaAt(q.x, q.z, .3)) return; const m = new THREE.Mesh(fj, fjm); m.castShadow = true; scene.add(m);
             _mapAnim.push(t => { const k = ((t * .45 + i * .27) % 1); m.visible = k < .35; const u = k / .35; m.position.set(q.x + u * 1.1, .1 + Math.sin(u * Math.PI) * .55, q.z + u * .3); m.rotation.set(0, -.27, Math.cos(u * Math.PI) * .8); });
         });
         // Cá heo
         const dGeo = (() => { const b = new THREE.SphereGeometry(.2, 14, 10); b.scale(2, .62, .62); const n = new THREE.ConeGeometry(.06, .2, 8); n.rotateZ(-Math.PI / 2); n.translate(.47, -.02, 0); const f = new THREE.ConeGeometry(.08, .2, 4); f.translate(-.02, .17, 0); f.scale(1, 1, .3); const t1 = new THREE.ConeGeometry(.1, .14, 4); t1.rotateX(Math.PI / 2); t1.translate(-.45, 0, 0); t1.scale(1, .25, 1.6); return mergeGeos([b, n, f, t1]); })();
         const dMat = M(0x6f8fb0, .3, .1), belly = M(0xdfe8ef, .4);
-        [[110.4, 17.6], [110.0, 13.6], [108.6, 9.2], [112.2, 11.2]].forEach(([lo, la], i) => {
+        [[540, 330], [600, 600], [440, 930], [90, 700]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la); if (!seaAt(q.x, q.z, .3)) return;
             for (let j = 0; j < 3; j++) { const d = new THREE.Mesh(dGeo, dMat); d.castShadow = true; scene.add(d); const ph = i * .31 + j * .11;
                 _mapAnim.push(t => { const k = ((t * .33 + ph) % 1); d.visible = k < .5; const u = k / .5; d.position.set(q.x + u * 1.6 + j * .25, .06 + Math.sin(u * Math.PI) * .75, q.z + j * .35); d.rotation.z = Math.cos(u * Math.PI) * .95; }); }
         });
         // Cá voi phun nước gần Hoàng Sa
-        const wq = geoToBoardXZ(110.9, 17.9);
+        const wq = PXZ(625, 250);
         if (seaAt(wq.x, wq.z, .3)) {
             const wg = new THREE.Group(); const body = new THREE.Mesh(new THREE.SphereGeometry(.5, 18, 12), M(0x3d4f63, .45)); body.scale.set(2.4, .55, .8); wg.add(body);
             const tail = new THREE.Mesh(new THREE.ConeGeometry(.3, .3, 4), M(0x3d4f63, .45)); tail.rotation.x = Math.PI / 2; tail.scale.set(1, .2, 2); tail.position.set(-1.25, .05, 0); wg.add(tail); scene.add(wg);
@@ -8861,7 +8914,7 @@ function createVietnameseCostumePawn3D(player) {
             _mapAnim.push(t => { const k = (t * .12) % 1, up = Math.max(0, Math.sin(k * Math.PI * 2)); wg.position.set(wq.x + Math.cos(t * .05) * 1.2, -.12 + up * .26, wq.z + Math.sin(t * .05) * .6); wg.rotation.y = -t * .05 - Math.PI / 2; tail.rotation.z = Math.sin(t * 2) * .2; spout.position.set(wg.position.x + .3 * Math.sin(t * .05), .55 + up * .2, wg.position.z); spout.visible = up > .6; spout.scale.set(1, .5 + up * .7, 1); spout.material.opacity = .6 * up; });
         }
         // Rùa biển
-        [[112.4, 9.0], [106.9, 8.4], [113.4, 10.0]].forEach(([lo, la], i) => {
+        [[660, 905], [330, 985], [590, 760]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la); if (!seaAt(q.x, q.z, .2)) return; const g = new THREE.Group();
             const sh = new THREE.Mesh(new THREE.SphereGeometry(.16, 12, 8), M(0x5a6b3a, .6)); sh.scale.set(1.2, .4, 1); g.add(sh); const hd = new THREE.Mesh(new THREE.SphereGeometry(.05, 8, 6), M(0x8a9a6a, .6)); hd.position.set(.22, 0, 0); g.add(hd);
             const fl = [[.1, .14], [.1, -.14], [-.12, .12], [-.12, -.12]].map(([x, z]) => { const f = new THREE.Mesh(new THREE.BoxGeometry(.14, .015, .05), M(0x8a9a6a, .6)); f.position.set(x, -.01, z); g.add(f); return f; }); scene.add(g);
@@ -8869,7 +8922,7 @@ function createVietnameseCostumePawn3D(player) {
         });
         // Hải âu bay theo đàn
         const bird = (() => { const w1 = new THREE.BoxGeometry(.2, .008, .05); w1.translate(.1, 0, 0); return w1; })(), bm = M(0xffffff, .6);
-        [[108.4, 20.3], [109.4, 15.8], [109.8, 12.4], [106.9, 9.6], [111.95, 16.45], [112.95, 9.35], [104.1, 10.4]].forEach(([lo, la], i) => {
+        [[430, 190], [520, 480], [545, 700], [380, 880], [555, 424], [599, 809], [140, 800]].map(([x, y]) => PX(x, y)).forEach(([lo, la], i) => {
             const q = geoToBoardXZ(lo, la);
             for (let j = 0; j < 4; j++) { const g = new THREE.Group(); const L = new THREE.Mesh(bird, bm), R2 = new THREE.Mesh(bird, bm); R2.rotation.y = Math.PI; g.add(L, R2, new THREE.Mesh(new THREE.SphereGeometry(.025, 6, 4), bm)); scene.add(g); const ph = j * .5 + i;
                 _mapAnim.push(t => { const a = t * .25 + ph; g.position.set(q.x + Math.cos(a) * (1.4 + j * .2), 2.4 + j * .15 + Math.sin(t + j) * .1, q.z + Math.sin(a) * (1.1 + j * .2)); g.rotation.y = -a; const f = Math.sin(t * 7 + j) * .5; L.rotation.z = f; R2.rotation.z = -f; }); }
@@ -8880,12 +8933,13 @@ function createVietnameseCostumePawn3D(player) {
     buildSeaLife = function () {
         try { buildWaterSurface(); } catch (e) { console.warn('water', e); }
         const loops = [
-            ['cargo', 110.6, 20.2, 1.6, 1.0], ['cruise', 109.6, 18.3, 1.5, 1.1], ['trawler', 107.6, 19.2, .9, .6], ['junk', 108.7, 20.5, .8, .5], ['trawler', 109.0, 17.0, .8, .6],
-            ['coastguard', 110.8, 15.6, 1.4, 1.0], ['trawler', 110.4, 13.0, 1.0, .7], ['cargo', 111.5, 13.8, 2.0, 1.3], ['sail', 109.9, 11.6, 1.0, .7], ['trawler', 109.2, 10.2, .9, .6],
-            ['basket', 109.85, 12.9, .5, .4], ['cruise', 108.0, 9.0, 1.6, 1.0], ['trawler', 106.8, 8.0, 1.0, .6], ['raft', 105.6, 8.1, .6, .4], ['trawler', 103.0, 9.0, .9, .6],
-            ['junk', 102.8, 10.9, .8, .6], ['navy', 112.6, 11.8, 1.6, 1.1], ['coastguard', 113.6, 8.2, 1.3, .9], ['trawler', 111.0, 18.8, 1.0, .7], ['trawler', 112.2, 14.6, 1.0, .7],
-            ['basket', 108.9, 15.1, .5, .4], ['sail', 107.9, 10.1, .8, .5], ['cargo', 109.2, 8.4, 1.8, 1.0], ['trawler', 113.8, 12.8, 1.0, .7], ['navy', 110.9, 10.6, 1.4, .9]
-        ];
+            ['cargo', 470, 268, 1.5, 1.0], ['trawler', 432, 312, .8, .6], ['junk', 462, 212, .8, .5], ['cruise', 528, 292, 1.5, 1.0], ['trawler', 520, 352, .8, .6],
+            ['coastguard', 590, 522, 1.3, .9], ['trawler', 565, 575, .9, .6], ['cargo', 615, 630, 1.8, 1.2], ['sail', 562, 500, .7, .5], ['basket', 548, 655, .5, .4],
+            ['trawler', 545, 752, .9, .6], ['navy', 640, 715, 1.4, 1.0], ['cruise', 500, 872, 1.5, 1.0], ['trawler', 388, 892, .8, .5], ['cargo', 452, 962, 1.7, .9],
+            ['coastguard', 600, 915, 1.2, .8], ['sail', 425, 838, .7, .5], ['trawler', 245, 978, .9, .6], ['raft', 128, 902, .6, .4], ['junk', 78, 760, .8, .6],
+            ['trawler', 62, 868, .9, .6], ['sail', 150, 700, .8, .5], ['cargo', 92, 560, 1.6, 1.0], ['trawler', 120, 335, .9, .6], ['junk', 62, 250, .8, .6],
+            ['trawler', 205, 478, .8, .6], ['navy', 640, 300, 1.4, .9], ['trawler', 480, 130, .7, .5]
+        ].map(([k, x, y, R, Rz]) => { const p = PX(x, y); return [k, p[0], p[1], R, Rz]; });
         loops.forEach(([kind, lo, la, R, Rz], i) => { const q = geoToBoardXZ(lo, la), RR = R * GEO_K, RZ = Rz * GEO_K; if (!loopOk(q.x, q.z, RR, RZ)) return; sailLoop(mkShip(kind), q.x, q.z, RR, RZ, (.04 + (i % 4) * .012) * (i % 2 ? 1 : -1) * (kind === 'cargo' || kind === 'cruise' ? .7 : 1), i * 1.9); });
         // Phà ra đảo
         BOARD_TILES.filter(t => t.island).forEach((t, i) => {
@@ -8894,29 +8948,24 @@ function createVietnameseCostumePawn3D(player) {
             if (!b) return; const s = { x: a.x + dir * 2.1, z: a.z + (t.index === 3 ? -.4 : .2) }; if (Math.abs(b.x - s.x) < .8) return;
             ferry(mkShip(i % 2 ? 'trawler' : 'sail'), s, b, .18, i);
         });
+        ATOLLS.forEach((a, i) => {
+            const g = new THREE.Group(); g.position.set(a.x, .1, a.z); g.rotation.y = i * 1.3;
+            const sand = new THREE.Mesh(new THREE.CylinderGeometry(a.r, a.r * 1.25, .1, 20), M(0xf4e7b8, .9)); sand.scale.z = .8; sand.position.y = .03; g.add(sand);
+            const top = new THREE.Mesh(new THREE.SphereGeometry(a.r * .66, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), M(0x7cc457, .85)); top.scale.set(1, .5, .8); top.position.y = .08; g.add(top);
+            if (i % 2 === 0) { const tr = new THREE.Mesh(new THREE.CylinderGeometry(.018, .028, .32, 5), M(0x8a6a46, .9)); tr.position.set(.05, .3, 0); tr.rotation.z = -.15; g.add(tr); const cr = new THREE.Mesh(new THREE.IcosahedronGeometry(.13, 0), M(0x3f9a45, .8)); cr.scale.y = .45; cr.position.set(.08, .48, 0); g.add(cr); }
+            g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(g);
+        });
         try { buildMarineLife(); } catch (e) { console.warn('marine', e); }
         // Phao tiêu nhấp nháy & hải đăng
         const C = miniCol, T = miniMat;
-        [[110.2, 19.2], [110.5, 15.2], [109.9, 11.9], [107.0, 8.9], [104.2, 9.2], [108.6, 18.4], [109.9, 13.0], [112.4, 12.9]].forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, .2)) return; const bu = new THREE.Group(); bu.position.set(c.x, .1, c.z); bu.add(new THREE.Mesh(new THREE.CylinderGeometry(.08, .12, .22, 12), C(i % 2 ? 0xd63a3a : 0xf2f2f2, .4))); const lm = new THREE.MeshStandardMaterial({ color: 0xffe08a, emissive: 0xffb000, emissiveIntensity: 1 }); const l = new THREE.Mesh(new THREE.SphereGeometry(.045, 8, 6), lm); l.position.y = .28; bu.add(l); scene.add(bu); _mapAnim.push(t => { lm.emissiveIntensity = .3 + Math.abs(Math.sin(t * 2 + i)) * .9; bu.position.y = .1 + Math.sin(t * 2 + i) * .02; bu.rotation.z = Math.sin(t * 1.4 + i) * .1; }); });
-        [[108.75, 21.1], [105.45, 8.35], [109.75, 12.05]].forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, 0)) return; const g = new THREE.Group(); g.position.set(c.x, .08, c.z); const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(.5, 1), T('stone', 2, 1)); rk.scale.y = .55; rk.position.y = .1; g.add(rk); [0, 1, 2].forEach(k => { const s = new THREE.Mesh(new THREE.CylinderGeometry(.12 - k * .015, .15 - k * .015, .26, 14), C(k % 2 ? 0xd63a3a : 0xffffff, .5)); s.position.y = .45 + k * .26; g.add(s); }); const lm = new THREE.MeshStandardMaterial({ color: 0xfff0a0, emissive: 0xffc030, emissiveIntensity: 1 }); const lamp = new THREE.Mesh(new THREE.SphereGeometry(.1, 10, 8), lm); lamp.position.y = 1.32; g.add(lamp); const cap = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 10), C(0xd63a3a)); cap.position.y = 1.47; g.add(cap); g.traverse(m => { if (m.isMesh) m.castShadow = true; }); scene.add(g); _mapAnim.push(t => { lm.emissiveIntensity = .5 + Math.abs(Math.sin(t * 1.5 + i)) * 1.2; }); });
+        [[500, 250], [560, 560], [565, 735], [350, 905], [165, 870], [470, 335], [548, 622], [632, 560]].map(([x, y]) => PX(x, y)).forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, .2)) return; const bu = new THREE.Group(); bu.position.set(c.x, .1, c.z); bu.add(new THREE.Mesh(new THREE.CylinderGeometry(.08, .12, .22, 12), C(i % 2 ? 0xd63a3a : 0xf2f2f2, .4))); const lm = new THREE.MeshStandardMaterial({ color: 0xffe08a, emissive: 0xffb000, emissiveIntensity: 1 }); const l = new THREE.Mesh(new THREE.SphereGeometry(.045, 8, 6), lm); l.position.y = .28; bu.add(l); scene.add(bu); _mapAnim.push(t => { lm.emissiveIntensity = .3 + Math.abs(Math.sin(t * 2 + i)) * .9; bu.position.y = .1 + Math.sin(t * 2 + i) * .02; bu.rotation.z = Math.sin(t * 1.4 + i) * .1; }); });
+        [[468, 150], [232, 955], [548, 668]].map(([x, y]) => PX(x, y)).forEach((p, i) => { const c = geoToBoardXZ(p[0], p[1]); if (!seaAt(c.x, c.z, 0)) return; const g = new THREE.Group(); g.position.set(c.x, .08, c.z); const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(.5, 1), T('stone', 2, 1)); rk.scale.y = .55; rk.position.y = .1; g.add(rk); [0, 1, 2].forEach(k => { const s = new THREE.Mesh(new THREE.CylinderGeometry(.12 - k * .015, .15 - k * .015, .26, 14), C(k % 2 ? 0xd63a3a : 0xffffff, .5)); s.position.y = .45 + k * .26; g.add(s); }); const lm = new THREE.MeshStandardMaterial({ color: 0xfff0a0, emissive: 0xffc030, emissiveIntensity: 1 }); const lamp = new THREE.Mesh(new THREE.SphereGeometry(.1, 10, 8), lm); lamp.position.y = 1.32; g.add(lamp); const cap = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 10), C(0xd63a3a)); cap.position.y = 1.47; g.add(cap); g.traverse(m => { if (m.isMesh) m.castShadow = true; }); scene.add(g); _mapAnim.push(t => { lm.emissiveIntensity = .5 + Math.abs(Math.sin(t * 1.5 + i)) * 1.2; }); });
     };
 
     /* ---------- 5. Quần đảo Hoàng Sa & Trường Sa: sa bàn khối nhựa trong theo ảnh mẫu ---------- */
-    function resinBase(K, label, W) {
-        const wood = GM.wood();
-        const base = K.box(W + .2, .3, W + .2, wood, 0, -.3, 0);
-        K.box(W + .26, .04, W + .26, S(0x3a2414, .4, .05), 0, -.31, 0);
-        const plq = new THREE.Mesh(new THREE.PlaneGeometry(W * .7, W * .7 * 80 / 512), new THREE.MeshStandardMaterial({ map: vCanvasTex('plq_' + label, 512, 80, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f3d98a'); gr.addColorStop(.5, '#c99a3c'); gr.addColorStop(1, '#a87a26'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.strokeStyle = '#6b4a14'; g.lineWidth = 5; g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#3a2508'; g.font = '800 34px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, h / 2 + 2, w - 24); }), roughness: .3, metalness: .6 }));
-        plq.position.set(0, -.15, W / 2 + .105); K.g.add(plq);
-        K.box(W, .02, W, S(0x7fd0c4, .9), 0, 0, 0); // đáy cát dưới nước
-        const coral = [0xff6f61, 0xffa94d, 0xb06ad9, 0xff8fb1, 0xffd43b, 0x4dd4ac];
-        for (let i = 0; i < 46; i++) { const a = i * 2.39, r = W * .32 + (i % 5) * W * .035, x = Math.cos(a) * r, z = Math.sin(a) * r; if (Math.abs(x) > W / 2 - .06 || Math.abs(z) > W / 2 - .06) continue; const c = K.sph(.035 + (i % 3) * .015, S(coral[i % coral.length], .7), x, .05, z, 0); c.scale.y = 1.4; }
-        for (let i = 0; i < 22; i++) { const a = i * 1.7, x = (i % 2 ? 1 : -1) * (W / 2 - .05), z = -W / 2 + (i / 22) * W; K.sph(.03, S(coral[i % 6], .7), i % 4 < 2 ? x : z * .98, .06 + (i % 3) * .05, i % 4 < 2 ? z : x, 0); }
-        const resin = K.box(W, .3, W, c4('resin', () => new THREE.MeshStandardMaterial({ color: 0x2fc6d2, roughness: .05, metalness: .1, transparent: true, opacity: .5, depthWrite: false })), 0, 0, 0);
-        resin.castShadow = false; resin.renderOrder = 2;
-        const top = new THREE.Mesh(new THREE.PlaneGeometry(W, W), c4('resinTop', () => new THREE.MeshStandardMaterial({ map: vCanvasTex('water', 128, 128, texWater, 3, 3), color: 0x8fe8ec, roughness: .08, metalness: .2, transparent: true, opacity: .55, depthWrite: false })));
-        top.rotation.x = -Math.PI / 2; top.position.y = .301; top.renderOrder = 3; K.g.add(top);
-        return .3;
+    function resinBase(K, label, W) { // nền tự nhiên: đảo nổi thẳng trên mặt biển, quanh là bãi đá san hô ngầm
+        for (let i = 0; i < 16; i++) { const a = i * 2.39, r = W * (.5 + (i % 4) * .05); K.sph(.035 + (i % 3) * .012, S(0xe9dfc4, .9), Math.cos(a) * r, .005, Math.sin(a) * r * .9, 0).scale.y = .5; }
+        return 0;
     }
     function shore(K, rx, rz, x, z, Y) { const s = K.add(new THREE.Mesh(new THREE.CylinderGeometry(1, 1.15, .1, 28), S(0xf3e2b5, .95)), x, Y + .02, z); s.scale.set(rx, 1, rz); const gr = K.add(new THREE.Mesh(new THREE.CylinderGeometry(1, 1, .06, 26), GM.grass()), x, Y + .09, z); gr.scale.set(rx * .78, 1, rz * .76); for (let i = 0; i < 26; i++) { const a = i / 26 * 6.283; K.sph(.04 + (i % 3) * .02, S(0x8f8f88, .95), x + Math.cos(a) * rx * 1.08, Y + .06, z + Math.sin(a) * rz * 1.08, 0).scale.y = .7; } return Y + .12; }
     function obelisk(K, x, z, Y, h) { K.box(.22, .04, .22, S(0xd8d4cc, .7), x, Y, z); K.box(.16, .04, .16, S(0xd8d4cc, .7), x, Y + .04, z); const o = K.add(new THREE.Mesh(new THREE.CylinderGeometry(.035, .06, h, 4), S(0xb9b6ae, .6)), x, Y + .08 + h / 2, z); o.rotation.y = Math.PI / 4; K.cone(.05, .06, S(0xb9b6ae, .6), x, Y + .08 + h, z, 4).rotation.y = Math.PI / 4; const pl = new THREE.Mesh(new THREE.PlaneGeometry(.05, .07), c4('stele', () => new THREE.MeshStandardMaterial({ map: textTex('stl', 'VIỆT NAM', 64, 32, '#d4a63a', '#7a1010', '800 12px Arial'), roughness: .4 }))); pl.position.set(x, Y + .2, z + .045); K.g.add(pl); }
@@ -8959,11 +9008,20 @@ function createVietnameseCostumePawn3D(player) {
         [[-.82, -.82, 0], [.82, -.82, 1]].forEach(([x, z, radar]) => { const D = K.grp(x, Y0 - .3, z); [[-.07, -.07], [.07, -.07], [-.07, .07], [.07, .07]].forEach(([a, b]) => D.cyl(.01, .012, .62, S(0x6b6f74, .5, .3), a, 0, b, 6)); D.box(.24, .03, .24, S(0x8a8f95, .5, .3), 0, .62, 0); D.box(.18, .1, .18, S(0xe8b04a, .6), 0, .65, 0); D.box(.2, .02, .2, S(0x8a8f95, .5), 0, .75, 0); if (radar) { D.cyl(.012, .012, .06, S(0xdddddd), 0, .77, 0, 6); D.sph(.07, S(0xf4f4f4, .3), 0, .87, 0, 2); } else { const fl = D.grp(0, .77, 0); flag(fl, 0, 0, .18, 0, true); } });
         g.scale.setScalar(2.3); return g;
     }
+    // Chữ trắng nằm phẳng trên mặt biển (như ảnh mẫu)
+    function seaLabel(text, x, z, w) {
+        const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 150; const g = cv.getContext('2d');
+        g.font = '800 104px "Be Vietnam Pro", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.shadowColor = 'rgba(8,90,170,.55)'; g.shadowBlur = 10; g.shadowOffsetY = 3; g.fillStyle = 'rgba(255,255,255,.96)'; g.fillText(text, 512, 78, 990);
+        const t = new THREE.CanvasTexture(cv); t.anisotropy = 8;
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 150 / 1024), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false }));
+        m.rotation.x = -Math.PI / 2; m.position.set(x, .17, z); m.renderOrder = 4; scene.add(m); return m;
+    }
     buildHoangSaTruongSaIslands = function () {
-        [[buildHoangSa, HS_XZ, 'QUẦN ĐẢO HOÀNG SA (VIỆT NAM)'], [buildTruongSa, TS_XZ, 'QUẦN ĐẢO TRƯỜNG SA (VIỆT NAM)']].forEach(([fn, p, name]) => {
+        [[buildHoangSa, HS_XZ, 'QĐ. HOÀNG SA', -5.6], [buildTruongSa, TS_XZ, 'QĐ. TRƯỜNG SA', 5.4]].forEach(([fn, p, name, dz]) => {
             let g; try { g = fn(); } catch (e) { console.warn('archipelago', e); return; }
-            g.position.set(p.x, .1 + .3 * g.scale.x, p.z); g.rotation.y = -.15; scene.add(g);
-            const sp = create3DTextSprite(name, '#991b1b', '#fef08a', true); sp.position.set(p.x, 4.6, p.z); sp.scale.set(4.2, .9, 1); scene.add(sp);
+            g.position.set(p.x, .13, p.z); g.rotation.y = -.15; scene.add(g);
+            seaLabel(name, p.x - 1.2, p.z + dz, 13.5);
         });
     };
 
@@ -8982,7 +9040,7 @@ function createVietnameseCostumePawn3D(player) {
         ['Miền Bắc', () => { const c = camAt(105.6, 21.6); return [[c.x + 2, 30, c.z + 26], [c.x, .5, c.z]]; }],
         ['Miền Trung & Tây Nguyên', () => { const c = camAt(107.8, 14.6); return [[c.x + 8, 34, c.z + 28], [c.x, .6, c.z]]; }],
         ['Miền Nam', () => { const c = camAt(105.9, 10.2); return [[c.x + 3, 30, c.z + 26], [c.x, .5, c.z]]; }],
-        ['Biển Đảo Hoàng Sa - Trường Sa', () => { const c = camAt(111.8, 13.0); return [[c.x + 10, 34, c.z + 34], [c.x + 1, .5, c.z]]; }]
+        ['Biển Đảo Hoàng Sa - Trường Sa', () => { const c = camAt(110.9, 13.7); return [[c.x + 10, 38, c.z + 40], [c.x + 1, .5, c.z]]; }]
     ];
     cycleCameraPreset = function () {
         gameState.cameraPresetIdx = ((gameState.cameraPresetIdx || 0) + 1) % CAM_PRESETS.length;
@@ -9441,120 +9499,7 @@ function createVietnameseCostumePawn3D(player) {
         return g;
     };
 
-    // 3. Mô hình 3D Ô Đất Trống & Khu Đất Đã Mua Chờ Xây Làng Nghề
-    function createPlotMarker3D(tile) {
-        const root = new THREE.Group();
-        const woodM = S(0x7a4b2a, 0.8);
-        const ropeM = S(0xd6b04a, 0.6);
-        const stoneM = S(0x9a968c, 0.9);
-
-        // --- A. Nhóm hiển thị khi ĐẤT TRỐNG CHƯA CÓ CHỦ ---
-        const unowned = new THREE.Group();
-        const K1 = kit(unowned);
-        const R = 0.74;
-        [[-R, -R], [R, -R], [-R, R], [R, R]].forEach(([x, z]) => {
-            K1.cyl(0.022, 0.026, 0.22, woodM, x, 0, z, 6);
-            K1.sph(0.028, ropeM, x, 0.23, z, 0);
-        });
-        // Dây ranh giới 4 cạnh
-        K1.box(R * 2, 0.012, 0.012, ropeM, 0, 0.15, -R);
-        K1.box(R * 2, 0.012, 0.012, ropeM, 0, 0.15, R);
-        K1.box(0.012, 0.012, R * 2, ropeM, -R, 0.15, 0);
-        K1.box(0.012, 0.012, R * 2, ropeM, R, 0.15, 0);
-
-        // Biển gỗ "ĐẤT TRỐNG" ở giữa ô
-        K1.cyl(0.018, 0.02, 0.34, woodM, -0.22, 0, -0.1, 6);
-        K1.cyl(0.018, 0.02, 0.34, woodM, 0.22, 0, -0.1, 6);
-        const signTex = vCanvasTex('empty_plot_' + tile.index, 256, 112, (g, w, h) => {
-            g.fillStyle = '#fdf3d7';
-            g.fillRect(0, 0, w, h);
-            g.strokeStyle = '#7a4b2a';
-            g.lineWidth = 8;
-            g.strokeRect(4, 4, w - 8, h - 8);
-            g.fillStyle = '#7c2d12';
-            g.font = '800 26px "Be Vietnam Pro", Arial';
-            g.textAlign = 'center';
-            g.fillText('🌱 ĐẤT TRỐNG', w / 2, 42);
-            g.fillStyle = '#065f46';
-            g.font = '900 28px "Be Vietnam Pro", Arial';
-            g.fillText(`MUA ĐẤT: ${tile.price}Đ`, w / 2, 84);
-        });
-        const signBoard = new THREE.Mesh(
-            new THREE.BoxGeometry(0.56, 0.24, 0.025),
-            new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.5 })
-        );
-        signBoard.position.set(0, 0.24, -0.1);
-        signBoard.castShadow = true;
-        unowned.add(signBoard);
-
-        // Đá cuội & cỏ nhỏ tự nhiên trên nền đất trống
-        [[-0.45, 0.35, 0.05], [0.48, 0.28, 0.04], [-0.35, -0.45, 0.045]].forEach(([x, z, r]) => {
-            const st = K1.sph(r, stoneM, x, r * 0.4, z, 0);
-            st.scale.y = 0.6;
-        });
-
-        // --- B. Nhóm hiển thị khi ĐÃ MUA ĐẤT (CHỜ XÂY DỰNG LÀNG NGHỀ) ---
-        const owned = new THREE.Group();
-        owned.visible = false;
-        const K2 = kit(owned);
-        const ownerTrimMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.4, metalness: 0.2 });
-
-        // Nền móng đá quy hoạch ở giữa ô đất
-        K2.box(1.24, 0.035, 0.96, stoneM, 0, 0, -0.05);
-        K2.box(1.16, 0.02, 0.88, S(0xd6cfc2, 0.85), 0, 0.035, -0.05);
-        // Viền móng mang màu của chủ đất
-        K2.box(1.26, 0.025, 0.04, ownerTrimMat, 0, 0.03, -0.52);
-        K2.box(1.26, 0.025, 0.04, ownerTrimMat, 0, 0.03, 0.42);
-        K2.box(0.04, 0.025, 0.96, ownerTrimMat, -0.62, 0.03, -0.05);
-        K2.box(0.04, 0.025, 0.96, ownerTrimMat, 0.62, 0.03, -0.05);
-
-        // Vật tư tập kết chờ khởi công (gạch nung, gỗ, bao vữa)
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 2; j++) {
-                K2.box(0.11, 0.045, 0.07, S(0xb55338, 0.8), -0.42 + i * 0.12, 0.045 + j * 0.046, 0.18);
-            }
-        }
-        for (let i = 0; i < 4; i++) {
-            const log = K2.cyl(0.022, 0.022, 0.34, woodM, 0.38, 0.06 + (i > 2 ? 0.04 : 0), 0.12 + (i % 3) * 0.05, 8);
-            log.rotation.z = Math.PI / 2;
-        }
-
-        // Bảng "ĐẤT ĐÃ MUA - CHỜ XÂY LÀNG NGHỀ"
-        K2.cyl(0.02, 0.022, 0.42, woodM, -0.28, 0.04, -0.22, 6);
-        K2.cyl(0.02, 0.022, 0.42, woodM, 0.28, 0.04, -0.22, 6);
-        const ownedSignTex = vCanvasTex('owned_plot_' + tile.index, 320, 128, (g, w, h) => {
-            g.fillStyle = '#fef3c7';
-            g.fillRect(0, 0, w, h);
-            g.strokeStyle = '#92400e';
-            g.lineWidth = 8;
-            g.strokeRect(4, 4, w - 8, h - 8);
-            g.fillStyle = '#991b1b';
-            g.font = '800 24px "Be Vietnam Pro", Arial';
-            g.textAlign = 'center';
-            g.fillText('🏳️ ĐẤT ĐÃ CÓ CHỦ', w / 2, 38);
-            g.fillStyle = '#1e3a8a';
-            g.font = '800 22px "Be Vietnam Pro", Arial';
-            g.fillText('Chờ xây dựng Làng nghề', w / 2, 72);
-            g.fillStyle = '#065f46';
-            g.font = '900 22px "Be Vietnam Pro", Arial';
-            g.fillText(`Phí xây: ${tile.buildCost}đ -> Thu: ${tile.builtRent}đ`, w / 2, 106);
-        });
-        const ownedBoard = new THREE.Mesh(
-            new THREE.BoxGeometry(0.68, 0.28, 0.03),
-            new THREE.MeshStandardMaterial({ map: ownedSignTex, roughness: 0.45 })
-        );
-        ownedBoard.position.set(0, 0.3, -0.22);
-        ownedBoard.castShadow = true;
-        owned.add(ownedBoard);
-
-        const roofCap = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.035, 0.09), ownerTrimMat);
-        roofCap.position.set(0, 0.455, -0.22);
-        owned.add(roofCap);
-
-        root.add(unowned, owned);
-        root.userData = { unowned, owned, ownerTrimMat };
-        return root;
-    }
+    // 3. Mô hình 3D Ô Đất Trống & Khu Đất Đã Mua Chờ Xây: xem createPlotMarker3D trong k7_plots.js
 
     // 4. Cập nhật huy hiệu 3D phía trước mỗi ô theo trạng thái (Đất trống / Đã mua đất / Đã xây làng nghề)
     function updateTile3DBadge(idx) {
@@ -10455,6 +10400,576 @@ function createVietnameseCostumePawn3D(player) {
             console.warn('initMonopoly', e);
         }
     };
+
+    /* =================================================================================
+     * K5. BẢN ĐỒ KIỂU MỚI (theo ảnh mẫu của nhóm)
+     *    · Đất liền là một khối phẳng, vách kem, mặt trên chia mảng xanh non – vàng cát
+     *    · Biển xanh sáng nằm trong lòng một vùng bờ đất có vách cát, cây cối, nhà cửa
+     *    · Bỏ núi bậc thang, sông 3D, rừng cây rải trên bản đồ, khung bàn gỗ
+     * ================================================================================= */
+    const LAND_Y = .56;                      // cao độ mặt đất (mặt biển ở .1)
+    const FLAT_H = (LAND_Y - .36) / .92;     // các hàm cũ tính cao độ = .36 + h * .92
+    sampleVietnamElevation = function () { return FLAT_H; };
+    // Màu "đúng như ảnh": vật liệu bản đồ không qua tone-mapping (ACES làm bạc màu), bù lại nhân LIT cho tổng ánh sáng ~1.9
+    const LIT = .52;
+    const flat = (hex, o) => new THREE.MeshStandardMaterial(Object.assign({ color: new THREE.Color(hex).multiplyScalar(LIT), roughness: .95, metalness: 0, toneMapped: false }, o || {}));
+    const CLIFF = () => c4('k5cliff', () => flat(0xead9a4));
+    const hash3 = (i, j, k) => { const s = Math.sin(i * 127.1 + j * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+
+    // Khối đất phẳng từ một đường viền (toạ độ bàn cờ): mặt trên dùng topMat, vách + mép bo dùng màu kem
+    function landSlab(pts, topY, topMat, bb, bevel) {
+        const sh = new THREE.Shape(); pts.forEach(([x, z], i) => i ? sh.lineTo(x, -z) : sh.moveTo(x, -z)); sh.closePath();
+        const bv = bevel === undefined ? .13 : bevel, D = topY + .5;
+        const geo = new THREE.ExtrudeGeometry(sh, { depth: D, bevelEnabled: true, bevelSize: bv, bevelThickness: bv * .8, bevelSegments: 3, steps: 1 });
+        geo.rotateX(-Math.PI / 2);
+        if (bb) { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) - bb.x0) / (bb.x1 - bb.x0), 1 - (p.getZ(i) - bb.z0) / (bb.z1 - bb.z0)); uv.needsUpdate = true; }
+        const m = new THREE.Mesh(geo, [topMat, CLIFF()]); m.position.y = topY - D - bv * .8; m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+    }
+    const blob = (cx, cz, rx, rz, seed, n) => { const o = []; n = n || 44; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, k = 1 + .09 * Math.sin(a * 3 + seed) + .05 * Math.sin(a * 5 + seed * 2.3); o.push([cx + Math.cos(a) * rx * k, cz + Math.sin(a) * rz * k]); } return o; };
+
+    // Mặt trên của đất liền: các mảng tỉnh (Voronoi) xanh non / vàng cát, viền kem mảnh
+    function landTexture(bb, outline) {
+        const W = bb.x1 - bb.x0, D = bb.z1 - bb.z0, CW = 768, CH = Math.round(CW * D / W);
+        const cv = document.createElement('canvas'); cv.width = CW; cv.height = CH; const g = cv.getContext('2d');
+        const img = g.createImageData(CW, CH), d = img.data, CELL = 3.5;
+        const kx = 2.55 * GEO_K, kz = 2.75 * GEO_K;
+        const HI = [[103.3, 21.9, 1.5, 1.0], [105.3, 22.8, 1.3, .55], [104.8, 19.4, .9, .9], [106.2, 17.4, .8, .8], [108.2, 13.9, 1.0, 1.9], [107.6, 11.9, .7, .6]];   // vùng núi, cao nguyên -> vàng cát
+        const LO = [[105.9, 20.9, .8, .55], [105.5, 9.9, 1.4, 1.0]];                                                                                                // châu thổ -> xanh đậm hơn
+        const fld = (L, lon, lat) => { let s = 0; for (let i = 0; i < L.length; i++) { const u = (lon - L[i][0]) / L[i][2], v = (lat - L[i][1]) / L[i][3]; s += Math.exp(-(u * u + v * v)); } return s; };
+        const GREEN = [[198, 219, 106], [188, 212, 96], [208, 226, 120], [180, 206, 90], [203, 222, 112]], DELTA = [[170, 206, 92], [162, 200, 86], [178, 210, 100]];
+        const SAND = [[234, 214, 152], [228, 205, 140], [238, 220, 164], [224, 198, 132]], MID = [[218, 220, 130], [212, 216, 122], [222, 216, 140]];
+        const cells = new Map();
+        const cell = (i, j) => {
+            const key = i * 4096 + j; let c = cells.get(key); if (c) return c;
+            const sx = (i + .15 + .7 * hash3(i, j, 1)) * CELL, sz = (j + .15 + .7 * hash3(i, j, 2)) * CELL;
+            const lon = (bb.x0 + sx) / kx + 106.15, lat = 16 - (bb.z0 + sz) / kz, r = hash3(i, j, 3);
+            const hi = fld(HI, lon, lat) + (hash3(i, j, 4) - .5) * .45, lo = fld(LO, lon, lat);
+            const pal = hi > .62 ? SAND : hi > .36 ? MID : lo > .55 ? DELTA : GREEN;
+            c = { x: sx, z: sz, col: pal[Math.floor(r * pal.length)] }; cells.set(key, c); return c;
+        };
+        for (let py = 0; py < CH; py++) {
+            const z = (py + .5) / CH * D, gj = Math.floor(z / CELL);
+            for (let px = 0; px < CW; px++) {
+                const x = (px + .5) / CW * W, gi = Math.floor(x / CELL); let d1 = 1e9, d2 = 1e9, best = null;
+                for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) { const c = cell(gi + a, gj + b), dd = Math.hypot(c.x - x, c.z - z); if (dd < d1) { d2 = d1; d1 = dd; best = c; } else if (dd < d2) d2 = dd; }
+                const e = d2 - d1, k = e < .13 ? .62 * (1 - e / .13) : 0, o = (py * CW + px) * 4, n = 1 + (hash3(px, py, 9) - .5) * .03;
+                d[o] = (best.col[0] * (1 - k) + 246 * k) * n; d[o + 1] = (best.col[1] * (1 - k) + 238 * k) * n; d[o + 2] = (best.col[2] * (1 - k) + 196 * k) * n; d[o + 3] = 255;
+            }
+        }
+        g.putImageData(img, 0, 0);
+        const toC = (lon, lat) => { const q = geoToBoardXZ(lon, lat); return [(q.x - bb.x0) / W * CW, (q.z - bb.z0) / D * CH]; };
+        const line = (pts, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.lineCap = g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => { const [x, y] = toC(p[0], p[1]); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); };
+        // châu thổ sông Hồng quanh Hà Nội + một nhánh sông mảnh như ảnh mẫu
+        { const [x, y] = toC(105.75, 20.95), gr = g.createRadialGradient(x, y, 4, x, y, 44); gr.addColorStop(0, 'rgba(150,204,110,.75)'); gr.addColorStop(.7, 'rgba(160,208,112,.45)'); gr.addColorStop(1, 'rgba(160,208,112,0)'); g.fillStyle = gr; g.fillRect(x - 50, y - 50, 100, 100); }
+        line([[102.9, 22.5], [103.7, 22.0], [104.5, 21.6], [105.2, 21.25], [105.75, 21.0]], 'rgba(96,150,170,.55)', 2.2);
+        line([[105.75, 21.0], [106.3, 20.75], [106.9, 20.72], [107.3, 20.9]], 'rgba(96,150,170,.45)', 2);
+        // mép sáng dọc bờ
+        g.save(); g.beginPath(); outline.forEach(([x, z], i) => { const cx = (x - bb.x0) / W * CW, cy = (z - bb.z0) / D * CH; i ? g.lineTo(cx, cy) : g.moveTo(cx, cy); }); g.closePath(); g.clip();
+        g.filter = 'blur(3px)'; g.strokeStyle = 'rgba(248,240,200,.85)'; g.lineWidth = 12; g.stroke(); g.restore(); g.filter = 'none';
+        const t = new THREE.CanvasTexture(cv); t.anisotropy = 8; return t;
+    }
+
+    build3DVietnamMapTerrain = function () {
+        // 1. Đất liền
+        const out = VIETNAM_BORDER_LONLAT.map(([lon, lat]) => { const q = geoToBoardXZ(lon, lat); return [q.x, q.z]; });
+        const bb = { x0: 1e9, x1: -1e9, z0: 1e9, z1: -1e9 }; out.forEach(([x, z]) => { bb.x0 = Math.min(bb.x0, x); bb.x1 = Math.max(bb.x1, x); bb.z0 = Math.min(bb.z0, z); bb.z1 = Math.max(bb.z1, z); });
+        bb.x0 -= .5; bb.x1 += .5; bb.z0 -= .5; bb.z1 += .5;
+        const topMat = flat(0xffffff, { map: landTexture(bb, out) });
+        landSlab(out, LAND_Y, topMat, bb, .16);
+        // 2. Đảo: Phú Quốc theo đúng hình trong ảnh, các đảo khác bo tròn
+        const islTop = i => c4('k5isl' + (i % 3), () => flat([0xc4d96a, 0xbad460, 0xcfe07c][i % 3]));
+        (window.__ISLANDS || []).forEach((s, i) => {
+            const c = geoToBoardXZ(s.lon, s.lat);
+            const pts = s.poly ? s.poly.map(([lo, la]) => { const q = geoToBoardXZ(lo, la); return [q.x, q.z]; }) : blob(c.x, c.z, s.rx, s.rz, i * 1.7);
+            landSlab(pts, s.tile !== undefined ? LAND_Y : LAND_Y - .14, islTop(i), null, .12);
+        });
+        // 3. Đảo nhỏ đặt ngân hàng, hai bộ bài và xúc xắc (trước đây nằm trên mép bàn gỗ)
+        landSlab(blob(DECK.x + 1.8, DECK.z, 6.3, 8.6, 2.2, 56), .19, c4('k5deck', () => flat(0xc8dc74)), null, .12);
+        // 4. Mọi ô cờ nằm trên cùng một mặt phẳng
+        BOARD_TILES.forEach(t => { const q = geoToBoardXZ(t.lon, t.lat); t.mapX = q.x; t.mapZ = q.z; t.elevation = LAND_Y; });
+    };
+
+    // Chỉ giữ cụm núi đá vịnh Hạ Long ngoài biển; không rải rừng trên mặt bản đồ nữa
+    buildLush3DMapEnvironmentDetails = function () {
+        [[452, 196, .9], [470, 186, .7], [440, 208, .8]].forEach(([px, py, kh]) => {
+            const q = PXZ(px, py); if (!seaAt(q.x, q.z, 0)) return;
+            const rock = new THREE.Mesh(new THREE.ConeGeometry(.3, kh, 7), S(0x6f8f6a, .85)); rock.position.set(q.x, .1 + kh / 2, q.z); rock.castShadow = true; scene.add(rock);
+            const moss = new THREE.Mesh(new THREE.DodecahedronGeometry(.17, 1), S(0x58b85a, .75)); moss.position.set(q.x, .1 + kh * .8, q.z); scene.add(moss);
+        });
+    };
+
+    /* ---------- Bờ đất bao quanh biển: vách cát, cỏ, cây, làng xóm, đồi xa ---------- */
+    function buildShore() {
+        const R = BOARD_RECT, TOP = 1.5, OUT = 420, rnd = (() => { let s = 4711; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
+        const A = { x0: R.x0 - 80, x1: R.x1 + 80, z0: R.z0 - 80, z1: R.z1 + 80 }, AW = A.x1 - A.x0, AD = A.z1 - A.z0, CS = 1024;
+        const cv = document.createElement('canvas'); cv.width = cv.height = CS; const g = cv.getContext('2d');
+        const toC = (x, z) => [(x - A.x0) / AW * CS, (z - A.z0) / AD * CS];
+        const path = off => { g.beginPath(); poolPts(off, 220).forEach(([x, z], i) => { const [cx, cy] = toC(x, z); i ? g.lineTo(cx, cy) : g.moveTo(cx, cy); }); g.closePath(); };
+        g.fillStyle = '#84c455'; g.fillRect(0, 0, CS, CS);
+        for (let i = 0; i < 520; i++) { const x = 80 + rnd() * (CS - 160), y = 80 + rnd() * (CS - 160), r = 14 + rnd() * 42, k = rnd(); const gr = g.createRadialGradient(x, y, 0, x, y, r); const c = k < .45 ? '110,180,70' : k < .85 ? '150,208,98' : '214,200,140'; gr.addColorStop(0, `rgba(${c},.5)`); gr.addColorStop(1, `rgba(${c},0)`); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+        g.filter = 'blur(5px)'; g.strokeStyle = 'rgba(232,212,156,.95)'; g.lineWidth = 30; path(0); g.stroke();                 // bãi cát ven vách
+        g.filter = 'blur(1.5px)'; g.strokeStyle = 'rgba(226,206,150,.9)'; g.lineWidth = 5; path(11.5); g.stroke(); g.filter = 'none'; // đường đất ven biển
+        const tex = new THREE.CanvasTexture(cv); tex.anisotropy = 8;
+        // khối bờ: hình chữ nhật lớn khoét lòng biển bo tròn (ngoài vùng vẽ, texture kẹp mép nên cỏ đều màu)
+        const sh = new THREE.Shape(); sh.moveTo(R.cx - OUT, -(R.cz - OUT)); sh.lineTo(R.cx + OUT, -(R.cz - OUT)); sh.lineTo(R.cx + OUT, -(R.cz + OUT)); sh.lineTo(R.cx - OUT, -(R.cz + OUT)); sh.closePath();
+        const hole = new THREE.Path(); poolPts(0, 220).forEach(([x, z], i) => i ? hole.lineTo(x, -z) : hole.moveTo(x, -z)); hole.closePath(); sh.holes.push(hole);
+        const geo = new THREE.ExtrudeGeometry(sh, { depth: 2.2, bevelEnabled: true, bevelSize: .55, bevelThickness: .4, bevelSegments: 3, steps: 1 }); geo.rotateX(-Math.PI / 2);
+        { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) - A.x0) / AW, 1 - (p.getZ(i) - A.z0) / AD); uv.needsUpdate = true; }
+        const land = new THREE.Mesh(geo, [flat(0xffffff, { map: tex }), flat(0xdcc48e)]);
+        land.position.y = TOP - 2.2 - .4; land.receiveShadow = true; scene.add(land);
+
+        // làng xóm ven bờ
+        const o = new THREE.Object3D(), col = new THREE.Color(), houses = [];
+        const NV = 13; for (let v = 0; v < NV; v++) { const th = (v + .15 + rnd() * .7) / NV * Math.PI * 2, n = 3 + Math.floor(rnd() * 4), base = poolPt(th, 9 + rnd() * 9); for (let k = 0; k < n; k++) { const x = base[0] + (rnd() - .5) * 11, z = base[1] + (rnd() - .5) * 11; if (poolSD(x, z) < 5 || houses.some(h => Math.hypot(h.x - x, h.z - z) < 3.2)) continue; houses.push({ x, z, w: 1.7 + rnd() * .9, d: 1.4 + rnd() * .6, h: 1 + rnd() * .35, ry: Math.atan2(R.cx - x, R.cz - z) + (rnd() - .5) * .5, r: rnd() }); } }
+        const WALL = [0xf6ead0, 0xecd9b0, 0xdcc096, 0xfbf3e2], ROOF = [0xc9573c, 0xd97a42, 0xb44a3c, 0x6f8fa8, 0x8a5a3c, 0xc9573c];
+        const mkInst = (geom, mat, n) => { const im = new THREE.InstancedMesh(geom, mat, n); im.castShadow = true; im.receiveShadow = true; im.frustumCulled = false; scene.add(im); return im; };
+        const walls = mkInst(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ roughness: .85 }), houses.length);
+        const roofG = new THREE.ConeGeometry(.82, 1, 4); roofG.rotateY(Math.PI / 4);
+        const roofs = mkInst(roofG, new THREE.MeshStandardMaterial({ roughness: .7, flatShading: true }), houses.length);
+        houses.forEach((h, i) => {
+            o.rotation.set(0, h.ry, 0); o.position.set(h.x, TOP + h.h / 2, h.z); o.scale.set(h.w, h.h, h.d); o.updateMatrix(); walls.setMatrixAt(i, o.matrix); walls.setColorAt(i, col.setHex(WALL[Math.floor(h.r * WALL.length)]));
+            o.position.y = TOP + h.h + .34; o.scale.set(h.w * 1.08, .7, h.d * 1.12); o.updateMatrix(); roofs.setMatrixAt(i, o.matrix); roofs.setColorAt(i, col.setHex(ROOF[Math.floor(h.r * 7.3) % ROOF.length]));
+        });
+        walls.instanceColor.needsUpdate = roofs.instanceColor.needsUpdate = true;
+        // cây: tán tròn và thông
+        const trees = []; for (let n = 0; n < 4000 && trees.length < 560; n++) { const th = rnd() * Math.PI * 2, p = poolPt(th, 4.6 + rnd() * rnd() * 70), x = p[0] + (rnd() - .5) * 3, z = p[1] + (rnd() - .5) * 3; if (poolSD(x, z) < 4 || houses.some(h => Math.hypot(h.x - x, h.z - z) < 2.3)) continue; trees.push({ x, z, s: 1 + rnd() * .9, pine: rnd() < .38, r: rnd() }); }
+        const round = trees.filter(t => !t.pine), pine = trees.filter(t => t.pine), LEAF5 = [0x4fa244, 0x5cb04a, 0x3f923c, 0x6fbd55, 0x48a84c];
+        const trunks = mkInst(new THREE.CylinderGeometry(.09, .13, 1, 6), new THREE.MeshStandardMaterial({ color: 0x8a623c, roughness: .9 }), trees.length);
+        const crowns = mkInst(new THREE.IcosahedronGeometry(.62, 1), flat(0xffffff, { flatShading: true }), round.length);
+        const cones = mkInst(new THREE.ConeGeometry(.55, 1.5, 7), flat(0xffffff, { flatShading: true }), pine.length);
+        trees.forEach((t, i) => { o.rotation.set(0, t.r * 6, 0); o.position.set(t.x, TOP + .35 * t.s, t.z); o.scale.set(t.s, .7 * t.s, t.s); o.updateMatrix(); trunks.setMatrixAt(i, o.matrix); });
+        round.forEach((t, i) => { o.rotation.set(0, t.r * 6, 0); o.position.set(t.x, TOP + 1.0 * t.s, t.z); o.scale.set(t.s, t.s * (.9 + t.r * .3), t.s); o.updateMatrix(); crowns.setMatrixAt(i, o.matrix); crowns.setColorAt(i, col.setHex(LEAF5[Math.floor(t.r * 5)])); });
+        pine.forEach((t, i) => { o.rotation.set(0, t.r * 6, 0); o.position.set(t.x, TOP + 1.15 * t.s, t.z); o.scale.set(t.s, t.s, t.s); o.updateMatrix(); cones.setMatrixAt(i, o.matrix); cones.setColorAt(i, col.setHex(LEAF5[Math.floor(t.r * 5)]).multiplyScalar(.85)); });
+        if (round.length) crowns.instanceColor.needsUpdate = true; if (pine.length) cones.instanceColor.needsUpdate = true;
+        // dãy đồi xa khép đường chân trời
+        const NH = 72, hills = mkInst(new THREE.IcosahedronGeometry(1, 2), flat(0xffffff), NH); hills.castShadow = false;
+        for (let i = 0; i < NH; i++) { const p = poolPt((i + rnd() * .6) / NH * Math.PI * 2, i % 2 ? 100 + rnd() * 30 : 150 + rnd() * 50), r = 24 + rnd() * 26; o.rotation.set(0, rnd() * 6, 0); o.position.set(p[0], TOP - 2, p[1]); o.scale.set(r, r * (.3 + rnd() * .16), r); o.updateMatrix(); hills.setMatrixAt(i, o.matrix); hills.setColorAt(i, col.setHex([0x8fc45c, 0x82ba54, 0x9bcc66][i % 3])); }
+        hills.instanceColor.needsUpdate = true;
+    }
+
+    // Thay khung bàn gỗ + viền vàng bằng đáy biển và bờ đất
+    buildWoodenTableAndEastSea = function () {
+        const R = BOARD_RECT;
+        const bed = new THREE.Mesh(new THREE.BoxGeometry(R.W + 6, .3, R.D + 6), flat(0x1b9ce8));
+        bed.position.set(R.cx, -.12, R.cz); bed.receiveShadow = true; scene.add(bed);
+        try { buildShore(); } catch (e) { console.warn('shore', e); }
+        buildMapExtras();
+        // nhãn thành phố: hiện khi zoom xa, ẩn khi zoom gần
+        const labels = [['Hà Nội', 105.85, 21.03], ['Sa Pa', 103.84, 22.34], ['Huế', 107.59, 16.46], ['Đà Nẵng', 108.2, 16.05], ['Nha Trang', 109.19, 12.24], ['Đà Lạt', 108.44, 11.94], ['TP. Hồ Chí Minh', 106.7, 10.78], ['Cần Thơ', 105.78, 10.04]].map(a => {
+            const q = geoToBoardXZ(a[1], a[2]), sp = create3DTextSprite(a[0], '#0f172a', '#fde68a', true);
+            sp.position.set(q.x, LAND_Y + 1.5, q.z); sp.scale.set(1.7, .45, 1); sp.material.transparent = true; scene.add(sp); return sp;
+        });
+        _mapAnim.push(() => { labels.forEach(sp => { const d = camera.position.distanceTo(sp.position), o = Math.max(0, Math.min(1, (d - 12) / 8)); sp.material.opacity = o; sp.visible = o > .02; }); });
+    };
+
+    /* =================================================================================
+     * K6. BỆ ĐỊA DANH MỚI + NHÂN VẬT CHIBI CÓ HOẠT ẢNH
+     *    · Bệ bo tròn, thấp, màu xanh non viền theo loại ô (thay khối vuông khung gỗ)
+     *    · Nhân vật đầu to kiểu chibi mặc cổ phục, biết thở, chớp mắt, nhún nhảy khi tới lượt,
+     *      co chân khi nhảy ô, vẫy tay khi rê chuột, nhảy xoay vòng khi bấm vào
+     * ================================================================================= */
+    const TILE_SCALE = .9;
+    const rrPts = (w, r, n) => { const o = [], h = w / 2 - r; [[h, h, 0], [-h, h, 1], [-h, -h, 2], [h, -h, 3]].forEach(([cx, cy, q]) => { for (let i = 0; i <= n; i++) { const a = (q + i / n) * Math.PI / 2; o.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } }); return o; };
+    const PAD_RIM = { START: '#d9534a', SHOP: '#2f9e8f', BIEN_DONG: '#c8553d', BAN_LINH: '#d99a2b', PROPERTY: '#8fbf55' };
+
+    makeDioramaPlatform = function (tile, baseRadius) {
+        const W = baseRadius * 1.9, R = .5, D = .34, BV = .05;
+        const sh = new THREE.Shape(); rrPts(W - BV * 2, R, 8).forEach(([x, y], i) => i ? sh.lineTo(x, y) : sh.moveTo(x, y)); sh.closePath();
+        const geo = new THREE.ExtrudeGeometry(sh, { depth: D, bevelEnabled: true, bevelSize: BV, bevelThickness: BV, bevelSegments: 3, steps: 1 }); geo.rotateX(-Math.PI / 2);
+        { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / W + .5, .5 - p.getZ(i) / W); uv.needsUpdate = true; }
+        const rim = PAD_RIM[tile.type] || PAD_RIM.PROPERTY;
+        const top = c4('k6pad' + tile.type, () => flat(0xffffff, { map: (() => {
+            const cv = document.createElement('canvas'); cv.width = cv.height = 256; const g = cv.getContext('2d');
+            g.fillStyle = '#dff0a8'; g.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 260; i++) { g.fillStyle = i % 2 ? 'rgba(170,210,110,.35)' : 'rgba(240,250,200,.4)'; g.beginPath(); g.arc(Math.random() * 256, Math.random() * 256, 1.5 + Math.random() * 2.5, 0, 7); g.fill(); }
+            const path = (inset, r) => { const a = inset, b = 256 - inset; g.beginPath(); g.moveTo(a + r, a); g.arcTo(b, a, b, b, r); g.arcTo(b, b, a, b, r); g.arcTo(a, b, a, a, r); g.arcTo(a, a, b, a, r); g.closePath(); };
+            g.strokeStyle = rim; g.globalAlpha = .9; g.lineWidth = 9; path(13, 48); g.stroke(); g.globalAlpha = .35; g.lineWidth = 3; path(26, 38); g.stroke(); g.globalAlpha = 1;
+            const t = new THREE.CanvasTexture(cv); t.anisotropy = 8; return t;
+        })() }));
+        const block = new THREE.Mesh(geo, [top, c4('k6padSide', () => flat(0xfaf2d8))]);
+        block.position.y = .14 - D - BV; block.receiveShadow = block.castShadow = true;
+        // bảng tên nhỏ đặt nghiêng trước bệ
+        const label = (tile.name || '').toUpperCase().slice(0, 34);
+        const tx = vCanvasTex('k6plq' + tile.index, 512, 96, (g, w, h) => {
+            g.clearRect(0, 0, w, h); const r = 40; g.beginPath(); g.moveTo(r, 4); g.arcTo(w - 4, 4, w - 4, h - 4, r); g.arcTo(w - 4, h - 4, 4, h - 4, r); g.arcTo(4, h - 4, 4, 4, r); g.arcTo(4, 4, w - 4, 4, r); g.closePath();
+            g.fillStyle = '#fffaf0'; g.fill(); g.strokeStyle = rim; g.lineWidth = 7; g.stroke();
+            g.fillStyle = '#4a3418'; g.font = '800 36px "Be Vietnam Pro", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, h / 2 + 2, w - 56);
+        });
+        const plq = new THREE.Mesh(new THREE.PlaneGeometry(W * .66, W * .66 * 96 / 512), new THREE.MeshBasicMaterial({ map: tx, transparent: true, alphaTest: .4 }));
+        plq.rotation.x = -1.05; plq.position.set(0, .33, W / 2 + .2); block.add(plq);
+        return block;
+    };
+
+    // Sau khi dựng ô: thu nhỏ bệ một chút và đổi vòng chủ sở hữu từ khung vuông sang viền bo tròn
+    const _buildTilesK6 = build24GeographicalTilesWithDioramas;
+    build24GeographicalTilesWithDioramas = function () {
+        _buildTilesK6.apply(this, arguments);
+        tileBaseRings.forEach((ring, i) => {
+            const t = BOARD_TILES[i], W = (t.type === 'START' || t.type === 'SHOP' ? 1.28 : 1.15) * 1.9 + .12;
+            const pts = rrPts(W, .56, 6).map(([x, y]) => new THREE.Vector3(x, y, 0));
+            ring.geometry.dispose(); ring.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true, 'catmullrom', .2), 96, .04, 6, true);
+            ring.rotation.set(Math.PI / 2, 0, 0); ring.position.y = .1;
+            if (ring.parent) ring.parent.scale.setScalar(TILE_SCALE);
+        });
+        tileLabelSprites.forEach(o => { o.sprite.position.y = 2.3; o.sprite.position.z = 0; });   // nhãn ô nổi cao hơn đầu nhân vật
+    };
+
+    /* ---------- Nhân vật chibi ---------- */
+    const CHIBI = [];   // danh sách quân đang có trên bàn (để chạy hoạt ảnh & bắt chuột)
+    const PM = (c, r, m) => new THREE.MeshStandardMaterial({ color: c, roughness: r === undefined ? .6 : r, metalness: m || 0 });
+    function chibiHat(st, cloth, gold) {
+        const hg = new THREE.Group(), add = m => { m.castShadow = true; hg.add(m); return m; };
+        if (st.hat === 'DONG') {            // khăn đóng
+            const t = add(new THREE.Mesh(new THREE.TorusGeometry(.26, .085, 12, 32), PM(0x141a2e, .7))); t.rotation.x = Math.PI / 2 - .12; t.position.set(0, .16, -.02); t.scale.set(1, 1, 1.25);
+            const b = add(new THREE.Mesh(new THREE.TorusGeometry(.27, .014, 6, 32), gold)); b.rotation.x = Math.PI / 2 - .12; b.position.set(0, .1, -.02);
+        } else if (st.hat === 'VAN') {      // khăn vấn
+            for (let i = 0; i < 3; i++) { const t = add(new THREE.Mesh(new THREE.TorusGeometry(.25 - i * .02, .06, 10, 32), PM(i % 2 ? 0xf5c542 : 0xe6ae32, .5, .1))); t.rotation.x = Math.PI / 2 - .2 + i * .06; t.position.set(0, .15 + i * .05, -.04); }
+        } else if (st.hat === 'MAN') {      // mấn đội đầu + trâm vàng
+            const t = add(new THREE.Mesh(new THREE.TorusGeometry(.26, .075, 12, 32), cloth)); t.rotation.x = Math.PI / 2 - .25; t.position.set(0, .17, -.04); t.scale.set(1, 1, 1.3);
+            for (let i = 0; i < 5; i++) { const a = (i - 2) * .32, h = .1 + .06 * Math.cos((i - 2) * .7), c = add(new THREE.Mesh(new THREE.ConeGeometry(.03, h, 6), gold)); c.position.set(Math.sin(a) * .25, .27 + h / 2, Math.cos(a) * .2); }
+            add(new THREE.Mesh(new THREE.SphereGeometry(.035, 10, 8), PM(0xdc2626, .2, .3))).position.set(0, .3, .22);
+        } else if (st.hat === 'LA') {       // nón lá
+            const c = add(new THREE.Mesh(new THREE.ConeGeometry(.52, .3, 40, 1, true), new THREE.MeshStandardMaterial({ color: 0xead392, roughness: .75, side: THREE.DoubleSide }))); c.position.y = .3; hg.rotation.x = -.12;
+            for (let k = 1; k <= 3; k++) { const t = new THREE.Mesh(new THREE.TorusGeometry(.52 * k / 4, .006, 5, 40), PM(0xb59a5a, .8)); t.rotation.x = Math.PI / 2; t.position.y = .45 - .3 * k / 4; hg.add(t); }
+        } else if (st.hat === 'QUAI') {     // nón quai thao
+            const d = add(new THREE.Mesh(new THREE.CylinderGeometry(.56, .58, .035, 40), PM(0xe6cf8a, .7))); d.position.y = .27; hg.rotation.x = -.16;
+            const cap = add(new THREE.Mesh(new THREE.CylinderGeometry(.2, .24, .09, 24), PM(0xd9bf74, .7))); cap.position.y = .32;
+            [1, -1].forEach(s => { const q = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .5, 5), PM(0x1f2937)); q.position.set(s * .36, .02, .1); q.rotation.z = s * .22; hg.add(q); const ts = add(new THREE.Mesh(new THREE.ConeGeometry(.035, .12, 8), PM(0xb91c1c, .6))); ts.position.set(s * .31, -.26, .1); });
+        }
+        return hg;
+    }
+    function chibiProp(st, playerHex) {
+        const g = new THREE.Group(), add = m => { m.castShadow = true; g.add(m); return m; };
+        if (st.prop === 'SCROLL') { add(new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .3, 12), PM(0xfef3c7, .6))).rotation.z = Math.PI / 2; [-.15, .15].forEach(x => { const e = add(new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 12), PM(0xb91c1c, .4))); e.position.x = x; e.rotation.z = Math.PI / 2; }); }
+        else if (st.prop === 'FAN') { const f = add(new THREE.Mesh(new THREE.CircleGeometry(.22, 20, Math.PI / 2 - .85, 1.7), new THREE.MeshStandardMaterial({ color: 0xe23b3b, roughness: .5, side: THREE.DoubleSide }))); f.position.y = .02; const r = new THREE.Mesh(new THREE.RingGeometry(.2, .22, 20, 1, Math.PI / 2 - .85, 1.7), new THREE.MeshStandardMaterial({ color: 0xf5c542, side: THREE.DoubleSide })); r.position.set(0, .02, .003); g.add(r); }
+        else if (st.prop === 'LUA') { add(new THREE.Mesh(new THREE.CylinderGeometry(.012, .016, .36, 6), PM(0xc9a53a, .7))).position.y = .14; for (let i = 0; i < 6; i++) { const a = i * 1.05, k = add(new THREE.Mesh(new THREE.SphereGeometry(.028, 8, 6), PM(0xeab308, .5))); k.scale.set(.7, 1.7, .7); k.position.set(Math.cos(a) * .035, .32 + (i % 2) * .04, Math.sin(a) * .035); } }
+        else if (st.prop === 'SEN') { add(new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .32, 6), PM(0x15803d))).position.y = .12; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, p = add(new THREE.Mesh(new THREE.ConeGeometry(.04, .12, 6), PM(i % 2 ? 0xf9a8d4 : 0xf472b6, .45))); p.position.set(Math.cos(a) * .05, .32, Math.sin(a) * .05); p.rotation.set(Math.sin(a) * .7, 0, -Math.cos(a) * .7); } add(new THREE.Mesh(new THREE.SphereGeometry(.03, 8, 6), PM(0xfacc15))).position.y = .3; }
+        else if (st.prop === 'NGOC') { add(new THREE.Mesh(new THREE.BoxGeometry(.07, .26, .02), PM(0x34d399, .2, .1))).position.y = .1; add(new THREE.Mesh(new THREE.SphereGeometry(.03, 8, 6), PM(playerHex, .4))).position.y = -.06; }
+        return g;
+    }
+    createVietnameseCostumePawn3D = function (player) {
+        const st = PAWN_STYLES[player.costumeKey] || PAWN_STYLES.AO_NGU_THAN, F = st.sex === 'F';
+        const group = new THREE.Group(), fig = new THREE.Group(), rig = new THREE.Group();
+        group.add(fig); fig.add(rig); group.userData.figure = fig; group.userData.faceY = 0;
+        const FEET = -.27; fig.position.y = FEET;           // game đặt quân cao hơn mặt bệ 0.45 -> hạ chân xuống sát mặt bệ
+        const add = (parent, m, x, y, z) => { m.position.set(x || 0, y || 0, z || 0); if (m.isMesh) m.castShadow = true; parent.add(m); return m; };
+        const skin = PM(st.skin, .65), hairM = PM(0x1a1210, .45, .05), gold = PM(0xf5c542, .3, .7), white = PM(0xffffff, .4), darkM = PM(0x14141a, .5);
+        const cloth = new THREE.MeshStandardMaterial({ map: pawnTex(st.tex[0], st.tex[1], st.tex[2]), roughness: .6, side: THREE.DoubleSide });
+        const main = PM(new THREE.Color(st.tex[1]).getHex(), .6);
+        // vòng màu người chơi dưới chân + viên ngọc báo lượt trên đầu
+        const ring = add(group, new THREE.Mesh(new THREE.CylinderGeometry(.36, .4, .035, 32), new THREE.MeshStandardMaterial({ color: player.hex, emissive: player.hex, emissiveIntensity: .45, roughness: .4 })), 0, FEET + .018, 0); ring.receiveShadow = true;
+        add(group, new THREE.Mesh(new THREE.TorusGeometry(.38, .018, 8, 32), white), 0, FEET + .036, 0).rotation.x = Math.PI / 2;
+        const gem = add(group, new THREE.Mesh(new THREE.OctahedronGeometry(.11, 0), new THREE.MeshStandardMaterial({ color: player.hex, emissive: player.hex, emissiveIntensity: .7, roughness: .25, metalness: .2 })), 0, FEET + 1.78, 0); gem.scale.y = 1.5; gem.visible = false;
+        // chân
+        const legs = [1, -1].map(s => { const L = new THREE.Group(); L.position.set(s * .1, .2, 0); rig.add(L); add(L, new THREE.Mesh(new THREE.CylinderGeometry(.065, .06, .16, 10), st.shirtOnly ? darkM : white), 0, -.08, 0); const shoe = add(L, new THREE.Mesh(new THREE.SphereGeometry(.085, 12, 8), PM(st.shoe, .5)), 0, -.165, .04); shoe.scale.set(1, .6, 1.5); return L; });
+        // thân: áo dáng chuông
+        const torso = new THREE.Group(); rig.add(torso);
+        const lathe = (ctrl, mat) => { const pts = new THREE.SplineCurve(ctrl.map(p => new THREE.Vector2(p[0], p[1]))).getPoints(18); const m = new THREE.Mesh(new THREE.LatheGeometry(pts, 28), mat); m.castShadow = true; m.scale.z = .86; torso.add(m); return m; };
+        if (st.shirtOnly) { lathe([[.17, .2], [.19, .32], [.17, .4]], darkM); lathe([[.25, .36], [.24, .45], [.19, .6], [.13, .7], [.08, .73]], cloth); }
+        else if (st.coat) { lathe([[.28, .12], [.24, .34], [.18, .5]], darkM); lathe([[.29, .3], [.25, .44], [.19, .6], [.13, .7], [.08, .73]], cloth); const y = add(torso, new THREE.Mesh(new THREE.CircleGeometry(.1, 4), PM(0xf472b6, .5)), 0, .58, .168); y.scale.set(.9, 1.3, 1); [1, -1].forEach(s => add(torso, new THREE.Mesh(new THREE.BoxGeometry(.09, .34, .02), main), s * .1, .3, .235).rotation.x = .1); }
+        else lathe([[st.wide ? .31 : .28, .1], [.27, .25], [.2, .5], [.15, .66], [.08, .73]], cloth);
+        const hemY = st.shirtOnly ? .36 : st.coat ? .3 : .1, hemR = st.shirtOnly ? .25 : st.coat ? .29 : st.wide ? .31 : .28;
+        { const h = add(torso, new THREE.Mesh(new THREE.TorusGeometry(hemR, .014, 6, 28), gold), 0, hemY, 0); h.rotation.x = Math.PI / 2; h.scale.y = .86; }
+        if (st.collar === 'STAND') { add(torso, new THREE.Mesh(new THREE.CylinderGeometry(.1, .11, .05, 16, 1, true), PM(0x172554, .5)), 0, .74, 0); for (let i = 0; i < 4; i++) add(torso, new THREE.Mesh(new THREE.SphereGeometry(.018, 8, 6), gold), .05, .66 - i * .1, .15 + i * .022); }
+        else if (st.collar === 'NHAT') { const b = add(torso, new THREE.Mesh(new THREE.BoxGeometry(.22, .17, .02), PM(0xfbbf24, .35, .5)), 0, .6, .165); b.rotation.x = -.3; add(torso, new THREE.Mesh(new THREE.CircleGeometry(.045, 14), PM(0xb91c1c, .4)), 0, .6, .178).rotation.x = -.3; }
+        else if (st.collar === 'RAN') { const sc = add(torso, new THREE.Mesh(new THREE.TorusGeometry(.11, .04, 8, 20), new THREE.MeshStandardMaterial({ map: pawnTex('CHECK', '#f8fafc', '#15803d'), roughness: .8 })), 0, .72, 0); sc.rotation.x = Math.PI / 2; add(torso, new THREE.Mesh(new THREE.BoxGeometry(.08, .22, .025), sc.material), -.07, .6, .16).rotation.z = -.15; }
+        else if (st.collar === 'GIAO') { [[-.1, gold], [-.07, white]].forEach(([o, m], k) => { const t = add(torso, new THREE.Mesh(new THREE.CylinderGeometry(.012 - k * .003, .012 - k * .003, .3, 6), m), o + .1, .58, .15 + k * .004); t.rotation.z = -.65; }); }
+        if (!st.shirtOnly) { const b = add(torso, new THREE.Mesh(new THREE.TorusGeometry(.2, .022, 8, 24), new THREE.MeshStandardMaterial({ color: player.hex, roughness: .5 })), 0, .5, 0); b.rotation.x = Math.PI / 2; b.scale.y = .86; }
+        // tay: xoay quanh vai
+        const armR = st.wide ? .085 : .06;
+        const arms = [1, -1].map(s => { const A = new THREE.Group(); A.position.set(s * .17, .66, 0); A.rotation.z = s * .55; torso.add(A); const sl = add(A, new THREE.Mesh(new THREE.CylinderGeometry(.05, armR, .24, 12), cloth), 0, -.12, 0); add(A, new THREE.Mesh(new THREE.SphereGeometry(.052, 10, 8), cloth), 0, 0, 0); add(A, new THREE.Mesh(new THREE.TorusGeometry(armR, .01, 6, 16), gold), 0, -.24, 0).rotation.x = Math.PI / 2; add(A, new THREE.Mesh(new THREE.SphereGeometry(.052, 10, 8), skin), 0, -.28, 0); return A; });
+        { const p = chibiProp(st, player.hex); p.position.set(0, -.3, .03); p.rotation.z = -.55; arms[0].add(p); }
+        // đầu to
+        const head = new THREE.Group(); head.position.y = 1.0; rig.add(head);
+        add(head, new THREE.Mesh(new THREE.CylinderGeometry(.06, .07, .08, 10), skin), 0, -.28, 0);
+        const skull = add(head, new THREE.Mesh(new THREE.SphereGeometry(.3, 28, 22), skin)); skull.scale.set(1, .93, .95);
+        const hair = add(head, new THREE.Mesh(new THREE.SphereGeometry(.315, 28, 18, 0, Math.PI * 2, 0, Math.PI * .56), hairM)); hair.rotation.x = -.42; hair.scale.set(1, .96, .98);
+        [-1, 0, 1].forEach(k => { const f = add(head, new THREE.Mesh(new THREE.SphereGeometry(.1, 10, 8), hairM), k * .13, .2 - Math.abs(k) * .035, .2); f.scale.set(1.1, .55, .6); });
+        if (F) { [1, -1].forEach(s => { const l = add(head, new THREE.Mesh(new THREE.SphereGeometry(.09, 10, 8), hairM), s * .27, -.06, -.02); l.scale.set(.55, 1.7, .8); }); add(head, new THREE.Mesh(new THREE.SphereGeometry(.12, 12, 10), hairM), 0, st.hat === 'QUAI' || st.hat === 'LA' ? -.1 : .1, -.27); }
+        [1, -1].forEach(s => add(head, new THREE.Mesh(new THREE.SphereGeometry(.05, 8, 6), skin), s * .295, -.03, 0).scale.set(.5, 1, .8));
+        const eyeM = PM(0x23160f, .15), eyes = [1, -1].map(s => {
+            const E = new THREE.Group(); E.position.set(s * .115, -.035, .262); E.rotation.y = s * .32; head.add(E);
+            add(E, new THREE.Mesh(new THREE.SphereGeometry(.052, 14, 12), eyeM)).scale.set(1, 1.28, .45);
+            add(E, new THREE.Mesh(new THREE.SphereGeometry(.018, 8, 6), white), .016, .028, .02); add(E, new THREE.Mesh(new THREE.SphereGeometry(.009, 6, 5), white), -.016, -.02, .022);
+            const br = add(head, new THREE.Mesh(new THREE.BoxGeometry(.075, F ? .012 : .018, .012), hairM), s * .12, .075, .268); br.rotation.z = -s * .12; br.rotation.y = s * .3;
+            const bl = add(head, new THREE.Mesh(new THREE.CircleGeometry(.045, 14), new THREE.MeshBasicMaterial({ color: 0xff8fa8, transparent: true, opacity: F ? .55 : .38, depthWrite: false })), s * .185, -.105, .232); bl.rotation.y = s * .62; bl.castShadow = false;
+            return E;
+        });
+        const mouth = add(head, new THREE.Mesh(new THREE.TorusGeometry(.038, .009, 6, 14, Math.PI), PM(F ? 0xc2414b : 0x8f3a36, .4)), 0, -.13, .272); mouth.rotation.z = Math.PI;
+        head.add(chibiHat(st, cloth, gold));
+        // vùng bắt chuột (vô hình)
+        const hit = add(group, new THREE.Mesh(new THREE.CylinderGeometry(.42, .42, 1.7, 10), new THREE.MeshBasicMaterial({ visible: false })), 0, FEET + .85, 0); hit.castShadow = false;
+        group.scale.setScalar(.68);
+        const C = { player, group, rig, torso, head, eyes, mouth, arms, legs, gem, ring, hit, ph: player.id * 1.7, last: null, air: 0, squash: 0, wave: 0, cheer: 0, sad: 0, blink: 2 + Math.random() * 3, cash: player.cash, lastT: 0 };
+        group.userData.chibi = C; hit.userData.chibi = C;
+        for (let i = CHIBI.length - 1; i >= 0; i--) if (!CHIBI[i].group.parent || CHIBI[i].player.id === player.id) CHIBI.splice(i, 1);
+        CHIBI.push(C);
+        return group;
+    };
+
+    // Năm quân đứng thành vòng trên bệ để không che nhau
+    getPlayerPawnOffset = function (i) { const a = -Math.PI / 2 + (i % 5) * Math.PI * 2 / 5 + Math.PI; return { dx: Math.cos(a) * .8, dz: Math.sin(a) * .8 }; };
+
+    function chibiPop(C, emoji) {
+        try {
+            const sp = emojiSprite(emoji, .32); const p = C.group.position; sp.position.set(p.x, p.y + 1.25, p.z); scene.add(sp); const t0 = performance.now();
+            const fn = () => { const e = (performance.now() - t0) / 900; if (e >= 1) { scene.remove(sp); const i = _mapAnim.indexOf(fn); if (i >= 0) setTimeout(() => _mapAnim.splice(_mapAnim.indexOf(fn), 1), 0); return; } sp.position.y = p.y + 1.25 + e * .9; sp.material.opacity = 1 - e * e; sp.scale.setScalar(.32 + Math.sin(e * Math.PI) * .14); };
+            sp.material.transparent = true; _mapAnim.push(fn);
+        } catch (e) { }
+    }
+    function chibiUpdate() {
+        const now = performance.now() / 1000;
+        CHIBI.forEach(C => {
+            const g = C.group; if (!g.parent || !g.visible) return;
+            const dt = Math.min(.1, Math.max(0, now - (C.lastT || now))); C.lastT = now;
+            const p = C.player, tile = BOARD_TILES[p.position], rest = tile ? tile.elevation + .45 : g.position.y;
+            const air = Math.max(0, g.position.y - rest), moving = C.last ? Math.hypot(g.position.x - C.last.x, g.position.z - C.last.z) > .002 : false;
+            if (C.air > .06 && air <= .06) C.squash = 1;                       // vừa chạm đất
+            C.air = air; C.last = { x: g.position.x, z: g.position.z };
+            if (p.cash !== C.cash) { if (p.cash > C.cash) { if (C.cheer <= 0) { C.cheer = C.cheer0 = .7; C.spin = 0; } chibiPop(C, '💰'); } else { C.sad = 1.6; } C.cash = p.cash; }
+            ['squash', 'wave', 'cheer', 'sad'].forEach(k => { C[k] = Math.max(0, C[k] - dt * (k === 'squash' ? 4 : k === 'sad' ? 1 : 1.1)); });
+            const turn = gameState.currentPlayerIdx === p.id && !gameState.gameEnded, t = now + C.ph, hop = air > .06 || moving;
+            // thân: thở, nhún khi tới lượt, co giãn khi nhảy / chạm đất
+            const cp = C.cheer > 0 ? 1 - C.cheer / (C.cheer0 || 1) : 0, ch = C.cheer > 0 ? Math.sin(cp * Math.PI) : 0;
+            const bounce = turn && !hop ? Math.abs(Math.sin(t * 3.2)) * .07 : 0;
+            const sq = C.squash > 0 ? Math.sin(C.squash * Math.PI) * .2 : 0, stretch = Math.min(.16, air * .2);
+            C.rig.position.y = bounce + ch * .55;
+            C.rig.scale.set(1 + sq * .6 - stretch * .5, 1 - sq + stretch, 1 + sq * .6 - stretch * .5);
+            C.rig.rotation.y = C.cheer > 0 && C.spin ? cp * Math.PI * 2 : 0;
+            C.rig.rotation.x = hop ? .18 : 0;
+            C.torso.scale.x = C.torso.scale.z = 1 + Math.sin(t * 2.2) * .015;
+            // đầu: lắc lư, nhìn theo camera khi được rê chuột, cúi khi mất tiền
+            let look = 0; if (C.wave > 0) { const a = Math.atan2(camera.position.x - g.position.x, camera.position.z - g.position.z) - (g.userData.faceY || 0); look = Math.max(-1, Math.min(1, Math.atan2(Math.sin(a), Math.cos(a)))); }
+            C.head.rotation.y += (look - C.head.rotation.y) * .18;
+            C.head.rotation.z = Math.sin(t * 1.3) * .06 + (C.wave > 0 ? .12 : 0);
+            C.head.rotation.x = C.sad > 0 ? .38 * Math.min(1, C.sad) : hop ? -.15 : Math.sin(t * .9) * .03;
+            // mắt chớp
+            C.blink -= dt; const bk = C.blink < .12 ? .12 : 1; if (C.blink < 0) C.blink = 2.2 + Math.random() * 3.5;
+            C.eyes.forEach(E => E.scale.y = C.cheer > 0 || C.wave > 0 ? .55 : C.sad > 0 ? .7 : bk);
+            C.mouth.scale.set(C.cheer > 0 || C.wave > 0 ? 1.5 : 1, C.sad > 0 ? -1 : C.cheer > 0 || C.wave > 0 ? 1.6 : 1, 1);
+            // tay: đung đưa, giơ cao khi nhảy/ăn mừng, vẫy khi được chào
+            const up = hop || C.cheer > 0;
+            C.arms.forEach((A, i) => { const s = i ? -1 : 1; let z = s * (.5 + Math.sin(t * 2.2 + i * 3) * .07), x = Math.sin(t * 1.6 + i * 3.1) * .08; if (up) { z = s * 2.5; x = 0; } else if (C.wave > 0 && i === 1) { z = s * (2.5 + Math.sin(now * 14) * .45); x = 0; } else if (C.sad > 0) z = s * .25; A.rotation.z += (z - A.rotation.z) * .3; A.rotation.x += (x - A.rotation.x) * .3; });
+            // chân: co lên khi nhảy, dậm nhẹ khi tới lượt
+            C.legs.forEach((L, i) => { const tx = hop ? (i ? -.9 : .7) : turn ? Math.sin(t * 6.4 + i * Math.PI) * .12 : 0; L.rotation.x += (tx - L.rotation.x) * .35; });
+            // ngọc báo lượt
+            C.gem.visible = turn; if (turn) { C.gem.rotation.y = now * 2.4; C.gem.position.y = -.27 + 1.78 + Math.sin(now * 3) * .06; }
+            C.ring.material.emissiveIntensity = turn ? .55 + Math.sin(now * 5) * .3 : .35;
+        });
+    }
+    _mapAnim.push(chibiUpdate);
+
+    // Rê chuột: quân vẫy tay chào · Bấm: quân nhảy xoay vòng mừng rỡ
+    const _initK6 = init3DScene;
+    init3DScene = function () {
+        _initK6.apply(this, arguments);
+        try {
+            const rc = new THREE.Raycaster(), m = new THREE.Vector2(), el = renderer.domElement; let down = null, lastMove = 0;
+            const pick = e => { const r = el.getBoundingClientRect(); m.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); rc.setFromCamera(m, camera); const hits = rc.intersectObjects(CHIBI.filter(c => c.group.parent && c.group.visible).map(c => c.hit), false); return hits.length ? hits[0].object.userData.chibi : null; };
+            el.addEventListener('pointermove', e => { const n = performance.now(); if (n - lastMove < 60) return; lastMove = n; const C = pick(e); if (C) { C.wave = Math.max(C.wave, .9); el.style.cursor = 'pointer'; } else if (el.style.cursor === 'pointer') el.style.cursor = ''; });
+            el.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+            el.addEventListener('pointerup', e => { if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return; const C = pick(e); if (C && C.cheer <= 0) { C.cheer = C.cheer0 = 1; C.spin = 1; chibiPop(C, ['💖', '⭐', '🎉', '👋'][Math.floor(Math.random() * 4)]); try { playSFX('step'); } catch (x) { } } });
+        } catch (e) { console.warn('chibi input', e); }
+    };
+
+    /* =================================================================================
+     * K7. Ô ĐẤT TRỐNG & ĐẤT CHỜ XÂY — mỗi ô một tiểu cảnh riêng theo nghề và vùng miền
+     *    · Chưa có chủ: hàng rào, biển gỗ có biểu tượng nghề, cụm nguyên liệu/dụng cụ của nghề,
+     *      cây theo vùng miền, hoa cỏ, đá, bướm bay
+     *    · Đã mua, chờ xây: nền móng viền màu chủ đất, giàn giáo tre, tường xây dở, vật tư, cờ chủ đất
+     *    (thay cho createPlotMarker3D cũ trong k4_monopoly.js; giao diện userData giữ nguyên)
+     * ================================================================================= */
+    const PLOT_KIND = {
+        DONG_HO_ART: 'PRINT', BINH_AN: 'DRUM', JRAI: 'WOOD', BUU_LONG: 'STONE', PHUC_SEN: 'FORGE', THUY_XUAN_INCENSE: 'INCENSE',
+        NINH_BINH_HOA_LU: 'LOOM', KON_TUM2: 'LOOM', NGA_SON_MAT: 'REED', NON_CHUONG: 'HATS', PHU_BINH_LANTERN: 'LANTERN', TAN_CHAU2: 'CLOTH', SON_LA2: 'CLOTH', LUNG_TAM: 'CLOTH',
+        AN_NGAI: 'TRAYS', TRANG_BANG2: 'TRAYS', BINH_LU: 'TRAYS', MY_CHU: 'TRAYS', BEN_TRE_COCONUT: 'COCONUT', TRA_CUON: 'BASKETS', VU_THOM: 'BASKETS', SA_DEC2: 'FLOWERS', DA_LAT2: 'FLOWERS',
+        BMT2: 'COFFEE', TAN_CUONG2: 'TEA', NAM_DAN: 'JARS', MUONG_VANG: 'JARS', PHAN_THIET_SAUCE: 'JARS', LY_SON_ISLAND: 'GARLIC', NHA_TRANG_AGARWOOD: 'BOAT', PHU_QUOC2: 'BOAT', BAC_LIEU_SALT2: 'SALT', CA_MAU2: 'NET'
+    };
+    const PLOT_DEFAULT = { CERAMIC_ART: 'POTS', WEAVING_CRAFT: 'CLOTH', HIGHLAND_AGRI: 'BASKETS', COASTAL_AQUA: 'NET' };
+    const BRIGHT = [0xe8504a, 0xf2a93b, 0xf6d54a, 0x4fb3a5, 0x5b8fd9, 0xd96bb0, 0xffffff];
+
+    // Cụm nguyên liệu / dụng cụ đặc trưng của nghề, gói trong bán kính ~0.38
+    function plotCraft(K, kind, rnd) {
+        const wood = S(0x8a5a34, .85), dark = S(0x5b3a22, .85), tan = S(0xd9b877, .85), stone = S(0x9d9a92, .9);
+        const pot = (x, z, s, hex) => { const b = K.sph(.07 * s, S(hex, .75), x, .065 * s, z, 1); b.scale.y = 1.1; K.cyl(.035 * s, .045 * s, .04 * s, S(hex, .75), x, .12 * s, z, 10); };
+        const rows = (soil, bush, dot) => { for (let r = 0; r < 3; r++) { K.box(.6, .03, .1, S(soil, .95), 0, 0, -.16 + r * .16); for (let i = 0; i < 5; i++) { K.sph(.045, S(bush, .85), -.24 + i * .12, .06, -.16 + r * .16, 0); if (dot && (i + r) % 2) K.sph(.014, S(dot, .6), -.24 + i * .12 + .02, .1, -.16 + r * .16 + .02, 0); } } };
+        if (kind === 'POTS') {
+            const kiln = K.sph(.2, S(0xb0563a, .9), -.14, 0, -.16, 1); kiln.scale.y = .85; K.box(.09, .1, .03, S(0x2a1a12, .9), -.14, 0, .03); K.cyl(.03, .04, .12, S(0x8a4630, .9), -.14, .15, -.2, 8);
+            K.sph(.1, S(0xc0744a, .95), .2, .02, -.12, 1).scale.y = .5; pot(.12, .16, 1, 0xc9683f); pot(.26, .1, .75, 0xd98a55); pot(.02, .24, .6, 0xe4d2b0); pot(.3, .26, .55, 0x4f7fb5);
+        } else if (kind === 'PRINT') {
+            [-.13, .13].forEach(x => K.cyl(.012, .012, .42, wood, x, 0, -.1, 5).rotation.x = -.18); K.box(.36, .28, .015, S(0xf4e6c2, .7), 0, .12, -.07).rotation.x = -.18;
+            [[-.09, .3, 0xe8504a], [.09, .3, 0x4fb3a5], [-.09, .18, 0xf6d54a], [.09, .18, 0x5b8fd9]].forEach(([x, y, c]) => K.box(.13, .1, .005, S(c, .6), x, y - .02, -.045 - (y - .12) * .18).rotation.x = -.18);
+            for (let i = 0; i < 4; i++) K.box(.2, .012, .15, S(i % 2 ? 0xf4e6c2 : 0xe8d49a, .7), .12, i * .013, .22).rotation.y = i * .12; K.box(.12, .05, .08, dark, -.18, 0, .22);
+        } else if (kind === 'DRUM') {
+            [[0, 0, 1], [.24, .12, .7]].forEach(([x, z, s]) => { const d = K.cyl(.13 * s, .13 * s, .2 * s, S(0xa23a2a, .7), x, 0, z, 16); d.scale.set(1, 1, 1); K.cyl(.132 * s, .132 * s, .012, S(0xf0e2c0, .6), x, .2 * s, z, 16); K.cyl(.136 * s, .136 * s, .02, S(0x3a2414, .7), x, .09 * s, z, 16); });
+            const side = K.cyl(.1, .1, .16, S(0xa23a2a, .7), -.22, .1, .18, 16); side.rotation.z = Math.PI / 2; [-.06, .06].forEach(x => K.cyl(.01, .01, .22, wood, .05 + x, .21, .0, 5).rotation.z = .9 * Math.sign(x));
+        } else if (kind === 'WOOD') {
+            [[0, 0], [.07, 0], [.035, .06]].forEach(([y0, k], i) => { const l = K.cyl(.045, .045, .42, i % 2 ? wood : dark, .14, .045 + (i === 2 ? .075 : 0), .16 + (i === 1 ? .09 : i === 2 ? .045 : 0), 8); l.rotation.z = Math.PI / 2; });
+            K.cyl(.05, .06, .46, wood, -.18, 0, -.08, 8); K.sph(.07, wood, -.18, .5, -.08, 1); K.box(.16, .03, .03, dark, -.18, .3, -.08); K.cyl(.09, .1, .1, dark, -.16, 0, .22, 8); K.box(.02, .14, .02, stone, -.14, .1, .22).rotation.z = .5;
+        } else if (kind === 'STONE') {
+            [[-.14, -.1, .2, .16, .18], [.12, -.06, .16, .22, .14], [.02, .16, .24, .1, .16], [.26, .2, .1, .08, .1]].forEach(([x, z, w, h, d], i) => K.box(w, h, d, S(i % 2 ? 0x8f9aa0 : 0xa7aeb0, .9), x, 0, z).rotation.y = i * .4);
+            K.sph(.07, S(0xb8bfc2, .85), .02, .16, .16, 1); K.box(.02, .02, .16, wood, -.2, .0, .24).rotation.y = .6;
+        } else if (kind === 'FORGE') {
+            K.box(.26, .2, .22, S(0x8a4630, .9), -.14, 0, -.12); K.box(.12, .09, .02, new THREE.MeshStandardMaterial({ color: 0xff8a2a, emissive: 0xff5a10, emissiveIntensity: 1.1 }), -.14, .03, 0); K.cyl(.035, .045, .16, S(0x4a3a34, .9), -.14, .2, -.16, 8);
+            K.cyl(.07, .08, .14, dark, .16, 0, .14, 8); K.box(.18, .05, .07, S(0x3c4046, .4, .5), .16, .14, .14); K.cone(.035, .08, S(0x3c4046, .4, .5), .28, .14, .14, 8).rotation.z = -Math.PI / 2;
+            K.box(.02, .02, .16, wood, .02, .01, .26).rotation.y = .7; K.box(.06, .04, .04, S(0x3c4046, .4, .5), .07, .01, .31);
+        } else if (kind === 'INCENSE') {
+            [[-.14, -.08, 0xd92b3a, 1], [.14, -.02, 0xf2c230, .85], [0, .2, 0xe86aa6, .8], [.26, .22, 0xd92b3a, .6]].forEach(([x, z, c, s]) => { const f = K.cone(.17 * s, .07 * s, S(c, .7), x, .12 * s, z, 18); f.rotation.x = Math.PI; K.cyl(.02 * s, .03 * s, .12 * s, S(0xc9a35a, .8), x, 0, z, 6); });
+        } else if (kind === 'LOOM') {
+            [[-.2, -.14], [.2, -.14], [-.2, .14], [.2, .14]].forEach(([x, z]) => K.cyl(.014, .016, z < 0 ? .36 : .2, wood, x, 0, z, 6)); K.box(.44, .02, .02, wood, 0, .35, -.14); K.box(.44, .02, .02, wood, 0, .19, .14);
+            for (let i = 0; i < 7; i++) { const w = K.box(.045, .008, .33, S(BRIGHT[i % 6], .7), -.18 + i * .06, .265, 0); w.rotation.x = -.5; } K.box(.2, .08, .1, dark, .02, 0, .3);
+        } else if (kind === 'REED') {
+            [[-.1, .16, 0xd9463a], [.06, .22, 0xf0d27a], [.2, .16, 0x4f9a5a]].forEach(([x, z, c]) => { const r = K.cyl(.05, .05, .34, S(c, .8), x, .05, z, 12); r.rotation.x = Math.PI / 2; r.rotation.z = .3; });
+            for (let i = 0; i < 9; i++) { const a = i * 2.4, s = K.cyl(.008, .01, .4 + (i % 3) * .05, S(i % 3 ? 0x9fc46a : 0xd9c06a, .8), -.12 + Math.cos(a) * .05, 0, -.12 + Math.sin(a) * .05, 4); s.rotation.z = Math.cos(a) * .15; } K.cyl(.07, .07, .03, tan, -.12, .12, -.12, 10);
+        } else if (kind === 'HATS') {
+            for (let i = 0; i < 4; i++) K.cone(.15, .09, S(i % 2 ? 0xf0e0a8 : 0xe6d190, .8), -.1, i * .035, .12, 20); K.cyl(.012, .016, .3, wood, .18, 0, -.06, 5); K.cone(.17, .1, S(0xf0e0a8, .8), .18, .28, -.06, 20);
+            K.cone(.13, .08, S(0xf4e8bc, .8), .22, 0, .24, 20); for (let i = 0; i < 5; i++) K.box(.012, .2, .012, S(0x9fc46a, .8), -.26 + i * .03, 0, -.14).rotation.z = (i - 2) * .12;
+        } else if (kind === 'LANTERN') {
+            [-.3, .3].forEach(x => K.cyl(.014, .018, .5, wood, x, 0, -.05, 6)); K.box(.6, .01, .01, dark, 0, .48, -.05);
+            for (let i = 0; i < 5; i++) { const c = BRIGHT[i % 6], l = K.sph(.055, new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: .35, roughness: .5 }), -.24 + i * .12, .4 - Math.sin(i / 4 * Math.PI) * .05, -.05, 1); l.scale.y = i % 2 ? 1.25 : .9; }
+            for (let i = 0; i < 5; i++) K.box(.012, .012, .3, S(0xc9b06a, .8), -.1 + i * .05, i * .004, .22).rotation.y = (i - 2) * .12;
+        } else if (kind === 'CLOTH') {
+            [-.28, .28].forEach(x => { K.cyl(.012, .016, .44, wood, x, 0, -.08, 5); }); K.box(.6, .014, .014, wood, 0, .43, -.08);
+            for (let i = 0; i < 5; i++) { const h = .22 + (i % 3) * .05; K.box(.095, h, .01, S(BRIGHT[(i * 2 + 1) % 6], .75), -.22 + i * .11, .43 - h, -.08); }
+            [[.1, .2, 0x5b8fd9], [-.12, .24, 0xe8504a], [-.02, .16, 0xf6d54a]].forEach(([x, z, c]) => { const r = K.cyl(.045, .045, .18, S(c, .8), x, .045, z, 10); r.rotation.z = Math.PI / 2; r.rotation.y = x * 3; });
+        } else if (kind === 'TRAYS') {
+            [[-.2, -.1], [.2, -.1], [-.2, .12], [.2, .12]].forEach(([x, z]) => K.cyl(.012, .014, .2, wood, x, 0, z, 5)); K.box(.46, .012, .28, S(0xb89a5a, .85), 0, .2, .01);
+            [[-.11, -.04], [.11, -.04], [0, .12]].forEach(([x, z], i) => { K.cyl(.1, .1, .012, S(0xf4ecd6, .7), x, .212, z, 16); K.cyl(.105, .105, .008, tan, x, .208, z, 16); });
+            K.cyl(.08, .06, .1, tan, .26, 0, .28, 10); K.sph(.07, S(0xf4ecd6, .8), .26, .1, .28, 0).scale.y = .5;
+        } else if (kind === 'COCONUT') {
+            [[0, 0, 0], [.1, 0, .02], [.05, 0, .1], [-.05, 0, .09], [.03, .08, .05], [-.1, 0, -.02]].forEach(([x, y, z], i) => K.sph(.06, S(i === 4 ? 0x7aa04a : i % 2 ? 0x7a5230 : 0x8a623c, .9), x, .06 + y, z + .12, 1));
+            K.box(.22, .1, .16, tan, .24, 0, -.08); [0, 1, 2].forEach(i => K.sph(.05, S(0x7aa04a, .85), .18 + i * .06, .13, -.08, 1)); K.box(.2, .012, .1, S(0xf0e2c0, .7), -.2, 0, -.1); for (let i = 0; i < 4; i++) K.box(.035, .02, .025, S(0xd9a86a, .7), -.26 + i * .04, .012, -.1);
+        } else if (kind === 'BASKETS') {
+            [[-.14, .1, 0xe8504a], [.1, .18, 0xf2a93b], [.02, -.08, 0x7aa04a], [.26, 0, 0xd96bb0]].forEach(([x, z, c], i) => { const s = i === 3 ? .75 : 1; K.cyl(.085 * s, .065 * s, .09 * s, tan, x, 0, z, 12); for (let k = 0; k < 5; k++) K.sph(.03 * s, S(c, .7), x + Math.cos(k * 1.26) * .04 * s, .1 * s, z + Math.sin(k * 1.26) * .04 * s, 0); });
+            K.cyl(.01, .01, .34, wood, -.24, .1, -.1, 4).rotation.z = 1.2;
+        } else if (kind === 'FLOWERS') {
+            K.box(.62, .035, .44, S(0x8a623c, .95), 0, 0, .04); for (let r = 0; r < 3; r++) for (let i = 0; i < 6; i++) { const x = -.25 + i * .1, z = -.1 + r * .14; K.cyl(.006, .006, .07, S(0x5f9a3a, .8), x, .03, z, 4); K.sph(.034, S(BRIGHT[(r * 2 + i) % 6], .6), x, .11, z, 0); }
+            K.cyl(.05, .04, .08, S(0x5b8fd9, .5, .2), .32, 0, .3, 10);
+        } else if (kind === 'COFFEE') { rows(0x8a4a2a, 0x3f7a3a, 0xd9302a); K.box(.3, .012, .2, S(0x6a4226, .9), .0, 0, .3); for (let i = 0; i < 12; i++) K.sph(.014, S(0x6a2a1a, .7), -.12 + (i % 4) * .08, .02, .25 + Math.floor(i / 4) * .05, 0); }
+        else if (kind === 'TEA') { rows(0x7a5a34, 0x4f9a45, 0); K.cyl(.07, .05, .1, tan, .26, 0, .3, 10); K.sph(.06, S(0x6bb551, .8), .26, .1, .3, 0).scale.y = .5; }
+        else if (kind === 'GARLIC') { rows(0xe9dcb4, 0x8fbf55, 0); for (let i = 0; i < 6; i++) K.sph(.035, S(0xf6f1e4, .7), -.1 + (i % 3) * .07, .03 + Math.floor(i / 3) * .05, .3, 0); }
+        else if (kind === 'JARS') {
+            [[-.16, -.06, 1], [.08, -.1, 1.1], [.22, .12, .85], [-.04, .16, .9], [-.24, .2, .7]].forEach(([x, z, s], i) => { const j = K.sph(.1 * s, S(i % 2 ? 0x6a3f2a : 0x7a4a30, .6), x, .095 * s, z, 1); j.scale.y = 1.05; K.cyl(.06 * s, .07 * s, .025, S(i % 3 ? 0xc9a35a : 0x8a5a34, .8), x, .185 * s, z, 10); });
+        } else if (kind === 'BOAT') {
+            const b = new THREE.Mesh(new THREE.SphereGeometry(.2, 16, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x7a5a34, roughness: .85, side: THREE.DoubleSide })); b.position.set(-.06, .16, .02); b.scale.y = .75; b.rotation.z = .12; b.castShadow = true; K.g.add(b);
+            const t = new THREE.Mesh(new THREE.TorusGeometry(.2, .014, 6, 20), S(0x3a2a1a, .8)); t.rotation.x = Math.PI / 2; t.rotation.y = .12; t.position.set(-.06, .16, .02); K.g.add(t);
+            K.cyl(.01, .01, .44, wood, .12, .08, .16, 4).rotation.z = 1.3; K.box(.08, .01, .05, wood, .3, .13, .16); [0xe8504a, 0xffffff].forEach((c, i) => K.sph(.045, S(c, .5), .22 + i * .08, .045, -.14 + i * .05, 1)); K.cyl(.06, .06, .05, S(0x4fb3a5, .7), -.26, 0, .26, 10);
+        } else if (kind === 'SALT') {
+            [[-.14, -.06, 1], [.12, 0, .8], [-.02, .2, .65], [.26, .2, .5]].forEach(([x, z, s]) => K.cone(.13 * s, .18 * s, S(0xfbfbf6, .6), x, 0, z, 14)); K.box(.6, .008, .46, S(0xcfe6ea, .3, .2), 0, 0, .06);
+            K.cyl(.008, .008, .4, wood, .28, .08, -.14, 4).rotation.z = 1.1; K.box(.02, .02, .14, wood, .1, .01, -.2);
+        } else {   // NET
+            [-.28, .28].forEach(x => K.cyl(.012, .016, .42, wood, x, 0, -.08, 5));
+            const net = new THREE.Mesh(new THREE.PlaneGeometry(.56, .3, 9, 5), new THREE.MeshBasicMaterial({ color: 0x2f7f86, wireframe: true, transparent: true, opacity: .8 })); net.position.set(0, .26, -.08); K.g.add(net);
+            for (let i = 0; i < 5; i++) K.sph(.022, S(i % 2 ? 0xe8504a : 0xf2a93b, .5), -.24 + i * .12, .42, -.08, 0);
+            K.box(.2, .09, .14, S(0x5b8fd9, .6), .12, 0, .2); K.box(.16, .08, .12, S(0x4fb3a5, .6), -.14, 0, .22); K.sph(.03, S(0xf28a6a, .6), .12, .1, .2, 0);
+        }
+    }
+
+    // Cây theo vùng miền (dựa trên toạ độ thật của làng nghề)
+    function plotTrees(tile) {
+        const la = tile.realLat === undefined ? tile.lat : tile.realLat, lo = tile.realLon === undefined ? tile.lon : tile.realLon;
+        if (tile.island || tile.toolId === 'COASTAL_AQUA') return ['PALM', 'PALM', 'GREEN'];
+        if (la >= 20) return lo < 105.3 || la > 22 ? ['PINE', 'PINK', 'DARK'] : ['PINK', 'BAMBOO', 'GREEN'];
+        if (la >= 11.4 && la < 15 && lo > 107.3) return ['PINE', 'DARK', 'RED'];
+        if (la >= 14) return ['GREEN', 'GOLD', 'PINE'];
+        return ['PALM', 'GREEN', 'WILLOW'];
+    }
+    function plotFence(K, style, rnd) {
+        const pts = []; for (let x = -.84; x <= .841; x += .28) pts.push([x, -.84]); for (let z = -.56; z <= .3; z += .28) { pts.push([-.84, z]); pts.push([.84, z]); }
+        if (style === 0) {          // rào tre
+            const bam = S(0xb9a35a, .8); pts.forEach(([x, z]) => K.cyl(.016, .02, .2, bam, x, 0, z, 5));
+            [.07, .15].forEach(y => { K.box(1.68, .014, .014, bam, 0, y, -.84); [-.84, .84].forEach(x => K.box(.014, .014, 1.14, bam, x, y, -.27)); });
+        } else if (style === 1) {   // rào gỗ sơn trắng
+            const w = S(0xfaf6ea, .7); for (let x = -.84; x <= .841; x += .12) K.box(.035, .16 + (Math.round(x * 100) % 2 ? .02 : 0), .014, w, x, 0, -.84); K.box(1.7, .02, .016, w, 0, .08, -.845);
+            [-.84, .84].forEach(x => { for (let z = -.72; z <= .3; z += .12) K.box(.014, .16, .035, w, x, 0, z); K.box(.016, .02, 1.04, w, x, .08, -.21); });
+        } else if (style === 2) {   // bờ đá xếp
+            const cols = [0xa7aeb0, 0x8f9aa0, 0xb8b4a8]; for (let x = -.84; x <= .841; x += .14) K.sph(.06 + rnd() * .025, S(cols[Math.floor(rnd() * 3)], .9), x, .03, -.84 + (rnd() - .5) * .03, 0).scale.y = .7;
+            [-.84, .84].forEach(x => { for (let z = -.7; z <= .2; z += .15) K.sph(.055 + rnd() * .02, S(cols[Math.floor(rnd() * 3)], .9), x + (rnd() - .5) * .03, .03, z, 0).scale.y = .7; });
+        } else {                    // hàng rào cây xén
+            const g = [0x5f9a3a, 0x6bab45, 0x4f8a34]; for (let x = -.8; x <= .801; x += .16) K.sph(.085, S(g[Math.floor(rnd() * 3)], .9), x, .06, -.84, 1).scale.y = .8;
+            [-.84, .84].forEach(x => { for (let z = -.68; z <= .2; z += .17) K.sph(.08, S(g[Math.floor(rnd() * 3)], .9), x, .06, z, 1).scale.y = .8; });
+        }
+    }
+    function plotNature(K, tile, rnd, n) {
+        const kinds = plotTrees(tile);
+        tree(K, kinds[0], -.62, -.6, .5 + rnd() * .12); if (rnd() < .75) tree(K, kinds[1], .64, -.58, .42 + rnd() * .12); if (rnd() < .45) tree(K, kinds[2], .7, -.2, .34);
+        for (let i = 0; i < n; i++) {
+            const x = (rnd() - .5) * 1.5, z = -.5 + rnd() * 1.2; if (Math.abs(x) < .5 && z > -.1 && z < .55) continue;
+            const k = rnd();
+            if (k < .45) { K.cyl(.005, .005, .06, S(0x5f9a3a, .8), x, 0, z, 4); K.sph(.022, S(BRIGHT[Math.floor(rnd() * 7)], .6), x, .07, z, 0); }
+            else if (k < .8) { for (let j = 0; j < 3; j++) K.cone(.014, .07 + rnd() * .04, S(0x7ab850, .85), x + (j - 1) * .02, 0, z + (j % 2) * .015, 4).rotation.z = (j - 1) * .25; }
+            else K.sph(.03 + rnd() * .025, S(0xa9a69c, .9), x, .015, z, 0).scale.y = .6;
+        }
+    }
+
+    function createPlotMarker3D(tile) {
+        const root = new THREE.Group(), seed0 = tile.index * 7919 + 13; let s = seed0; const rnd = () => (s = (s * 16807 + 1) % 2147483647) / 2147483647;
+        const kind = PLOT_KIND[tile.modelType] || PLOT_DEFAULT[tile.toolId] || 'BASKETS', woodM = S(0x7a4b2a, .8);
+
+        /* ----- A. ĐẤT TRỐNG CHƯA CÓ CHỦ ----- */
+        const unowned = new THREE.Group(), K1 = kit(unowned);
+        plotFence(K1, tile.index % 4, rnd);
+        // lối đá bước dẫn vào + mảng nền nơi bày đồ nghề
+        [[-.5, .78, .1], [-.44, .56, .085], [-.52, .36, .09], [-.42, .16, .075]].forEach(([x, z, r], i) => { const st = K1.cyl(r, r, .012, S(i % 2 ? 0xd8d2c2 : 0xc9c2b0, .95), x, 0, z, 9); st.scale.z = .8; st.rotation.y = i; });
+        const patch = K1.cyl(.5, .5, .008, S(tile.toolId === 'COASTAL_AQUA' ? 0xf0e2b4 : tile.toolId === 'CERAMIC_ART' ? 0xd9b48a : 0xc9d98a, .95), .26, 0, .2, 24); patch.scale.z = .8; patch.castShadow = false;
+        const craft = K1.grp(.26, .012, .18, (rnd() - .5) * .5); plotCraft(craft, kind, rnd);
+        // biển gỗ có mái che: biểu tượng nghề + giá đất
+        const sg = K1.grp(-.36, 0, -.38, .22);
+        sg.cyl(.02, .024, .5, woodM, -.26, 0, 0, 6); sg.cyl(.02, .024, .5, woodM, .26, 0, 0, 6);
+        const signTex = vCanvasTex('k7plot_' + tile.index, 320, 176, (g, w, h) => {
+            g.fillStyle = '#fff6dc'; g.fillRect(0, 0, w, h); g.strokeStyle = '#8a5a34'; g.lineWidth = 10; g.strokeRect(5, 5, w - 10, h - 10);
+            g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '86px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif'; g.fillText(tile.icon || '🌱', 78, 92);
+            g.fillStyle = '#7c2d12'; g.font = '800 30px "Be Vietnam Pro", Arial'; g.fillText('ĐẤT TRỐNG', 218, 62);
+            g.fillStyle = '#065f46'; g.font = '900 44px "Be Vietnam Pro", Arial'; g.fillText(`${tile.price}đ`, 218, 114);
+        });
+        const board = new THREE.Mesh(new THREE.BoxGeometry(.6, .33, .03), [woodM, woodM, woodM, woodM, new THREE.MeshStandardMaterial({ map: signTex, roughness: .55 }), woodM]); board.position.set(0, .33, 0); board.castShadow = true; sg.g.add(board);
+        [1, -1].forEach(k => { const r = sg.box(.38, .03, .16, S(0xc9573c, .7), k * .17, .53, 0); r.rotation.z = -k * .32; });
+        plotNature(K1, tile, rnd, 16);
+        // bướm bay lượn quanh ô (một số ô)
+        if (tile.index % 3 !== 1) {
+            const bf = new THREE.Group(), wm = new THREE.MeshBasicMaterial({ color: BRIGHT[(tile.index * 5) % 6], side: THREE.DoubleSide }), wg = new THREE.PlaneGeometry(.05, .04); wg.translate(.025, 0, 0);
+            const L = new THREE.Mesh(wg, wm), R = new THREE.Mesh(wg, wm); R.rotation.y = Math.PI; L.rotation.x = R.rotation.x = -Math.PI / 2; bf.add(L, R); unowned.add(bf); const ph = tile.index * 1.3;
+            animatedElements.push({ type: 'FN', fn: t => { if (!root.visible || !unowned.visible) return; const a = t * .9 + ph; bf.position.set(Math.cos(a) * .5 - .1, .42 + Math.sin(t * 2.3 + ph) * .1, Math.sin(a * 1.3) * .4 - .1); bf.rotation.y = -a; const f = Math.sin(t * 22) * .9; L.rotation.z = f; R.rotation.z = -f; } });
+        }
+
+        /* ----- B. ĐÃ MUA ĐẤT, CHỜ XÂY LÀNG NGHỀ ----- */
+        const owned = new THREE.Group(); owned.visible = false; const K2 = kit(owned), stoneM = S(0x9a968c, .9);
+        const ownerTrimMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: .4, metalness: .2 });
+        plotFence(K2, tile.index % 4, rnd);
+        // nền móng viền màu chủ đất
+        K2.box(1.1, .04, .8, stoneM, 0, 0, -.2); K2.box(1.02, .02, .72, S(0xdcd5c6, .85), 0, .04, -.2);
+        [[1.12, .04, 0, -.6], [1.12, .04, 0, .2], [.04, .8, -.56, -.2], [.04, .8, .56, -.2]].forEach(([w, d, x, z]) => K2.box(w, .03, d, ownerTrimMat, x, .035, z));
+        // tường gạch xây dở + giàn giáo tre
+        const brick = [S(0xb55338, .85), S(0xc9683f, .85)];
+        for (let r = 0; r < 4; r++) for (let i = 0; i < 7 - r; i++) K2.box(.12, .055, .07, brick[(i + r) % 2], -.42 + i * .125 + (r % 2) * .06, .06 + r * .057, -.54);
+        for (let r = 0; r < 3; r++) for (let i = 0; i < 4 - r; i++) K2.box(.07, .055, .12, brick[(i + r) % 2], -.5, .06 + r * .057, -.42 + i * .125);
+        const bam = S(0xb9a35a, .8); [[.1, -.44], [.5, -.44], [.1, -.02], [.5, -.02]].forEach(([x, z]) => K2.cyl(.014, .018, .62, bam, x, .04, z, 5));
+        [.3, .58].forEach(y => { K2.box(.44, .014, .014, bam, .3, y, -.44); K2.box(.44, .014, .014, bam, .3, y, -.02); K2.box(.014, .014, .46, bam, .1, y, -.23); K2.box(.014, .014, .46, bam, .5, y, -.23); });
+        K2.box(.4, .012, .2, S(0xc9a86a, .85), .3, .31, -.23); const dg = K2.box(.014, .014, .6, bam, .3, .3, -.44); dg.rotation.z = .95; dg.position.y = .45;
+        // vật tư: gạch, gỗ, đống cát + xẻng
+        for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) K2.box(.11, .045, .07, brick[(i + j) % 2], -.34 + i * .12, .06 + j * .046, .0);
+        for (let i = 0; i < 4; i++) K2.cyl(.022, .022, .36, woodM, -.3, .085 + (i > 2 ? .04 : 0), -.2 + (i % 3) * .05, 8).rotation.z = Math.PI / 2;
+        K2.cone(.13, .1, S(0xe6d29a, .95), -.1, .05, -.3, 12); const sv = K2.cyl(.008, .008, .26, woodM, -.02, .1, -.3, 4); sv.rotation.z = -.5;
+        // cột cờ màu chủ đất
+        K2.cyl(.012, .016, .95, S(0xe8e4d8, .5, .3), -.62, 0, .3, 6); const pen = new THREE.Mesh(new THREE.PlaneGeometry(.3, .18, 6, 1), ownerTrimMat); pen.material.side = THREE.DoubleSide; pen.position.set(-.46, .84, .3); owned.add(pen);
+        animatedElements.push({ type: 'FN', fn: t => { if (owned.visible) pen.rotation.y = Math.sin(t * 2.4 + tile.index) * .25; } });
+        // đồ nghề đã tập kết sẵn ở góc trước
+        const craft2 = K2.grp(.42, .012, .46, .4, .72); plotCraft(craft2, kind, rnd);
+        // bảng "đã có chủ"
+        const og = K2.grp(-.12, 0, .5, -.12); og.cyl(.018, .02, .34, woodM, -.26, 0, 0, 6); og.cyl(.018, .02, .34, woodM, .26, 0, 0, 6);
+        const ownedSignTex = vCanvasTex('k7owned_' + tile.index, 320, 128, (g, w, h) => {
+            g.fillStyle = '#fef3c7'; g.fillRect(0, 0, w, h); g.strokeStyle = '#92400e'; g.lineWidth = 8; g.strokeRect(4, 4, w - 8, h - 8); g.textAlign = 'center';
+            g.fillStyle = '#991b1b'; g.font = '800 24px "Be Vietnam Pro", Arial'; g.fillText('🏳️ ĐẤT ĐÃ CÓ CHỦ', w / 2, 38);
+            g.fillStyle = '#1e3a8a'; g.font = '800 22px "Be Vietnam Pro", Arial'; g.fillText('Chờ xây dựng Làng nghề', w / 2, 72);
+            g.fillStyle = '#065f46'; g.font = '900 22px "Be Vietnam Pro", Arial'; g.fillText(`Phí xây: ${tile.buildCost}đ -> Thu: ${tile.builtRent}đ`, w / 2, 106);
+        });
+        const ob = new THREE.Mesh(new THREE.BoxGeometry(.6, .24, .025), [woodM, woodM, woodM, woodM, new THREE.MeshStandardMaterial({ map: ownedSignTex, roughness: .5 }), woodM]); ob.position.set(0, .22, 0); ob.castShadow = true; og.g.add(ob);
+        const kinds = plotTrees(tile); tree(K2, kinds[0], .68, -.62, .46); tree(K2, kinds[1], -.7, -.66, .38);
+
+        root.add(unowned, owned);
+        root.userData = { unowned, owned, ownerTrimMat };
+        return root;
+    }
 
     })();
     </script>

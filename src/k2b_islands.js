@@ -1,19 +1,7 @@
     /* ---------- 5. Quần đảo Hoàng Sa & Trường Sa: sa bàn khối nhựa trong theo ảnh mẫu ---------- */
-    function resinBase(K, label, W) {
-        const wood = GM.wood();
-        const base = K.box(W + .2, .3, W + .2, wood, 0, -.3, 0);
-        K.box(W + .26, .04, W + .26, S(0x3a2414, .4, .05), 0, -.31, 0);
-        const plq = new THREE.Mesh(new THREE.PlaneGeometry(W * .7, W * .7 * 80 / 512), new THREE.MeshStandardMaterial({ map: vCanvasTex('plq_' + label, 512, 80, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f3d98a'); gr.addColorStop(.5, '#c99a3c'); gr.addColorStop(1, '#a87a26'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.strokeStyle = '#6b4a14'; g.lineWidth = 5; g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#3a2508'; g.font = '800 34px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, h / 2 + 2, w - 24); }), roughness: .3, metalness: .6 }));
-        plq.position.set(0, -.15, W / 2 + .105); K.g.add(plq);
-        K.box(W, .02, W, S(0x7fd0c4, .9), 0, 0, 0); // đáy cát dưới nước
-        const coral = [0xff6f61, 0xffa94d, 0xb06ad9, 0xff8fb1, 0xffd43b, 0x4dd4ac];
-        for (let i = 0; i < 46; i++) { const a = i * 2.39, r = W * .32 + (i % 5) * W * .035, x = Math.cos(a) * r, z = Math.sin(a) * r; if (Math.abs(x) > W / 2 - .06 || Math.abs(z) > W / 2 - .06) continue; const c = K.sph(.035 + (i % 3) * .015, S(coral[i % coral.length], .7), x, .05, z, 0); c.scale.y = 1.4; }
-        for (let i = 0; i < 22; i++) { const a = i * 1.7, x = (i % 2 ? 1 : -1) * (W / 2 - .05), z = -W / 2 + (i / 22) * W; K.sph(.03, S(coral[i % 6], .7), i % 4 < 2 ? x : z * .98, .06 + (i % 3) * .05, i % 4 < 2 ? z : x, 0); }
-        const resin = K.box(W, .3, W, c4('resin', () => new THREE.MeshStandardMaterial({ color: 0x2fc6d2, roughness: .05, metalness: .1, transparent: true, opacity: .5, depthWrite: false })), 0, 0, 0);
-        resin.castShadow = false; resin.renderOrder = 2;
-        const top = new THREE.Mesh(new THREE.PlaneGeometry(W, W), c4('resinTop', () => new THREE.MeshStandardMaterial({ map: vCanvasTex('water', 128, 128, texWater, 3, 3), color: 0x8fe8ec, roughness: .08, metalness: .2, transparent: true, opacity: .55, depthWrite: false })));
-        top.rotation.x = -Math.PI / 2; top.position.y = .301; top.renderOrder = 3; K.g.add(top);
-        return .3;
+    function resinBase(K, label, W) { // nền tự nhiên: đảo nổi thẳng trên mặt biển, quanh là bãi đá san hô ngầm
+        for (let i = 0; i < 16; i++) { const a = i * 2.39, r = W * (.5 + (i % 4) * .05); K.sph(.035 + (i % 3) * .012, S(0xe9dfc4, .9), Math.cos(a) * r, .005, Math.sin(a) * r * .9, 0).scale.y = .5; }
+        return 0;
     }
     function shore(K, rx, rz, x, z, Y) { const s = K.add(new THREE.Mesh(new THREE.CylinderGeometry(1, 1.15, .1, 28), S(0xf3e2b5, .95)), x, Y + .02, z); s.scale.set(rx, 1, rz); const gr = K.add(new THREE.Mesh(new THREE.CylinderGeometry(1, 1, .06, 26), GM.grass()), x, Y + .09, z); gr.scale.set(rx * .78, 1, rz * .76); for (let i = 0; i < 26; i++) { const a = i / 26 * 6.283; K.sph(.04 + (i % 3) * .02, S(0x8f8f88, .95), x + Math.cos(a) * rx * 1.08, Y + .06, z + Math.sin(a) * rz * 1.08, 0).scale.y = .7; } return Y + .12; }
     function obelisk(K, x, z, Y, h) { K.box(.22, .04, .22, S(0xd8d4cc, .7), x, Y, z); K.box(.16, .04, .16, S(0xd8d4cc, .7), x, Y + .04, z); const o = K.add(new THREE.Mesh(new THREE.CylinderGeometry(.035, .06, h, 4), S(0xb9b6ae, .6)), x, Y + .08 + h / 2, z); o.rotation.y = Math.PI / 4; K.cone(.05, .06, S(0xb9b6ae, .6), x, Y + .08 + h, z, 4).rotation.y = Math.PI / 4; const pl = new THREE.Mesh(new THREE.PlaneGeometry(.05, .07), c4('stele', () => new THREE.MeshStandardMaterial({ map: textTex('stl', 'VIỆT NAM', 64, 32, '#d4a63a', '#7a1010', '800 12px Arial'), roughness: .4 }))); pl.position.set(x, Y + .2, z + .045); K.g.add(pl); }
@@ -56,11 +44,20 @@
         [[-.82, -.82, 0], [.82, -.82, 1]].forEach(([x, z, radar]) => { const D = K.grp(x, Y0 - .3, z); [[-.07, -.07], [.07, -.07], [-.07, .07], [.07, .07]].forEach(([a, b]) => D.cyl(.01, .012, .62, S(0x6b6f74, .5, .3), a, 0, b, 6)); D.box(.24, .03, .24, S(0x8a8f95, .5, .3), 0, .62, 0); D.box(.18, .1, .18, S(0xe8b04a, .6), 0, .65, 0); D.box(.2, .02, .2, S(0x8a8f95, .5), 0, .75, 0); if (radar) { D.cyl(.012, .012, .06, S(0xdddddd), 0, .77, 0, 6); D.sph(.07, S(0xf4f4f4, .3), 0, .87, 0, 2); } else { const fl = D.grp(0, .77, 0); flag(fl, 0, 0, .18, 0, true); } });
         g.scale.setScalar(2.3); return g;
     }
+    // Chữ trắng nằm phẳng trên mặt biển (như ảnh mẫu)
+    function seaLabel(text, x, z, w) {
+        const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 150; const g = cv.getContext('2d');
+        g.font = '800 104px "Be Vietnam Pro", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.shadowColor = 'rgba(8,90,170,.55)'; g.shadowBlur = 10; g.shadowOffsetY = 3; g.fillStyle = 'rgba(255,255,255,.96)'; g.fillText(text, 512, 78, 990);
+        const t = new THREE.CanvasTexture(cv); t.anisotropy = 8;
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 150 / 1024), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false }));
+        m.rotation.x = -Math.PI / 2; m.position.set(x, .17, z); m.renderOrder = 4; scene.add(m); return m;
+    }
     buildHoangSaTruongSaIslands = function () {
-        [[buildHoangSa, HS_XZ, 'QUẦN ĐẢO HOÀNG SA (VIỆT NAM)'], [buildTruongSa, TS_XZ, 'QUẦN ĐẢO TRƯỜNG SA (VIỆT NAM)']].forEach(([fn, p, name]) => {
+        [[buildHoangSa, HS_XZ, 'QĐ. HOÀNG SA', -5.6], [buildTruongSa, TS_XZ, 'QĐ. TRƯỜNG SA', 5.4]].forEach(([fn, p, name, dz]) => {
             let g; try { g = fn(); } catch (e) { console.warn('archipelago', e); return; }
-            g.position.set(p.x, .1 + .3 * g.scale.x, p.z); g.rotation.y = -.15; scene.add(g);
-            const sp = create3DTextSprite(name, '#991b1b', '#fef08a', true); sp.position.set(p.x, 4.6, p.z); sp.scale.set(4.2, .9, 1); scene.add(sp);
+            g.position.set(p.x, .13, p.z); g.rotation.y = -.15; scene.add(g);
+            seaLabel(name, p.x - 1.2, p.z + dz, 13.5);
         });
     };
 
@@ -79,7 +76,7 @@
         ['Miền Bắc', () => { const c = camAt(105.6, 21.6); return [[c.x + 2, 30, c.z + 26], [c.x, .5, c.z]]; }],
         ['Miền Trung & Tây Nguyên', () => { const c = camAt(107.8, 14.6); return [[c.x + 8, 34, c.z + 28], [c.x, .6, c.z]]; }],
         ['Miền Nam', () => { const c = camAt(105.9, 10.2); return [[c.x + 3, 30, c.z + 26], [c.x, .5, c.z]]; }],
-        ['Biển Đảo Hoàng Sa - Trường Sa', () => { const c = camAt(111.8, 13.0); return [[c.x + 10, 34, c.z + 34], [c.x + 1, .5, c.z]]; }]
+        ['Biển Đảo Hoàng Sa - Trường Sa', () => { const c = camAt(110.9, 13.7); return [[c.x + 10, 38, c.z + 40], [c.x + 1, .5, c.z]]; }]
     ];
     cycleCameraPreset = function () {
         gameState.cameraPresetIdx = ((gameState.cameraPresetIdx || 0) + 1) % CAM_PRESETS.length;
