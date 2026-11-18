@@ -290,6 +290,24 @@
 
         const currentPrice = player.discountActive ? discountedPrice : baseCost;
         const canAfford = player.cash >= currentPrice;
+        if (canUseInspectorButtons(player)) {
+            const act = await askInInspector(player, tile, 'UNOWNED', {
+                cost: currentPrice,
+                bargainCost: hasBargainCard && !player.discountActive ? discountedPrice : null
+            });
+            if (act === 'invest' && player.cash >= currentPrice) {
+                player.discountActive = false;
+                completePropertyPurchase(player, tile, currentPrice);
+            } else if (act === 'bargain' && player.cash >= discountedPrice) {
+                const sIdx = player.skills.indexOf('THANH_MAC_CA');
+                if (sIdx > -1) player.skills.splice(sIdx, 1);
+                completePropertyPurchase(player, tile, discountedPrice);
+            } else {
+                addLog(`<b>${player.shortName}</b> quyết định giữ tiền mặt, chưa đầu tư <b>${tile.name}</b>.`, '👣');
+            }
+            return;
+        }
+
         const ladder = [1, 2, 3, 4, 5].map(s => `<span class="inline-block mr-1.5"><b>${s}★</b> ${tile.starRent[s]}đ</span>`).join('');
 
         return new Promise(resolve => {
@@ -384,6 +402,7 @@
     const handleOwnPropertyBuild = withNetRouting(async function (player, tile) {
         const cur = starsOf(tile.index);
         if (cur >= STAR_CONFIG.maxStars) {
+            if (canUseInspectorButtons(player)) await askInInspector(player, tile, 'OWN', {});
             tileCelebrate(tile.index, player.hex);
             addLog(`🏯 <b>${player.shortName}</b> ghé thăm Làng nghề <b>${tile.name}</b> đã đạt <b>5 Sao Chuẩn Quốc Tế</b> của chính mình.`, '🏡', 'text-emerald-200');
             await sleep(600);
@@ -418,6 +437,24 @@
 
         const currentCost = player.discountActive ? discountedBuild : upCost;
         const canAfford = player.cash >= currentCost;
+
+        if (canUseInspectorButtons(player)) {
+            const act = await askInInspector(player, tile, 'OWN', {
+                cost: currentCost,
+                bargainCost: hasBargainCard && !player.discountActive ? discountedBuild : null
+            });
+            if (act === 'upgrade' && player.cash >= currentCost) {
+                player.discountActive = false;
+                completeVillageBuild(player, tile, currentCost);
+            } else if (act === 'bargain' && player.cash >= discountedBuild) {
+                const sIdx = player.skills.indexOf('THANH_MAC_CA');
+                if (sIdx > -1) player.skills.splice(sIdx, 1);
+                completeVillageBuild(player, tile, discountedBuild);
+            } else {
+                addLog(`<b>${player.shortName}</b> ghé thăm <b>${tile.name}</b> (${cur} Sao) và để dành vốn nâng cấp vào lượt sau.`, '🏡');
+            }
+            return;
+        }
 
         return new Promise(resolve => {
             openModal(`
@@ -523,6 +560,30 @@
                 return;
             }
             await processPaymentOrBankruptcy(visitor, owner, rentFee, feeLabel);
+            return;
+        }
+
+        if (canUseInspectorButtons(visitor)) {
+            const act = await askInInspector(visitor, tile, 'VISIT', {
+                fee: rentFee,
+                toolName: matchingToolIdx > -1 ? toolInfo.shortName : null,
+                hasVip: vipSkillIdx > -1
+            });
+            if (act === 'tool' && matchingToolIdx > -1) {
+                visitor.tools.splice(matchingToolIdx, 1);
+                playSFX('card');
+                addLog(`🛠️ <b>${visitor.shortName}</b> đã dùng thẻ <b>${toolInfo.shortName}</b> hóa giải tình huống tại <b>${tile.name}</b> và bảo toàn tiền mặt!`, '✨', 'text-teal-300 font-semibold');
+                showBanner('Hóa giải tình huống -> Miễn phí!', '🛠️', 1800);
+                updateAllHUD();
+            } else if (act === 'vip' && vipSkillIdx > -1) {
+                visitor.skills.splice(vipSkillIdx, 1);
+                playSFX('card');
+                addLog(`🎫 <b>${visitor.shortName}</b> dùng <b>Vé Tham Quan VIP</b> được miễn phí hoàn toàn tại <b>${tile.name}</b>!`, '🎫', 'text-amber-300 font-semibold');
+                showBanner('Vé VIP -> Miễn phí dịch vụ!', '🎫', 1800);
+                updateAllHUD();
+            } else {
+                await processPaymentOrBankruptcy(visitor, owner, rentFee, feeLabel);
+            }
             return;
         }
 

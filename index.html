@@ -277,7 +277,7 @@
                 <div class="h-3.5 w-[1px] bg-amber-700/60"></div>
                 <div class="flex items-center gap-1" title="Thời gian còn lại của ván chơi">
                     <i class="fa-regular fa-clock text-amber-400"></i>
-                    <span id="game-timer" class="font-mono font-bold text-amber-300">45:00</span><span class="text-[10px] text-amber-200 ml-2" title="Thắng ngay: đạt 2500đ tài sản HOẶC độc quyền 2 ngành nghề">🎯 2500đ | 2 ngành</span>
+                    <span id="game-timer" class="font-mono font-bold text-amber-300">10:00</span><span class="text-[10px] text-amber-200 ml-2" title="Thắng ngay: đạt 2500đ tài sản HOẶC độc quyền 2 ngành nghề">🎯 2500đ | 2 ngành</span>
                 </div>
                 <div class="h-3.5 w-[1px] bg-amber-700/60"></div>
                 <button onclick="toggleGameSpeed()" class="bg-amber-800/80 hover:bg-amber-700 text-amber-200 border border-amber-500/40 px-2 py-0.5 rounded-lg font-extrabold text-[10px] transition flex items-center gap-1" title="Tăng tốc độ di chuyển và suy nghĩ của NPC">
@@ -369,11 +369,16 @@
 
             <!-- Right Column: Collapsible Tile Detail + Collapsible Journey Log -->
             <div id="right-drawer" class="collapsible-panel flex flex-col gap-1.5 w-60 md:w-72 items-end">
+                <!-- Nút mở lại khi cột phải bị thu gọn -->
+                <button id="right-drawer-handle" onclick="toggleRightDrawer()" class="hidden hud-interactive wood-panel px-2.5 py-3 rounded-l-xl text-amber-300 hover:text-white shadow-lg flex-col items-center gap-1 text-xs font-bold" title="Mở thẻ thông tin ô & Nhật ký">
+                    <i class="fa-solid fa-scroll"></i>
+                    <i class="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
                 
                 <!-- Tile Inspector Card (Collapsible) -->
                 <div id="tile-inspector" class="kraft-card hud-interactive w-full p-2.5 rounded-2xl transition-all duration-200">
                     <div class="flex items-center justify-between border-b border-amber-800/20 pb-1 mb-1.5">
-                        <span id="insp-badge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-800 text-amber-100">Ô #0 • Hà Nội</span>
+                        <span id="insp-badge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-800 text-amber-100"></span>
                         <div class="flex items-center gap-1">
                             <button onclick="navigateInspectorTile(-1)" class="text-[10px] bg-amber-900/10 hover:bg-amber-900/25 text-amber-950 px-1.5 py-0.5 rounded transition" title="Ô trước đó">
                                 <i class="fa-solid fa-chevron-left"></i>
@@ -393,37 +398,42 @@
                     <div class="flex gap-2 items-center">
                         <canvas id="insp-Disconnect-canvas" width="64" height="64" class="w-11 h-11 rounded-xl border border-amber-700/40 bg-amber-100 shrink-0 shadow-sm"></canvas>
                         <div class="flex-1 min-w-0">
-                            <h3 id="insp-title" class="font-bold text-xs md:text-sm text-amber-950 truncate">Thăng Long - Hà Nội</h3>
-                            <p id="insp-desc" class="text-[10px] text-amber-900/85 line-clamp-1 leading-tight">Khuê Văn Các • Qua nhận +300đ</p>
+                            <h3 id="insp-title" class="font-bold text-xs md:text-sm text-amber-950 truncate"></h3>
+                            <p id="insp-desc" class="text-[10px] text-amber-900/85 line-clamp-1 leading-tight"></p>
                         </div>
                     </div>
 
                     <div id="insp-body-wrap" class="mt-1.5">
                         <div id="insp-stats" class="hidden pt-1.5 border-t border-amber-800/20 text-[10px] space-y-0.5">
-                            <div class="flex justify-between">
-                                <span class="text-amber-900/70">Giá mua / Phí:</span>
-                                <span><b id="insp-price" class="text-emerald-800">120đ</b> / <b id="insp-rent" class="text-red-700">60đ</b></span>
+                            <div id="insp-row-price" class="flex justify-between">
+                                <span id="insp-price-label" class="text-amber-900/70">Đầu tư / Phí:</span>
+                                <span><b id="insp-price" class="text-emerald-800"></b> / <b id="insp-rent" class="text-red-700"></b></span>
                             </div>
-                            <div class="flex justify-between">
+                            <div id="insp-row-tool" class="flex justify-between">
                                 <span class="text-amber-900/70">Công cụ miễn phí:</span>
-                                <span id="insp-tool" class="font-bold text-amber-900 truncate max-w-[135px]">Đất sét & Bàn xoay</span>
+                                <span id="insp-tool" class="font-bold text-amber-900 truncate max-w-[135px]"></span>
                             </div>
-                            <div class="text-[10px] italic text-amber-950 bg-amber-500/15 p-1.5 rounded-lg mt-1 leading-snug" id="insp-situation">
-                                "Khách vãng lai phải tự tay chuốt một bình gốm."
-                            </div>
+                            <div class="text-[10px] italic text-amber-950 bg-amber-500/15 p-1.5 rounded-lg mt-1 leading-snug" id="insp-situation"></div>
                         </div>
                     </div>
+                    <!-- Nút hành động khi đến lượt (k8_lobby_ui.js điền nội dung) -->
+                    <div id="insp-actions" class="hidden mt-2 pt-2 border-t-2 border-amber-700/40"></div>
                 </div>
 
                 <!-- Scrollable Journey Log (Collapsible - Compact by default) -->
-                <div class="wood-panel hud-interactive w-full p-2.5 rounded-2xl flex flex-col">
+                <div id="log-panel" class="wood-panel hud-interactive w-full p-2.5 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between cursor-pointer" onclick="toggleElementBody('log-body-wrap', 'log-toggle-icon')">
                         <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
                             <i class="fa-solid fa-scroll"></i> Nhật Ký Hành Trình
                         </span>
-                        <button class="text-amber-300 hover:text-white text-xs px-1" title="Thu gọn/Mở rộng Nhật ký">
-                            <i id="log-toggle-icon" class="fa-solid fa-chevron-up"></i>
-                        </button>
+                        <span class="flex items-center gap-1">
+                            <button class="text-amber-300 hover:text-white text-xs px-1" title="Thu gọn/Mở rộng Nhật ký">
+                                <i id="log-toggle-icon" class="fa-solid fa-chevron-up"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); toggleRightDrawer()" class="text-amber-300 hover:text-white text-xs px-1" title="Thu gọn cả cột bên phải">
+                                <i class="fa-solid fa-angles-right"></i>
+                            </button>
+                        </span>
                     </div>
                     <div id="log-body-wrap" class="mt-1.5 pt-1.5 border-t border-amber-700/40">
                         <div id="game-log" class="h-24 md:h-28 overflow-y-auto space-y-1 pr-1 text-[10px] leading-snug">
@@ -977,7 +987,7 @@
             toolPriceInflationTurns: 0,
             isBusy: false,
             gameEnded: false,
-            remainingSeconds: 45 * 60,
+            remainingSeconds: 10 * 60,
             propertyOwners: {}, // tileIndex -> playerId
             selectedTileIndex: 0,
             cameraPresetIdx: 0,
@@ -6376,7 +6386,7 @@ function createVietnameseCostumePawn3D(player) {
                 gameState.remainingSeconds--;
                 if (gameState.remainingSeconds <= 0) {
                     gameState.remainingSeconds = 0;
-                    finishGameAndAudit('Đã hết 45 phút thời gian quy định của ván cờ!');
+                    finishGameAndAudit('Đã hết 10 phút thời gian quy định của ván cờ!');
                 }
                 const m = String(Math.floor(gameState.remainingSeconds / 60)).padStart(2, '0');
                 const s = String(gameState.remainingSeconds % 60).padStart(2, '0');
@@ -6934,7 +6944,7 @@ function createVietnameseCostumePawn3D(player) {
         setInterval(() => {
             if (gameState.gameEnded || isGuest()) return;
             gameState.remainingSeconds--;
-            if (gameState.remainingSeconds <= 0) { gameState.remainingSeconds = 0; finishGameAndAudit('Đã hết 45 phút thời gian quy định của ván cờ!'); }
+            if (gameState.remainingSeconds <= 0) { gameState.remainingSeconds = 0; finishGameAndAudit('Đã hết 10 phút thời gian quy định của ván cờ!'); }
             setTimerText();
             if (NET.role === 'host') netSend({ t: 'time', v: gameState.remainingSeconds });
         }, 1000);
@@ -8540,7 +8550,7 @@ function createVietnameseCostumePawn3D(player) {
     TOOL_CATEGORIES.WEAVING_CRAFT.desc = 'Miễn phí dịch vụ tại Thêu ren Văn Lâm, Chiếu cói Nga Sơn, Nón lá Ba Đồn, Lồng đèn Phú Bình, Lụa Tân Châu, Thổ cẩm Kon Tum, Khăn Piêu Sơn La, Dệt lanh Lùng Tám.';
     TOOL_CATEGORIES.HIGHLAND_AGRI.name = 'Giàn phơi, Nhà lưới & Chảo sao';
     TOOL_CATEGORIES.HIGHLAND_AGRI.shortName = 'Nông cụ & Bếp nghề';
-    TOOL_CATEGORIES.HIGHLAND_AGRI.desc = 'Miễn phí dịch vụ tại Bánh tráng An Ngãi, Kẹo dừa Bến Tre, Bánh tét Trà Cuôn, Bánh pía Vũ Thơm, Hoa Sa Đéc, Bánh tráng Trảng Bàng, Nhà kính Đà Lạt, Cà phê Buôn Ma Thuột, Tương Nam Đàn, Rượu cần Mường Vang, Miến dong Bình Lư, Mỳ Chũ, Chè Tân Cương.';
+    TOOL_CATEGORIES.HIGHLAND_AGRI.desc = 'Miễn phí dịch vụ tại Bánh tráng An Ngãi, Kẹo dừa Bến Tre, Bánh tét Trà Cuôn, Bánh pía Vũng Thơm, Hoa Sa Đéc, Bánh tráng Trảng Bàng, Nhà kính Đà Lạt, Cà phê Buôn Ma Thuột, Tương Nam Đàn, Rượu cần Mường Vang, Miến dong Bình Lư, Mỳ Chũ, Chè Tân Cương.';
     TOOL_CATEGORIES.COASTAL_AQUA.desc = 'Miễn phí dịch vụ tại Tỏi Lý Sơn, Yến sào Nha Trang, Nước mắm Phan Thiết, Muối Bạc Liêu, Tôm Cà Mau, Ngọc trai Phú Quốc.';
 
     const TOOL_HEX = { CERAMIC_ART: '#c2410c', WEAVING_CRAFT: '#0f766e', HIGHLAND_AGRI: '#15803d', COASTAL_AQUA: '#0369a1' };
@@ -8568,7 +8578,7 @@ function createVietnameseCostumePawn3D(player) {
         X47('BIEN_DONG', 'Biến Động Cồn Thới Sơn', 'Cồn Thới Sơn - Tiền Giang', 106.36, 10.34, 'THOI_SON', 'Bốc Thẻ Biến Động (!)', '#991b1b', '❗', 'Cồn xanh giữa sông Tiền, đờn ca tài tử vang vọng! Bốc 1 Thẻ Biến Động và thực thi ngay.'),
         P47('Làng Kẹo Dừa Bến Tre', 'Châu Thành - Bến Tre', 106.37, 10.20, 'BEN_TRE_COCONUT', 'HIGHLAND_AGRI', 180, 'Chảo sên & Khuôn cắt kẹo', '🥥', 'Khách vãng lai phải nạo dừa, sên mạch nha trên chảo gang và cắt gói từng viên kẹo dừa.'),
         P47('Bánh Tét Trà Cuôn', 'Cầu Ngang - Trà Vinh', 106.45, 9.80, 'TRA_CUON', 'HIGHLAND_AGRI', 180, 'Lá chuối & Nồi luộc lớn', '🍃', 'Khách vãng lai phải gói đòn bánh tét lá cẩm, nhân đậu thịt và canh nồi luộc suốt đêm.'),
-        P47('Bánh Pía Vũ Thơm', 'Vĩnh Châu - Sóc Trăng', 105.97, 9.60, 'VU_THOM', 'HIGHLAND_AGRI', 185, 'Lò than & Khuôn ép', '🥮', 'Khách vãng lai phải cán vỏ bánh ngàn lớp, gói nhân sầu riêng trứng muối và nướng trong lò than.'),
+        P47('Bánh Pía Vũng Thơm', 'Vĩnh Châu - Sóc Trăng', 105.97, 9.60, 'VU_THOM', 'HIGHLAND_AGRI', 185, 'Lò than & Khuôn ép', '🥮', 'Khách vãng lai phải cán vỏ bánh ngàn lớp, gói nhân sầu riêng trứng muối và nướng trong lò than.'),
         P47('Cánh Đồng Muối Bạc Liêu', 'Đông Hải - Bạc Liêu', 105.72, 9.28, 'BAC_LIEU_SALT2', 'COASTAL_AQUA', 190, 'Trang cào & Gánh muối', '🧂', 'Khách vãng lai phải dẫn nước biển vào ô kết tinh và cào những đụn muối trắng lấp lánh.'),
         P47('Ao Tôm Cà Mau', 'Đất Mũi - Cà Mau', 104.85, 8.75, 'CA_MAU2', 'COASTAL_AQUA', 195, 'Quạt nước oxy & Lưới đăng', '🦐', 'Khách vãng lai phải vận hành dàn quạt nước nuôi tôm sú dưới tán rừng đước Đất Mũi.'),
         P47('Ngọc Trai Phú Quốc', 'Đảo Phú Quốc - Kiên Giang', 102.87, 10.5, 'PHU_QUOC2', 'COASTAL_AQUA', 220, 'Bè nuôi & Dao cấy ngọc', '🦪', 'Khách vãng lai phải lặn kiểm tra bè nuôi và cấy nhân ngọc vào trai biển giữa làn nước trong xanh.', { island: true }),
@@ -9085,6 +9095,22 @@ function createVietnameseCostumePawn3D(player) {
     function ghe(K, x, z, ry, load) { const B = boat(K, x, z, ry); if (load) for (let i = 0; i < 7; i++) B.sph(.025, S([0x7cb342, 0xfdd835, 0xe53935, 0xfb8c00][i % 4], .7), -.15 + i * .05, .08, (i % 2 - .5) * .05, 0); return B; }
     function roofBoat(K, x, z, ry, hex) { const B = boat(K, x, z, ry); B.box(.26, .1, .12, S(0xf4f1ea, .6), 0, .05, 0); B.box(.3, .015, .15, S(hex || 0x2563eb, .5), 0, .15, 0); return B; }
 
+    // Lồng đèn cá chép phát sáng, lồng đèn hộp, lồng đèn thỏ, trái sầu riêng
+    function fishLantern(K, x, y, z, hex, ry, s) {
+        const F = K.grp(x, y, z, ry || 0, (s || 1) * .9);
+        const m = c4('fishL' + hex, () => new THREE.MeshBasicMaterial({ color: hex, toneMapped: false }));
+        const fin = c4('fishF', () => new THREE.MeshBasicMaterial({ color: 0xffc21a, toneMapped: false, side: THREE.DoubleSide }));
+        const b = F.sph(.05, m, 0, 0, 0, 1); b.scale.set(1.25, .9, .6); b.castShadow = false;
+        const t = F.cone(.035, .06, fin, -.075, -.03, 0, 4); t.rotation.z = Math.PI / 2; t.scale.z = .25;
+        const d = F.cone(.02, .035, fin, .005, .035, 0, 4); d.scale.z = .25;
+        F.box(.004, .06, .004, S(0x2a2a2a), 0, .04, 0);
+        return F;
+    }
+    function lanternBox(K, x, y, z, hex) { const m = c4('lbx' + hex, () => new THREE.MeshBasicMaterial({ color: hex, toneMapped: false })); const b = K.box(.05, .07, .05, m, x, y, z); b.castShadow = false; K.box(.003, .05, .003, S(0x2a2a2a), x, y + .07, z); }
+    function rabbitLantern(K, x, y, z) { const w = c4('rabL', () => new THREE.MeshStandardMaterial({ color: 0xfafafa, emissive: 0xffe0e8, emissiveIntensity: .35, roughness: .6 })); K.sph(.035, w, x, y, z, 1).scale.set(1, .9, .8); [-1, 1].forEach(a => { const e = K.sph(.012, w, x + a * .014, y + .045, z, 0); e.scale.y = 2.6; }); }
+    function miniLantern(K, x, y, z, hex) { const m = c4('mini' + hex, () => new THREE.MeshBasicMaterial({ color: hex, toneMapped: false })); const b = K.sph(.022, m, x, y, z, 1); b.scale.y = 1.25; b.castShadow = false; }
+    function durian(K, x, y, z, r) { const m = c4('durian', () => new THREE.MeshStandardMaterial({ color: 0x8aa83a, roughness: .9, flatShading: true })); const d = K.add(new THREE.Mesh(G('durianG', () => new THREE.IcosahedronGeometry(1, 0)), m), x, y, z); d.scale.set(r, r * 1.15, r); return d; }
+
     /* ---------- 9. 29 sa bàn theo ảnh mẫu ---------- */
     const RP = TX('ricepaper', 192, 96, discTex('#c8a46a', '#fbf6e8', '#f6d3c4'), 1, 1);
     const RPN = TX('ricepaperN', 192, 96, discTex('#a88a58', '#f5f1e2'), 1, 1);
@@ -9125,18 +9151,99 @@ function createVietnameseCostumePawn3D(player) {
             [[-.9, -.8], [-.9, -.4], [-.92, .0], [-.88, .45], [.88, -.88]].forEach(([x, z]) => tree(K, 'PALM', x, z, .8)); banana(K, -.85, .8, .9); boat(K, .45, -.8, 0);
             van(K, .78, .2, Math.PI / 2); van(K, .8, .7, Math.PI / 2); moto(K, .68, -.4, Math.PI / 2);
         },
-        // 22. Bánh pía Vũ Thơm
+        // 17. Xóm lồng đèn Phú Bình — Hẻm 49 (theo ảnh mẫu)
+        PHU_BINH_LANTERN: K => {
+            ground(K, GM.asphalt(), 1.96, 1.96, 0, 0);
+            for (let i = 0; i < 46; i++) { const c = K.box(.025, .004, .016, S([0xe53935, 0xfdd835, 0x43a047, 0xf4f4f4, 0x1e88e5][i % 5], .8), ((i * 37) % 170) / 100 - .85, .01, ((i * 53) % 110) / 100 - .1); c.position.y = .022; c.rotation.y = i; }
+            // Nhà gạch cũ mái ngói, mái tôn phía trước, mặt tiền mở
+            const H = K.grp(.12, 0, -.42); const wall = TX('pbWall', 128, 128, (g, w, h) => { g.fillStyle = '#d9c39a'; g.fillRect(0, 0, w, h); for (let i = 0; i < 9; i++) { g.fillStyle = `rgba(110,80,50,${.08 + (i % 3) * .05})`; g.fillRect((i * 41) % w, (i * 29) % h, 30, 22); } g.fillStyle = '#a5532e'; for (let y = 70; y < 128; y += 8) for (let x = (y / 8 % 2) * 7; x < 48; x += 14) g.fillRect(x, y, 12, 6); g.fillStyle = 'rgba(60,40,20,.35)'; g.fillRect(0, 118, w, 10); }, 1, 1);
+            H.box(1.0, .05, .7, MAT.stone(), 0, 0, 0);
+            H.box(1.0, .62, .04, wall, 0, .05, -.33); H.box(.05, .62, .7, wall, -.48, .05, 0); H.box(.05, .62, .7, wall, .48, .05, 0);
+            H.box(.18, .62, .05, wall, -.4, .05, .33); H.box(.12, .62, .05, wall, .42, .05, .33);
+            const roof = gableRoof(1.04, .78, .3, MAT.roofTerra(), 0x7a3a22); roof.position.y = .67; H.g.add(roof);
+            const tin = H.box(.9, .012, .26, MAT.roofGray(), 0, .56, .46); tin.rotation.x = .28;
+            [-.36, .34].forEach(x => H.box(.025, .52, .025, S(0x6b5a48, .8), x, .05, .56));
+            H.box(.86, .5, .02, S(0x3a2618, .9), 0, .06, -.3); H.box(.36, .1, .18, S(0x6b4428, .8), -.05, .05, -.05); H.box(.5, .02, .12, S(0x5a3a22, .8), .05, .32, -.25);
+            const LC = [0xe0201a, 0xd81b1b, 0xff8a1a, 0xffc21a];
+            for (let i = 0; i < 9; i++) lanternStar(H, -.32 + (i % 5) * .16, .5 - Math.floor(i / 5) * .1, .2 + Math.floor(i / 5) * .1, LC[i % 4]);
+            for (let i = 0; i < 4; i++) lanternBox(H, -.28 + i * .18, .3, .3, LC[(i + 1) % 4]); for (let i = 0; i < 8; i++) fishLantern(H, -.33 + (i % 4) * .2, .42 - Math.floor(i / 4) * .14, -.15 + Math.floor(i / 4) * .12, LC[i % 4], i * .9, 1.1);
+            fishLantern(H, .3, .27, .52, 0xe53935, -.3, 1.2);
+            // Giàn tre bên trái treo lồng đèn cá chép
+            const R = K.grp(-.55, 0, -.05); const bam = S(0xc9a35e, .75);
+            [[-.32, -.3], [.32, -.3], [-.32, .3], [.32, .3]].forEach(([a, b]) => R.cyl(.012, .014, .62, bam, a, 0, b, 6));
+            [-.3, .3].forEach(b => { const p = R.cyl(.01, .01, .7, bam, 0, .6, b, 6); p.rotation.z = Math.PI / 2; p.position.y = .6; });
+            [-.32, 0, .32].forEach(a => { const p = R.cyl(.01, .01, .66, bam, a, .6, 0, 6); p.rotation.x = Math.PI / 2; p.position.y = .6; });
+            for (let k = 0; k < 2; k++) R.box(.62, .02, .5, S(0x7a4b2a, .8), 0, .1 + k * .2, 0);
+            for (let i = 0; i < 24; i++) fishLantern(R, -.27 + (i % 4) * .18, .53 - Math.floor(i / 8) * .13, -.26 + (Math.floor(i / 4) % 2) * .52, LC[i % 4], (i % 2) * Math.PI + .3, 1.25);
+            for (let i = 0; i < 12; i++) fishLantern(R, -.24 + (i % 4) * .16, .17 + Math.floor(i / 8) * .2, -.15 + (Math.floor(i / 4) % 2) * .25, LC[(i + 1) % 4], 1.57, 1.0);
+            for (let i = 0; i < 6; i++) lanternStar(R, -.24 + (i % 3) * .24, .34, -.1 + (i % 2) * .2, LC[(i + 2) % 4]);
+            banana(K, -.75, -.7, 1.05); banana(K, -.45, -.85, .85);
+            // Tường xám + cột điện + dây điện + biển hẻm
+            K.box(.08, .95, .5, S(0x8f8f88, .9), .9, 0, .05); K.box(.05, 1.0, .05, S(0x7a6a5a, .8), .72, 0, -.05);
+            for (let i = 0; i < 4; i++) { const w2 = K.box(.42, .004, .004, S(0x1c1c1c), .78, .9 - i * .03, .02 + i * .05); w2.rotation.y = 1.2 + i * .12; }
+            sign(K, .62, .12, .4, .1, 'HẺM 49 - XÓM LỒNG ĐÈN PHÚ BÌNH', '#1d4fa3', '#ffffff', .58, 0, false);
+            for (let i = 0; i < 4; i++) fishLantern(K, .55 + (i % 2) * .14, .82 - Math.floor(i / 2) * .1, -.2 + i * .04, LC[i % 4], 1.2, .8);
+            // Xe máy chở lồng đèn
+            const mb = K.grp(.6, 0, .5, -1.2); mb.box(.26, .05, .06, S(0x8a1e1e, .5), 0, .05, 0); mb.box(.06, .08, .05, S(0x222222, .6), .1, .09, 0);
+            [-1, 1].forEach(a => { const w2 = mb.cyl(.045, .045, .02, S(0x111111), a * .1, .045, 0, 12); w2.rotation.x = Math.PI / 2; w2.position.set(a * .1, .045, 0); });
+            mb.box(.14, .1, .14, S(0xc9a06a, .9), -.08, .1, 0); for (let i = 0; i < 5; i++) fishLantern(mb, -.12 + (i % 3) * .05, .24 + Math.floor(i / 3) * .06, (i % 2 - .5) * .1, LC[i % 4], i, .7);
+            // Chiếu tre, ông cụ chẻ nan, bó nan tre, cuộn kẽm
+            const mat = K.box(.5, .006, .36, TX('pbMat', 64, 64, (g, w, h) => { g.fillStyle = '#d8b46a'; g.fillRect(0, 0, w, h); g.strokeStyle = '#a8843e'; for (let i = 0; i < w; i += 4) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.stroke(); } }, 2, 2), -.1, .02, .35); mat.rotation.y = -.15;
+            person(K, -.32, .28, { sit: true, hat: false, col: 0x8a7a62, ry: .8 }); person(K, -.02, .38, { sit: true, hat: false, col: 0xe0b030, ry: -.6 });
+            for (let i = 0; i < 14; i++) { const st = K.cyl(.004, .004, .42, S(0xd8b870, .7), -.45 + (i % 7) * .025, .012 + Math.floor(i / 7) * .008, .58); st.position.y = .03 + Math.floor(i / 7) * .008; st.rotation.set(Math.PI / 2, 0, .9 + (i % 3) * .08); }
+            [[-.62, .1], [-.55, .22]].forEach(([x, z]) => { const c = K.add(new THREE.Mesh(new THREE.TorusGeometry(.04, .014, 6, 14), S(0x9aa0a6, .35, .7)), x, .035, z); c.rotation.x = Math.PI / 2; });
+            [[.12, .25, 0xc62828], [.18, .22, 0x1e88e5], [.15, .32, 0xfdd835]].forEach(([x, z, c]) => K.cyl(.02, .02, .045, S(c, .4, .3), x, .02, z, 10));
+            fishLantern(K, .02, .07, .45, 0xe53935, .5, 1.1);
+            // Mẹ ngồi xổm với bé cầm lồng đèn thỏ, các bé chơi đùa
+            person(K, .28, .62, { sit: true, hat: false, col: 0xb85a4a, ry: -2.4 }); person(K, .12, .72, { hat: false, col: 0xf2d33a, s: .7, ry: .4 }); rabbitLantern(K, .17, .1, .7);
+            person(K, .33, .02, { hat: false, col: 0xe85a3a, s: .72 }); person(K, .45, .05, { hat: false, col: 0xf29a3a, s: .74 }); rabbitLantern(K, .39, .14, .05);
+            person(K, .0, -.05, { sit: true, hat: false, col: 0xc0392b });
+            person(K, .78, .62, { hat: false, col: 0x6b6b6b });
+        },
+        // 22. Làng nghề bánh pía Vũng Thơm — Sóc Trăng (theo ảnh mẫu)
         VU_THOM: K => {
-            ground(K, GM.brick(), 1.96, 1.96, 0, 0); ground(K, GM.asphalt(), 1.96, .35, 0, .8);
-            northHouse(K, -.35, -.45, .9, .5, { roof: MAT.roofTerra() });
-            K.box(.9, .32, .04, S(0xe8c768, .85), -.35, .05, -.7); sign(K, -.72, -.15, .3, .12, 'LÒ BÁNH PÍA VŨ THƠM', '#7a4b2a', '#fde68a', .22, 0);
-            const oven = K.add(new THREE.Mesh(lathe('pia', [[0, 0], [.17, 0], [.18, .1], [.14, .22], [.06, .28], [0, .29]], 16), S(0xb47a4a, .85)), .55, 0, -.45); K.box(.08, .07, .02, S(0x1a0a05), .55, .02, -.28); const fl = K.box(.06, .05, .01, c4('fireM', () => new THREE.MeshStandardMaterial({ color: 0xff7a1a, emissive: 0xff5a00, emissiveIntensity: 1.2 })), .55, .02, -.275); K.cyl(.025, .025, .25, S(0x9a6a4a), .62, .2, -.55, 8); smoke(K, .62, .45, -.55);
-            for (let i = 0; i < 3; i++) { K.box(.28, .02, .18, S(0x8a6a3a), -.3 + i * .3, .12, .15); [-1, 1].forEach(a => [-1, 1].forEach(b => K.box(.012, .12, .012, S(0x6b4a2f), -.3 + i * .3 + a * .12, 0, .15 + b * .07))); for (let j = 0; j < 8; j++) K.cyl(.022, .022, .015, S(0xe3b26a, .7), -.39 + i * .3 + (j % 4) * .06, .14, .1 + Math.floor(j / 4) * .08, 10); }
-            for (let i = 0; i < 6; i++) K.box(.1, .08, .08, S(i % 2 ? 0xd62828 : 0xf2c230, .6), .1 + (i % 3) * .11, Math.floor(i / 3) * .08, -.62);
-            stack(K, .35, .42, 8, 0xd6a548, .07); stack(K, .55, .4, 6, 0xd6a548, .07);
-            people(K, [[-.45, .1], [-.15, .25], [.15, .05], [.4, .2], [-.6, .45], [-.75, .3], [.6, -.2]]);
-            tree(K, 'PALM', .2, -.85, .9); tree(K, 'PALM', .45, -.9, .85); const pom = K.grp(.82, 0, -.8); pom.cyl(.04, .05, .3, S(0x6b4a2f), 0, 0, 0, 6); pom.sph(.22, S(0x3f7f3a, .85), 0, .42, 0, 1); for (let i = 0; i < 6; i++) pom.sph(.03, S(0xb8c84a, .6), Math.cos(i) * .18, .38 + (i % 2) * .1, Math.sin(i) * .18, 0);
-            moto(K, -.75, .78, 0); people(K, [[-.6, .7], [-.85, .65]]);
+            ground(K, GM.brick(), 1.96, 1.96, 0, 0);
+            // Kênh nước + bờ cỏ phía trước bên phải
+            const can = waterBox(K, 1.2, .5, .38, .7, 0x6fc6c0); can.position.y = .005;
+            K.box(1.2, .03, .06, S(0x5a9a3a, .9), .38, 0, .42); for (let i = 0; i < 8; i++) K.sph(.05, S(0x8a8a80, .9), -.2 + i * .16, .02, .44, 0).scale.y = .5;
+            const br = K.grp(.1, .05, .7); for (let i = 0; i < 6; i++) br.box(.05, .015, .2, S(0x8a6440, .8), -.13 + i * .052, 0, 0); [-1, 1].forEach(a => br.box(.3, .01, .012, S(0x6b4a2f), 0, .06, a * .09));
+            [[.45, .62, .3], [.78, .78, -.2], [.62, .9, .1]].forEach(([x, z, ry]) => { const B = boat(K, x, z, ry); B.g.scale.setScalar(.55); for (let i = 0; i < 6; i++) durian(B, -.1 + (i % 3) * .08, .07, (Math.floor(i / 3) - .5) * .05, .028); });
+            const bk = K.grp(.25, .02, .9); bk.cyl(.07, .05, .05, S(0x8a6440, .8), 0, 0, 0, 12); for (let i = 0; i < 5; i++) durian(bk, (i % 3 - 1) * .035, .07, (Math.floor(i / 3) - .5) * .04, .028);
+            // Lò bánh: nhà gạch cắt mặt, mái ngói, lò vòm và lò thép, ống khói
+            const H = K.grp(-.38, 0, -.38); const brick = MAT.brick();
+            H.box(1.1, .04, .9, S(0xb5653e, .85), 0, 0, 0);
+            H.box(1.1, .42, .05, brick, 0, .04, -.43); H.box(.05, .42, .9, brick, -.53, .04, 0); H.box(.05, .26, .5, brick, .53, .04, -.2);
+            const roof = gableRoof(.75, .9, .32, MAT.roofTerra(), 0x7a3a22); roof.position.set(-.18, .46, 0); H.g.add(roof);
+            [[.08, -.3], [.3, -.3]].forEach(([x, z]) => { const ov = H.add(new THREE.Mesh(lathe('piaKiln', [[0, 0], [.13, 0], [.14, .1], [.11, .2], [.05, .25], [0, .26]], 16), S(0xb0643a, .85)), x, .04, z); const f = H.box(.07, .06, .01, c4('fireM', () => new THREE.MeshStandardMaterial({ color: 0xff7a1a, emissive: 0xff5a00, emissiveIntensity: 1.3 })), x, .06, z + .135); animatedElements.push({ type: 'FN', fn: t => { f.scale.y = .8 + Math.abs(Math.sin(t * 7 + x * 9)) * .4; } }); H.cyl(.025, .025, .38, S(0x8a5a3a, .8), x, .2, z - .05, 8); smoke(H, x, .6, z - .05); });
+            H.box(.18, .22, .16, S(0x9aa0a6, .35, .6), .45, .04, -.15); H.box(.1, .06, .01, c4('fireM', () => new THREE.MeshStandardMaterial({ color: 0xff7a1a, emissive: 0xff5a00, emissiveIntensity: 1.3 })), .45, .1, -.065); H.cyl(.02, .02, .35, S(0x7a8088, .4, .6), .45, .26, -.18, 8); smoke(H, .45, .65, -.18);
+            for (let i = 0; i < 4; i++) { const tx = -.38 + (i % 2) * .3, tz = -.05 + Math.floor(i / 2) * .28; H.box(.24, .02, .14, S(0x8a6a3a, .8), tx, .12, tz); [-1, 1].forEach(a => [-1, 1].forEach(b => H.box(.012, .12, .012, S(0x6b4a2f), tx + a * .1, .04, tz + b * .055))); for (let j = 0; j < 6; j++) H.cyl(.018, .018, .012, S(0xe8c070, .6), tx - .07 + (j % 3) * .07, .14, tz - .03 + Math.floor(j / 3) * .06, 10); }
+            for (let i = 0; i < 3; i++) H.cyl(.05, .05, .1 + i * .05, S(0xa07a4a, .8), -.45, .04, -.35 + i * .1, 10);
+            crowd(H, [[-.38, -.15], [-.08, -.15], [-.38, .13], [-.08, .13], [.2, -.05], [-.25, .3]], { hat: false });
+            [[.2, -.12], [.32, .05]].forEach(([x, z]) => person(H, x, z, { hat: false, col: 0xf2f2f2 }));
+            // Xe máy giao bánh với thùng hàng đỏ vàng
+            [[-.72, .32, .1], [-.45, .72, -.2]].forEach(([x, z, ry]) => { const M = K.grp(x, 0, z, ry); M.box(.22, .04, .06, S(0xc62828, .5), 0, .05, 0); [-1, 1].forEach(a => { const w2 = M.cyl(.04, .04, .02, S(0x111111), a * .09, .04, 0, 12); w2.rotation.x = Math.PI / 2; w2.position.set(a * .09, .04, 0); }); person(M, .02, 0, { s: .8, hat: false }).g.position.y = .05; const cart = M.grp(-.2, 0, 0); cart.box(.16, .02, .14, S(0x6b4a2f, .8), 0, .05, 0); for (let i = 0; i < 6; i++) cart.box(.06, .05, .06, S(i % 2 ? 0xd62828 : 0xf2c230, .6), -.04 + (i % 2) * .07, .07 + Math.floor(i / 4) * .05, (Math.floor(i / 2) % 2 - .5) * .07); });
+            // Chồng bánh pía khổng lồ (một chiếc cắt lộ nhân đậu xanh, lòng đỏ trứng muối) + thang + du khách
+            const P = K.grp(.55, 0, -.42, 0, 1.2); const crust = TX('piaTop', 128, 128, (g, w, h) => { const gr = g.createRadialGradient(64, 64, 10, 64, 64, 64); gr.addColorStop(0, '#e9b04a'); gr.addColorStop(1, '#b8792a'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#a8191a'; g.font = '900 30px "Baloo 2", Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Pía', 64, 66); g.strokeStyle = '#b8231e'; g.lineWidth = 3; g.beginPath(); g.arc(64, 64, 44, 0, 6.28); g.stroke(); }, 1, 1, { roughness: .6 });
+            const side = S(0xd9b06a, .7), fill = S(0xd6c04a, .8), yolk = S(0xf07a10, .5);
+            P.add(new THREE.Mesh(new THREE.CylinderGeometry(.26, .26, .14, 28), [side, crust, side]), 0, .07, .05);
+            P.add(new THREE.Mesh(new THREE.CylinderGeometry(.24, .24, .13, 28), [side, crust, side]), -.04, .205, .04).rotation.y = .4;
+            const fillD = c4('piaFill', () => new THREE.MeshStandardMaterial({ color: 0xd8c24a, roughness: .8, side: THREE.DoubleSide }));
+            const yolkD = c4('piaYolk', () => new THREE.MeshStandardMaterial({ color: 0xf07a10, roughness: .5, side: THREE.DoubleSide }));
+            const C = P.grp(.02, .34, .05, 1.2), END = Math.PI * 1.45, r0 = .23, h0 = .13;
+            C.add(new THREE.Mesh(new THREE.CylinderGeometry(r0, r0, h0, 28, 1, false, 0, END), [side, crust, side]), 0, h0 / 2, 0);
+            [0, END].forEach(ang => {
+                const f = C.add(new THREE.Mesh(new THREE.PlaneGeometry(r0, h0), fillD), Math.sin(ang) * r0 / 2, h0 / 2, Math.cos(ang) * r0 / 2); f.rotation.y = ang - Math.PI / 2;
+                const y = C.add(new THREE.Mesh(new THREE.CircleGeometry(.035, 16), yolkD), Math.sin(ang) * r0 * .5, h0 / 2, Math.cos(ang) * r0 * .5); y.rotation.y = ang - Math.PI / 2; y.translateZ(ang ? -.002 : .002);
+            });
+            const lad = P.grp(-.3, 0, .2, .5); [-1, 1].forEach(a => { const r = lad.box(.012, .5, .012, S(0x6b4a2f), a * .04, 0, 0); r.rotation.x = -.35; }); for (let i = 0; i < 6; i++) lad.box(.09, .008, .012, S(0x6b4a2f), 0, .05 + i * .075, -.02 - i * .027);
+            person(P, -.06, .14, { hat: false, col: 0x2f8ad8, s: .75 }).g.position.y = .41; crowd(K, [[.2, -.05], [.35, .0], [.05, .15]], { hat: false });
+            // Cây sầu riêng, dừa, chuối, dây lồng đèn
+            [[.92, -.9], [.2, -.9]].forEach(([x, z]) => { const T = K.grp(x, 0, z); T.cyl(.03, .045, .35, S(0x5a4532, .9), 0, 0, 0, 6); T.sph(.2, S(0x3f7f3a, .85), 0, .45, 0, 1).scale.y = .8; for (let i = 0; i < 6; i++) durian(T, Math.cos(i * 1.1) * .17, .36 + (i % 2) * .08, Math.sin(i * 1.1) * .17, .03); });
+            tree(K, 'PALM', .58, -.95, .85); tree(K, 'PALM', -.15, -.95, .8); banana(K, -.92, .62, .9); banana(K, -.9, -.95, .85);
+            const LC = [0xe53935, 0xfdd835, 0xff7043];
+            for (let i = 0; i < 13; i++) miniLantern(K, .12 + i * .066, .6 - Math.abs(i - 6) * .012, -.15 + i * .013, LC[i % 3]);
+            [.12, .92].forEach(x => K.cyl(.01, .01, .66, S(0x6b4a2f), x, 0, -.15 + (x - .12) * .2, 6));
+            for (let i = 0; i < 8; i++) miniLantern(K, -.1 + i * .06, .3, .5 + (i % 2) * .02, LC[i % 3]); [-.12, .34].forEach(x => K.cyl(.006, .006, .32, S(0x6b4a2f), x, 0, .5, 5));
         },
         // 23. Muối Bạc Liêu
         BAC_LIEU_SALT2: K => {
@@ -9741,6 +9848,24 @@ function createVietnameseCostumePawn3D(player) {
 
         const currentPrice = player.discountActive ? discountedPrice : baseCost;
         const canAfford = player.cash >= currentPrice;
+        if (canUseInspectorButtons(player)) {
+            const act = await askInInspector(player, tile, 'UNOWNED', {
+                cost: currentPrice,
+                bargainCost: hasBargainCard && !player.discountActive ? discountedPrice : null
+            });
+            if (act === 'invest' && player.cash >= currentPrice) {
+                player.discountActive = false;
+                completePropertyPurchase(player, tile, currentPrice);
+            } else if (act === 'bargain' && player.cash >= discountedPrice) {
+                const sIdx = player.skills.indexOf('THANH_MAC_CA');
+                if (sIdx > -1) player.skills.splice(sIdx, 1);
+                completePropertyPurchase(player, tile, discountedPrice);
+            } else {
+                addLog(`<b>${player.shortName}</b> quyết định giữ tiền mặt, chưa đầu tư <b>${tile.name}</b>.`, '👣');
+            }
+            return;
+        }
+
         const ladder = [1, 2, 3, 4, 5].map(s => `<span class="inline-block mr-1.5"><b>${s}★</b> ${tile.starRent[s]}đ</span>`).join('');
 
         return new Promise(resolve => {
@@ -9835,6 +9960,7 @@ function createVietnameseCostumePawn3D(player) {
     const handleOwnPropertyBuild = withNetRouting(async function (player, tile) {
         const cur = starsOf(tile.index);
         if (cur >= STAR_CONFIG.maxStars) {
+            if (canUseInspectorButtons(player)) await askInInspector(player, tile, 'OWN', {});
             tileCelebrate(tile.index, player.hex);
             addLog(`🏯 <b>${player.shortName}</b> ghé thăm Làng nghề <b>${tile.name}</b> đã đạt <b>5 Sao Chuẩn Quốc Tế</b> của chính mình.`, '🏡', 'text-emerald-200');
             await sleep(600);
@@ -9869,6 +9995,24 @@ function createVietnameseCostumePawn3D(player) {
 
         const currentCost = player.discountActive ? discountedBuild : upCost;
         const canAfford = player.cash >= currentCost;
+
+        if (canUseInspectorButtons(player)) {
+            const act = await askInInspector(player, tile, 'OWN', {
+                cost: currentCost,
+                bargainCost: hasBargainCard && !player.discountActive ? discountedBuild : null
+            });
+            if (act === 'upgrade' && player.cash >= currentCost) {
+                player.discountActive = false;
+                completeVillageBuild(player, tile, currentCost);
+            } else if (act === 'bargain' && player.cash >= discountedBuild) {
+                const sIdx = player.skills.indexOf('THANH_MAC_CA');
+                if (sIdx > -1) player.skills.splice(sIdx, 1);
+                completeVillageBuild(player, tile, discountedBuild);
+            } else {
+                addLog(`<b>${player.shortName}</b> ghé thăm <b>${tile.name}</b> (${cur} Sao) và để dành vốn nâng cấp vào lượt sau.`, '🏡');
+            }
+            return;
+        }
 
         return new Promise(resolve => {
             openModal(`
@@ -9974,6 +10118,30 @@ function createVietnameseCostumePawn3D(player) {
                 return;
             }
             await processPaymentOrBankruptcy(visitor, owner, rentFee, feeLabel);
+            return;
+        }
+
+        if (canUseInspectorButtons(visitor)) {
+            const act = await askInInspector(visitor, tile, 'VISIT', {
+                fee: rentFee,
+                toolName: matchingToolIdx > -1 ? toolInfo.shortName : null,
+                hasVip: vipSkillIdx > -1
+            });
+            if (act === 'tool' && matchingToolIdx > -1) {
+                visitor.tools.splice(matchingToolIdx, 1);
+                playSFX('card');
+                addLog(`🛠️ <b>${visitor.shortName}</b> đã dùng thẻ <b>${toolInfo.shortName}</b> hóa giải tình huống tại <b>${tile.name}</b> và bảo toàn tiền mặt!`, '✨', 'text-teal-300 font-semibold');
+                showBanner('Hóa giải tình huống -> Miễn phí!', '🛠️', 1800);
+                updateAllHUD();
+            } else if (act === 'vip' && vipSkillIdx > -1) {
+                visitor.skills.splice(vipSkillIdx, 1);
+                playSFX('card');
+                addLog(`🎫 <b>${visitor.shortName}</b> dùng <b>Vé Tham Quan VIP</b> được miễn phí hoàn toàn tại <b>${tile.name}</b>!`, '🎫', 'text-amber-300 font-semibold');
+                showBanner('Vé VIP -> Miễn phí dịch vụ!', '🎫', 1800);
+                updateAllHUD();
+            } else {
+                await processPaymentOrBankruptcy(visitor, owner, rentFee, feeLabel);
+            }
             return;
         }
 
@@ -10798,6 +10966,277 @@ function createVietnameseCostumePawn3D(player) {
             el.addEventListener('pointerup', e => { if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return; const C = pick(e); if (C && C.cheer <= 0) { C.cheer = C.cheer0 = 1; C.spin = 1; chibiPop(C, ['💖', '⭐', '🎉', '👋'][Math.floor(Math.random() * 4)]); try { playSFX('step'); } catch (x) { } } });
         } catch (e) { console.warn('chibi input', e); }
     };
+
+    /* =================================================================================
+     * M. SẢNH CHỜ (LOBBY) · THẺ THÔNG TIN Ô KHÔNG HARDCODE · NÚT HÀNH ĐỘNG THEO LƯỢT · THU GỌN HUD
+     * ================================================================================= */
+
+    // ---------- 1. Đồng hồ 10:00 chỉ chạy sau khi bấm "Bắt Đầu Hành Trình" ----------
+    const GAME_SECONDS = 10 * 60;
+    gameState.remainingSeconds = GAME_SECONDS;
+    const _startTimerK8 = start45MinTimer;
+    let _timerStarted = false;
+    start45MinTimer = function () { /* chờ Lobby */ };
+    function startJourneyTimer() {
+        if (_timerStarted) return;
+        _timerStarted = true;
+        gameState.remainingSeconds = GAME_SECONDS;
+        _startTimerK8();
+    }
+    window.startJourneyTimer = startJourneyTimer;
+
+    // ---------- 2. Thu gọn / mở cột phải (Thẻ thông tin ô + Nhật ký) ----------
+    function setRightDrawerCollapsed(collapsed) {
+        const ins = document.getElementById('tile-inspector');
+        const log = document.getElementById('log-panel');
+        const handle = document.getElementById('right-drawer-handle');
+        if (!ins || !log || !handle) return;
+        ins.classList.toggle('hidden', collapsed);
+        log.classList.toggle('hidden', collapsed);
+        handle.classList.toggle('hidden', !collapsed);
+        handle.classList.toggle('flex', collapsed);
+    }
+    function toggleRightDrawer() {
+        const ins = document.getElementById('tile-inspector');
+        setRightDrawerCollapsed(!(ins && ins.classList.contains('hidden')));
+    }
+    window.toggleRightDrawer = toggleRightDrawer;
+
+    // ---------- 3. Thẻ thông tin ô: mọi nội dung lấy từ đúng ô được chọn ----------
+    const TYPE_INFO = {
+        START: { label: 'Bến Khởi Hành', price: 'Qua ô nhận', rent: '+300đ' },
+        SHOP: { label: 'Trạm Công Cụ', price: 'Mua Thẻ Công Cụ', rent: 'tại trạm' },
+        BIEN_DONG: { label: 'Thẻ Biến Động (!)', price: 'Bốc 1 thẻ', rent: 'thực thi ngay' },
+        BAN_LINH: { label: 'Thẻ Bản Lĩnh (?)', price: 'Bốc 1 thẻ', rent: 'giữ trên tay' }
+    };
+    const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v == null ? '' : v; };
+    const showEl = (id, on) => { const el = document.getElementById(id); if (el) el.classList.toggle('hidden', !on); };
+
+    updateTileInspector = function (tileIndex) {
+        const tile = BOARD_TILES[tileIndex];
+        if (!tile) return;
+        gameState.selectedTileIndex = tileIndex;
+        renderTileArtToCanvas(tile, document.getElementById('insp-Disconnect-canvas'));
+        setText('insp-title', tile.name);
+        showEl('insp-stats', true);
+
+        if (tile.type === 'PROPERTY') {
+            const ownerId = gameState.propertyOwners[tileIndex];
+            const stars = starsOf(tileIndex);
+            const owner = ownerId !== undefined ? PLAYERS[ownerId] : null;
+            setText('insp-badge', `#${tileIndex} • ${owner ? `${starText(stars)} ${owner.shortName}` : '🌱 Chưa có chủ'}`);
+            setText('insp-desc', owner
+                ? (stars < STAR_CONFIG.maxStars ? `${stars} Sao (${STAR_CONFIG.levels[stars].name}) • ${tile.region}` : `5 Sao Chuẩn Quốc Tế • ${tile.region}`)
+                : `Làng nghề chưa có chủ • ${tile.region}`);
+            showEl('insp-row-price', true);
+            showEl('insp-row-tool', true);
+            setText('insp-price-label', owner ? (stars < STAR_CONFIG.maxStars ? 'Nâng cấp / Phí:' : 'Cấp / Phí:') : 'Đầu tư / Phí:');
+            setText('insp-price', owner ? (stars < STAR_CONFIG.maxStars ? `+${tile.starCost[stars + 1]}đ` : 'Tối đa') : `${tile.starCost[1]}đ`);
+            setText('insp-rent', `${tile.starRent[Math.max(1, stars)]}đ`);
+            const tc = TOOL_CATEGORIES[tile.toolId];
+            setText('insp-tool', `${tile.toolSpec}${tc ? ` (${tc.shortName})` : ''}`);
+            setText('insp-situation', tile.situation ? `"${tile.situation}"` : '');
+        } else {
+            const info = TYPE_INFO[tile.type] || { label: 'Ô chức năng', price: '', rent: '' };
+            setText('insp-badge', `#${tileIndex} • ${info.label}`);
+            setText('insp-desc', `${tile.subtitle || info.label} • ${tile.region || ''}`);
+            showEl('insp-row-price', true);
+            showEl('insp-row-tool', false);
+            setText('insp-price-label', 'Tác dụng:');
+            setText('insp-price', info.price);
+            setText('insp-rent', info.rent);
+            setText('insp-tool', '');
+            setText('insp-situation', tile.desc || '');
+        }
+        renderInspectorActions();
+    };
+
+    // ---------- 4. Nút hành động trong thẻ thông tin ô khi đến lượt người chơi ----------
+    //   askInInspector(player, tile, mode) -> Promise<'invest'|'upgrade'|'pay'|'bargain'|'tool'|'vip'|'pass'>
+    //   mode: 'UNOWNED' | 'OWN' | 'VISIT'
+    let pendingAsk = null;
+    function canUseInspectorButtons(player) {
+        return !!player && !player.isNPC && !player.remote && !NET.routed && NET.role !== 'guest';
+    }
+    window.canUseInspectorButtons = canUseInspectorButtons;
+
+    function askInInspector(player, tile, mode, extra) {
+        return new Promise(resolve => {
+            pendingAsk = { player, tile, mode, extra: extra || {}, resolve };
+            setRightDrawerCollapsed(false);
+            const body = document.getElementById('insp-body-wrap');
+            if (body && body.classList.contains('hidden')) toggleElementBody('insp-body-wrap', 'insp-toggle-icon');
+            updateTileInspector(tile.index);
+            const box = document.getElementById('tile-inspector');
+            if (box) { box.classList.remove('active-turn-glow'); void box.offsetWidth; box.classList.add('active-turn-glow'); }
+        });
+    }
+    window.askInInspector = askInInspector;
+
+    function finishAsk(choice) {
+        if (!pendingAsk) return;
+        const { resolve } = pendingAsk;
+        pendingAsk = null;
+        const box = document.getElementById('tile-inspector');
+        if (box) box.classList.remove('active-turn-glow');
+        renderInspectorActions();
+        resolve(choice);
+    }
+    window.__inspAct = function (choice) {
+        if (!pendingAsk) return;
+        const b = document.querySelector(`#insp-actions [data-act="${choice}"]`);
+        if (!b || b.disabled) return;
+        playSFX('step');
+        finishAsk(choice);
+    };
+
+    function renderInspectorActions() {
+        const box = document.getElementById('insp-actions');
+        if (!box) return;
+        if (!pendingAsk) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+        const { player, tile, mode, extra } = pendingAsk;
+        const stars = starsOf(tile.index);
+        const isMax = stars >= STAR_CONFIG.maxStars;
+        const investCost = extra.cost != null ? extra.cost : tile.starCost[1];
+        const upCost = extra.cost != null ? extra.cost : (isMax ? 0 : tile.starCost[stars + 1]);
+        const fee = extra.fee != null ? extra.fee : tile.starRent[Math.max(1, stars)];
+
+        const btn = (act, label, sub, on, cls) => `
+            <button data-act="${act}" onclick="__inspAct('${act}')" ${on ? '' : 'disabled'}
+                class="${cls} w-full px-2 py-1.5 rounded-xl font-extrabold text-[11px] leading-tight text-left flex items-center justify-between gap-1 transition ${on ? '' : 'opacity-35 grayscale cursor-not-allowed'}">
+                <span>${label}</span><span class="text-[10px] font-black shrink-0">${sub}</span>
+            </button>`;
+        const main = 'wood-btn';
+        const off = 'bg-stone-300 text-stone-700 border-2 border-stone-400';
+
+        const investOn = mode === 'UNOWNED' && player.cash >= investCost;
+        const upOn = mode === 'OWN' && !isMax && player.cash >= upCost;
+        const payOn = mode === 'VISIT';
+
+        let extras = '';
+        if (mode === 'UNOWNED' && extra.bargainCost != null) extras += btn('bargain', '🏷️ Thánh Mặc Cả (−30%)', `${extra.bargainCost}đ`, player.cash >= extra.bargainCost, 'bg-amber-400 hover:bg-amber-300 text-amber-950 border-2 border-amber-700');
+        if (mode === 'OWN' && extra.bargainCost != null && !isMax) extras += btn('bargain', '🏷️ Thánh Mặc Cả (−30%)', `${extra.bargainCost}đ`, player.cash >= extra.bargainCost, 'bg-amber-400 hover:bg-amber-300 text-amber-950 border-2 border-amber-700');
+        if (mode === 'VISIT' && extra.toolName) extras += btn('tool', `🛠️ Dùng thẻ "${extra.toolName}"`, 'Miễn phí', true, 'bg-teal-700 hover:bg-teal-600 text-white border-2 border-teal-300');
+        if (mode === 'VISIT' && extra.hasVip) extras += btn('vip', '🎫 Dùng Vé Tham Quan VIP', 'Miễn phí', true, 'bg-amber-400 hover:bg-amber-300 text-amber-950 border-2 border-amber-700');
+
+        const passLabel = mode === 'UNOWNED' ? 'Bỏ Qua' : (mode === 'OWN' ? (isMax ? 'Tiếp Tục' : 'Để Lượt Sau') : '');
+        box.innerHTML = `
+            <div class="text-[10px] font-extrabold uppercase text-red-800 mb-1 flex items-center justify-between">
+                <span>🎯 Lượt của ${player.shortName}</span>
+                <span class="text-amber-900 normal-case font-bold">Tiền: ${player.cash}đ</span>
+            </div>
+            ${tile.index !== gameState.selectedTileIndex ? `<button onclick="updateTileInspector(${tile.index})" class="w-full text-[10px] mb-1 underline text-amber-900">↩ Đang đứng ở #${tile.index} ${tile.name} — xem lại</button>` : ''}
+            <div class="flex flex-col gap-1">
+                ${btn('invest', '⭐ Đầu Tư Làng Nghề', mode === 'UNOWNED' ? `${investCost}đ` : '—', investOn, investOn ? main : off)}
+                ${btn('upgrade', `⬆️ Nâng Cấp Sao (+1⭐)`, mode === 'OWN' ? (isMax ? 'Đã 5⭐' : `${upCost}đ`) : '—', upOn, upOn ? main : off)}
+                ${btn('pay', '💸 Trải Nghiệm Dịch Vụ (Trả phí)', mode === 'VISIT' ? `${fee}đ` : '—', payOn, payOn ? main : off)}
+                ${extras}
+                ${passLabel ? `<button data-act="pass" onclick="__inspAct('pass')" class="w-full text-[11px] font-bold py-1 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800">${passLabel}</button>` : ''}
+            </div>`;
+        box.classList.remove('hidden');
+    }
+
+    // Cập nhật lại tiền/nút khi HUD thay đổi
+    const _updHUDK8 = updateAllHUD;
+    updateAllHUD = function () {
+        _updHUDK8();
+        if (pendingAsk) renderInspectorActions();
+    };
+
+    // ---------- 5. SẢNH CHỜ (LOBBY) ----------
+    function buildLobby() {
+        if (document.getElementById('dk-lobby')) return;
+        const me = PLAYERS[0];
+        let chosen = me.costumeKey;
+        const wrap = document.createElement('div');
+        wrap.id = 'dk-lobby';
+        wrap.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle at 50% 30%, rgba(122,22,24,.82), rgba(40,6,8,.94));backdrop-filter:blur(3px);overflow-y:auto;';
+        const cards = PLAYERS.map(p => {
+            const c = VIETNAMESE_COSTUMES[p.costumeKey];
+            return `
+                <button type="button" data-costume="${p.costumeKey}" class="dk-lobby-card text-left rounded-2xl p-2.5 border-2 transition flex flex-col gap-1" style="background:#fff8e6">
+                    <div class="flex items-center gap-2">
+                        <span class="w-9 h-9 rounded-full flex items-center justify-center text-lg shrink-0" style="background:${p.color}">${p.avatar}</span>
+                        <div class="min-w-0">
+                            <div class="font-extrabold text-[12px] text-amber-950 leading-tight">${c ? c.name.split('&')[0].trim() : p.costumeName}</div>
+                            <div class="text-[10px] text-amber-800">Explorer ${p.id + 1}</div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-amber-900/80 leading-snug">${c ? c.desc : ''}</div>
+                </button>`;
+        }).join('');
+
+        wrap.innerHTML = `
+            <div class="kraft-card rounded-3xl w-full max-w-2xl p-4 md:p-6 my-auto">
+                <div class="text-center">
+                    <div class="text-4xl">🏯</div>
+                    <h1 class="font-serif-vn font-extrabold text-2xl md:text-3xl text-red-900 leading-tight">Du Ký Làng Nghề 3D</h1>
+                    <p class="text-xs text-amber-900/80">Sảnh chờ • Chuẩn bị hành trình qua 47 địa danh làng nghề Việt Nam</p>
+                </div>
+
+                <label class="block mt-4 text-[11px] font-extrabold uppercase text-amber-900">Tên của bạn</label>
+                <input id="dk-lobby-name" type="text" maxlength="16" value="${me.shortName}"
+                    class="mt-1 w-full px-3 py-2 rounded-xl border-2 border-amber-700 bg-amber-50 font-extrabold text-amber-950 text-sm">
+
+                <div class="mt-4 text-[11px] font-extrabold uppercase text-amber-900">Chọn nhân vật Explorer</div>
+                <div id="dk-lobby-cards" class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">${cards}</div>
+
+                <div class="mt-4 rounded-2xl bg-amber-900/10 border border-amber-800/30 p-3 text-[11px] text-amber-950 leading-relaxed">
+                    <div class="font-extrabold text-amber-900 mb-1">📖 Tóm tắt luật chơi</div>
+                    • 5 Thương Khách, mỗi người khởi đầu <b>300đ</b>. Tung xúc xắc đi vòng quanh 47 địa danh; qua Bến Khởi Hành nhận <b>+300đ</b>.<br>
+                    • Dừng ở làng chưa có chủ: <b>[Đầu Tư Làng Nghề]</b> để đạt <b>1 Sao</b>. Quay lại làng mình ở lượt sau: <b>[Nâng Cấp Sao]</b> lên tối đa <b>5 Sao</b>.<br>
+                    • Dừng ở làng của người khác: <b>[Trải Nghiệm Dịch Vụ]</b> trả phí theo số sao, hoặc dùng Thẻ Công Cụ / Vé VIP để miễn phí.<br>
+                    • Ván kéo dài <b>10 phút</b>. Hết giờ sẽ kiểm kê tài sản (tiền + vốn đã đầu tư), người giàu nhất thắng.
+                </div>
+
+                <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                    <button id="dk-lobby-start" class="wood-btn flex-1 py-3 rounded-2xl font-extrabold text-base">🚩 Bắt Đầu Hành Trình</button>
+                    <button id="dk-lobby-rules" class="bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold px-4 py-3 rounded-2xl text-sm">Luật chi tiết</button>
+                </div>
+            </div>`;
+        document.body.appendChild(wrap);
+
+        const paint = () => wrap.querySelectorAll('.dk-lobby-card').forEach(b => {
+            const on = b.dataset.costume === chosen;
+            b.style.borderColor = on ? '#b3201f' : 'rgba(146,99,40,.35)';
+            b.style.boxShadow = on ? '0 0 0 3px #e2b04a, 0 6px 14px rgba(0,0,0,.25)' : 'none';
+            b.style.transform = on ? 'translateY(-2px)' : 'none';
+        });
+        wrap.querySelectorAll('.dk-lobby-card').forEach(b => b.onclick = () => { chosen = b.dataset.costume; playSFX('step'); paint(); });
+        paint();
+
+        document.getElementById('dk-lobby-rules').onclick = () => openRulesModal();
+        document.getElementById('dk-lobby-start').onclick = () => {
+            const nm = (document.getElementById('dk-lobby-name').value || '').trim();
+            if (nm) { me.shortName = nm; me.name = `${nm} (Bạn)`; }
+            // Đổi nhân vật: hoán đổi bộ cổ phục với Thương Khách đang giữ bộ đó
+            const other = PLAYERS.find(p => p !== me && p.costumeKey === chosen);
+            if (other) {
+                [other.costumeKey, me.costumeKey] = [me.costumeKey, other.costumeKey];
+                [other.costumeName, me.costumeName] = [me.costumeName, other.costumeName];
+            }
+            const foot = document.getElementById('user-footer-name');
+            if (foot) foot.textContent = me.shortName;
+            buildAllPlayerPawns();
+            updateAllHUD();
+            gameState.isBusy = false;
+            wrap.remove();
+            playSFX('build');
+            startJourneyTimer();
+            updateAllHUD();
+            addLog(`🚩 <b>${me.shortName}</b> khởi hành! Đồng hồ <b>10:00</b> bắt đầu đếm ngược.`, '🚩', 'text-amber-200 font-semibold');
+            showBanner(`Chúc ${me.shortName} thượng lộ bình an!`, '🚩', 2400);
+        };
+    }
+
+    window.addEventListener('load', () => {
+        // Khóa bàn cờ cho tới khi rời sảnh chờ (chặn phím Space tung xúc xắc)
+        gameState.isBusy = true;
+        const el = document.getElementById('game-timer');
+        if (el) el.textContent = '10:00';
+        buildLobby();
+        updateAllHUD();
+    });
 
     })();
     </script>

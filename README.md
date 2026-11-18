@@ -29,9 +29,10 @@ ruby -run -e httpd . -p 8766
 | `src/k2_map.js` | Mặt nước, tàu thuyền, sinh vật biển |
 | `src/k2b_islands.js` | Hoàng Sa, Trường Sa, camera |
 | `src/k3_models.js` | 29 sa bàn làng nghề mới |
-| `src/k4_monopoly.js` | Cơ chế mua đất trống → xây làng nghề 3D |
+| `src/k4_monopoly.js` | Cơ chế Đầu tư & Nâng cấp 1-5 Sao (bảng `STAR_CONFIG`), sao vàng 3D trên mô hình |
 | `src/k5_newmap.js` | Địa hình phẳng kiểu mới, đảo, bờ đất bao quanh biển (thay khung bàn gỗ) |
 | `src/k6_tiles_pawns.js` | Bệ địa danh bo tròn, nhân vật chibi cổ phục và hoạt ảnh (thở, chớp mắt, vẫy tay, nhảy mừng) |
+| `src/k8_lobby_ui.js` | Sảnh chờ (tên, chọn nhân vật, luật, đồng hồ 10:00), thẻ thông tin ô theo dữ liệu, nút hành động theo lượt, thu gọn cột phải |
 | `tools/build47.rb` | Script dựng `index.html` từ `base/` + `src/` |
 
 ## Dựng lại `index.html`

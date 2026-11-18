@@ -20,7 +20,7 @@
     TOOL_CATEGORIES.WEAVING_CRAFT.desc = 'Miễn phí dịch vụ tại Thêu ren Văn Lâm, Chiếu cói Nga Sơn, Nón lá Ba Đồn, Lồng đèn Phú Bình, Lụa Tân Châu, Thổ cẩm Kon Tum, Khăn Piêu Sơn La, Dệt lanh Lùng Tám.';
     TOOL_CATEGORIES.HIGHLAND_AGRI.name = 'Giàn phơi, Nhà lưới & Chảo sao';
     TOOL_CATEGORIES.HIGHLAND_AGRI.shortName = 'Nông cụ & Bếp nghề';
-    TOOL_CATEGORIES.HIGHLAND_AGRI.desc = 'Miễn phí dịch vụ tại Bánh tráng An Ngãi, Kẹo dừa Bến Tre, Bánh tét Trà Cuôn, Bánh pía Vũ Thơm, Hoa Sa Đéc, Bánh tráng Trảng Bàng, Nhà kính Đà Lạt, Cà phê Buôn Ma Thuột, Tương Nam Đàn, Rượu cần Mường Vang, Miến dong Bình Lư, Mỳ Chũ, Chè Tân Cương.';
+    TOOL_CATEGORIES.HIGHLAND_AGRI.desc = 'Miễn phí dịch vụ tại Bánh tráng An Ngãi, Kẹo dừa Bến Tre, Bánh tét Trà Cuôn, Bánh pía Vũng Thơm, Hoa Sa Đéc, Bánh tráng Trảng Bàng, Nhà kính Đà Lạt, Cà phê Buôn Ma Thuột, Tương Nam Đàn, Rượu cần Mường Vang, Miến dong Bình Lư, Mỳ Chũ, Chè Tân Cương.';
     TOOL_CATEGORIES.COASTAL_AQUA.desc = 'Miễn phí dịch vụ tại Tỏi Lý Sơn, Yến sào Nha Trang, Nước mắm Phan Thiết, Muối Bạc Liêu, Tôm Cà Mau, Ngọc trai Phú Quốc.';
 
     const TOOL_HEX = { CERAMIC_ART: '#c2410c', WEAVING_CRAFT: '#0f766e', HIGHLAND_AGRI: '#15803d', COASTAL_AQUA: '#0369a1' };
@@ -48,7 +48,7 @@
         X47('BIEN_DONG', 'Biến Động Cồn Thới Sơn', 'Cồn Thới Sơn - Tiền Giang', 106.36, 10.34, 'THOI_SON', 'Bốc Thẻ Biến Động (!)', '#991b1b', '❗', 'Cồn xanh giữa sông Tiền, đờn ca tài tử vang vọng! Bốc 1 Thẻ Biến Động và thực thi ngay.'),
         P47('Làng Kẹo Dừa Bến Tre', 'Châu Thành - Bến Tre', 106.37, 10.20, 'BEN_TRE_COCONUT', 'HIGHLAND_AGRI', 180, 'Chảo sên & Khuôn cắt kẹo', '🥥', 'Khách vãng lai phải nạo dừa, sên mạch nha trên chảo gang và cắt gói từng viên kẹo dừa.'),
         P47('Bánh Tét Trà Cuôn', 'Cầu Ngang - Trà Vinh', 106.45, 9.80, 'TRA_CUON', 'HIGHLAND_AGRI', 180, 'Lá chuối & Nồi luộc lớn', '🍃', 'Khách vãng lai phải gói đòn bánh tét lá cẩm, nhân đậu thịt và canh nồi luộc suốt đêm.'),
-        P47('Bánh Pía Vũ Thơm', 'Vĩnh Châu - Sóc Trăng', 105.97, 9.60, 'VU_THOM', 'HIGHLAND_AGRI', 185, 'Lò than & Khuôn ép', '🥮', 'Khách vãng lai phải cán vỏ bánh ngàn lớp, gói nhân sầu riêng trứng muối và nướng trong lò than.'),
+        P47('Bánh Pía Vũng Thơm', 'Vĩnh Châu - Sóc Trăng', 105.97, 9.60, 'VU_THOM', 'HIGHLAND_AGRI', 185, 'Lò than & Khuôn ép', '🥮', 'Khách vãng lai phải cán vỏ bánh ngàn lớp, gói nhân sầu riêng trứng muối và nướng trong lò than.'),
         P47('Cánh Đồng Muối Bạc Liêu', 'Đông Hải - Bạc Liêu', 105.72, 9.28, 'BAC_LIEU_SALT2', 'COASTAL_AQUA', 190, 'Trang cào & Gánh muối', '🧂', 'Khách vãng lai phải dẫn nước biển vào ô kết tinh và cào những đụn muối trắng lấp lánh.'),
         P47('Ao Tôm Cà Mau', 'Đất Mũi - Cà Mau', 104.85, 8.75, 'CA_MAU2', 'COASTAL_AQUA', 195, 'Quạt nước oxy & Lưới đăng', '🦐', 'Khách vãng lai phải vận hành dàn quạt nước nuôi tôm sú dưới tán rừng đước Đất Mũi.'),
         P47('Ngọc Trai Phú Quốc', 'Đảo Phú Quốc - Kiên Giang', 102.87, 10.5, 'PHU_QUOC2', 'COASTAL_AQUA', 220, 'Bè nuôi & Dao cấy ngọc', '🦪', 'Khách vãng lai phải lặn kiểm tra bè nuôi và cấy nhân ngọc vào trai biển giữa làn nước trong xanh.', { island: true }),

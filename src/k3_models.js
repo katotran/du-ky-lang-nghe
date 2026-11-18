@@ -22,6 +22,22 @@
     function ghe(K, x, z, ry, load) { const B = boat(K, x, z, ry); if (load) for (let i = 0; i < 7; i++) B.sph(.025, S([0x7cb342, 0xfdd835, 0xe53935, 0xfb8c00][i % 4], .7), -.15 + i * .05, .08, (i % 2 - .5) * .05, 0); return B; }
     function roofBoat(K, x, z, ry, hex) { const B = boat(K, x, z, ry); B.box(.26, .1, .12, S(0xf4f1ea, .6), 0, .05, 0); B.box(.3, .015, .15, S(hex || 0x2563eb, .5), 0, .15, 0); return B; }
 
+    // Lồng đèn cá chép phát sáng, lồng đèn hộp, lồng đèn thỏ, trái sầu riêng
+    function fishLantern(K, x, y, z, hex, ry, s) {
+        const F = K.grp(x, y, z, ry || 0, (s || 1) * .9);
+        const m = c4('fishL' + hex, () => new THREE.MeshBasicMaterial({ color: hex, toneMapped: false }));
+        const fin = c4('fishF', () => new THREE.MeshBasicMaterial({ color: 0xffc21a, toneMapped: false, side: THREE.DoubleSide }));
+        const b = F.sph(.05, m, 0, 0, 0, 1); b.scale.set(1.25, .9, .6); b.castShadow = false;
+        const t = F.cone(.035, .06, fin, -.075, -.03, 0, 4); t.rotation.z = Math.PI / 2; t.scale.z = .25;
+        const d = F.cone(.02, .035, fin, .005, .035, 0, 4); d.scale.z = .25;
+        F.box(.004, .06, .004, S(0x2a2a2a), 0, .04, 0);
+        return F;
+    }
+    function lanternBox(K, x, y, z, hex) { const m = c4('lbx' + hex, () => new THREE.MeshBasicMaterial({ color: hex, toneMapped: false })); const b = K.box(.05, .07, .05, m, x, y, z); b.castShadow = false; K.box(.003, .05, .003, S(0x2a2a2a), x, y + .07, z); }
+    function rabbitLantern(K, x, y, z) { const w = c4('rabL', () => new THREE.MeshStandardMaterial({ color: 0xfafafa, emissive: 0xffe0e8, emissiveIntensity: .35, roughness: .6 })); K.sph(.035, w, x, y, z, 1).scale.set(1, .9, .8); [-1, 1].forEach(a => { const e = K.sph(.012, w, x + a * .014, y + .045, z, 0); e.scale.y = 2.6; }); }
+    function miniLantern(K, x, y, z, hex) { const m = c4('mini' + hex, () => new THREE.MeshBasicMaterial({ color: hex, toneMapped: false })); const b = K.sph(.022, m, x, y, z, 1); b.scale.y = 1.25; b.castShadow = false; }
+    function durian(K, x, y, z, r) { const m = c4('durian', () => new THREE.MeshStandardMaterial({ color: 0x8aa83a, roughness: .9, flatShading: true })); const d = K.add(new THREE.Mesh(G('durianG', () => new THREE.IcosahedronGeometry(1, 0)), m), x, y, z); d.scale.set(r, r * 1.15, r); return d; }
+
     /* ---------- 9. 29 sa bàn theo ảnh mẫu ---------- */
     const RP = TX('ricepaper', 192, 96, discTex('#c8a46a', '#fbf6e8', '#f6d3c4'), 1, 1);
     const RPN = TX('ricepaperN', 192, 96, discTex('#a88a58', '#f5f1e2'), 1, 1);
@@ -62,18 +78,99 @@
             [[-.9, -.8], [-.9, -.4], [-.92, .0], [-.88, .45], [.88, -.88]].forEach(([x, z]) => tree(K, 'PALM', x, z, .8)); banana(K, -.85, .8, .9); boat(K, .45, -.8, 0);
             van(K, .78, .2, Math.PI / 2); van(K, .8, .7, Math.PI / 2); moto(K, .68, -.4, Math.PI / 2);
         },
-        // 22. Bánh pía Vũ Thơm
+        // 17. Xóm lồng đèn Phú Bình — Hẻm 49 (theo ảnh mẫu)
+        PHU_BINH_LANTERN: K => {
+            ground(K, GM.asphalt(), 1.96, 1.96, 0, 0);
+            for (let i = 0; i < 46; i++) { const c = K.box(.025, .004, .016, S([0xe53935, 0xfdd835, 0x43a047, 0xf4f4f4, 0x1e88e5][i % 5], .8), ((i * 37) % 170) / 100 - .85, .01, ((i * 53) % 110) / 100 - .1); c.position.y = .022; c.rotation.y = i; }
+            // Nhà gạch cũ mái ngói, mái tôn phía trước, mặt tiền mở
+            const H = K.grp(.12, 0, -.42); const wall = TX('pbWall', 128, 128, (g, w, h) => { g.fillStyle = '#d9c39a'; g.fillRect(0, 0, w, h); for (let i = 0; i < 9; i++) { g.fillStyle = `rgba(110,80,50,${.08 + (i % 3) * .05})`; g.fillRect((i * 41) % w, (i * 29) % h, 30, 22); } g.fillStyle = '#a5532e'; for (let y = 70; y < 128; y += 8) for (let x = (y / 8 % 2) * 7; x < 48; x += 14) g.fillRect(x, y, 12, 6); g.fillStyle = 'rgba(60,40,20,.35)'; g.fillRect(0, 118, w, 10); }, 1, 1);
+            H.box(1.0, .05, .7, MAT.stone(), 0, 0, 0);
+            H.box(1.0, .62, .04, wall, 0, .05, -.33); H.box(.05, .62, .7, wall, -.48, .05, 0); H.box(.05, .62, .7, wall, .48, .05, 0);
+            H.box(.18, .62, .05, wall, -.4, .05, .33); H.box(.12, .62, .05, wall, .42, .05, .33);
+            const roof = gableRoof(1.04, .78, .3, MAT.roofTerra(), 0x7a3a22); roof.position.y = .67; H.g.add(roof);
+            const tin = H.box(.9, .012, .26, MAT.roofGray(), 0, .56, .46); tin.rotation.x = .28;
+            [-.36, .34].forEach(x => H.box(.025, .52, .025, S(0x6b5a48, .8), x, .05, .56));
+            H.box(.86, .5, .02, S(0x3a2618, .9), 0, .06, -.3); H.box(.36, .1, .18, S(0x6b4428, .8), -.05, .05, -.05); H.box(.5, .02, .12, S(0x5a3a22, .8), .05, .32, -.25);
+            const LC = [0xe0201a, 0xd81b1b, 0xff8a1a, 0xffc21a];
+            for (let i = 0; i < 9; i++) lanternStar(H, -.32 + (i % 5) * .16, .5 - Math.floor(i / 5) * .1, .2 + Math.floor(i / 5) * .1, LC[i % 4]);
+            for (let i = 0; i < 4; i++) lanternBox(H, -.28 + i * .18, .3, .3, LC[(i + 1) % 4]); for (let i = 0; i < 8; i++) fishLantern(H, -.33 + (i % 4) * .2, .42 - Math.floor(i / 4) * .14, -.15 + Math.floor(i / 4) * .12, LC[i % 4], i * .9, 1.1);
+            fishLantern(H, .3, .27, .52, 0xe53935, -.3, 1.2);
+            // Giàn tre bên trái treo lồng đèn cá chép
+            const R = K.grp(-.55, 0, -.05); const bam = S(0xc9a35e, .75);
+            [[-.32, -.3], [.32, -.3], [-.32, .3], [.32, .3]].forEach(([a, b]) => R.cyl(.012, .014, .62, bam, a, 0, b, 6));
+            [-.3, .3].forEach(b => { const p = R.cyl(.01, .01, .7, bam, 0, .6, b, 6); p.rotation.z = Math.PI / 2; p.position.y = .6; });
+            [-.32, 0, .32].forEach(a => { const p = R.cyl(.01, .01, .66, bam, a, .6, 0, 6); p.rotation.x = Math.PI / 2; p.position.y = .6; });
+            for (let k = 0; k < 2; k++) R.box(.62, .02, .5, S(0x7a4b2a, .8), 0, .1 + k * .2, 0);
+            for (let i = 0; i < 24; i++) fishLantern(R, -.27 + (i % 4) * .18, .53 - Math.floor(i / 8) * .13, -.26 + (Math.floor(i / 4) % 2) * .52, LC[i % 4], (i % 2) * Math.PI + .3, 1.25);
+            for (let i = 0; i < 12; i++) fishLantern(R, -.24 + (i % 4) * .16, .17 + Math.floor(i / 8) * .2, -.15 + (Math.floor(i / 4) % 2) * .25, LC[(i + 1) % 4], 1.57, 1.0);
+            for (let i = 0; i < 6; i++) lanternStar(R, -.24 + (i % 3) * .24, .34, -.1 + (i % 2) * .2, LC[(i + 2) % 4]);
+            banana(K, -.75, -.7, 1.05); banana(K, -.45, -.85, .85);
+            // Tường xám + cột điện + dây điện + biển hẻm
+            K.box(.08, .95, .5, S(0x8f8f88, .9), .9, 0, .05); K.box(.05, 1.0, .05, S(0x7a6a5a, .8), .72, 0, -.05);
+            for (let i = 0; i < 4; i++) { const w2 = K.box(.42, .004, .004, S(0x1c1c1c), .78, .9 - i * .03, .02 + i * .05); w2.rotation.y = 1.2 + i * .12; }
+            sign(K, .62, .12, .4, .1, 'HẺM 49 - XÓM LỒNG ĐÈN PHÚ BÌNH', '#1d4fa3', '#ffffff', .58, 0, false);
+            for (let i = 0; i < 4; i++) fishLantern(K, .55 + (i % 2) * .14, .82 - Math.floor(i / 2) * .1, -.2 + i * .04, LC[i % 4], 1.2, .8);
+            // Xe máy chở lồng đèn
+            const mb = K.grp(.6, 0, .5, -1.2); mb.box(.26, .05, .06, S(0x8a1e1e, .5), 0, .05, 0); mb.box(.06, .08, .05, S(0x222222, .6), .1, .09, 0);
+            [-1, 1].forEach(a => { const w2 = mb.cyl(.045, .045, .02, S(0x111111), a * .1, .045, 0, 12); w2.rotation.x = Math.PI / 2; w2.position.set(a * .1, .045, 0); });
+            mb.box(.14, .1, .14, S(0xc9a06a, .9), -.08, .1, 0); for (let i = 0; i < 5; i++) fishLantern(mb, -.12 + (i % 3) * .05, .24 + Math.floor(i / 3) * .06, (i % 2 - .5) * .1, LC[i % 4], i, .7);
+            // Chiếu tre, ông cụ chẻ nan, bó nan tre, cuộn kẽm
+            const mat = K.box(.5, .006, .36, TX('pbMat', 64, 64, (g, w, h) => { g.fillStyle = '#d8b46a'; g.fillRect(0, 0, w, h); g.strokeStyle = '#a8843e'; for (let i = 0; i < w; i += 4) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.stroke(); } }, 2, 2), -.1, .02, .35); mat.rotation.y = -.15;
+            person(K, -.32, .28, { sit: true, hat: false, col: 0x8a7a62, ry: .8 }); person(K, -.02, .38, { sit: true, hat: false, col: 0xe0b030, ry: -.6 });
+            for (let i = 0; i < 14; i++) { const st = K.cyl(.004, .004, .42, S(0xd8b870, .7), -.45 + (i % 7) * .025, .012 + Math.floor(i / 7) * .008, .58); st.position.y = .03 + Math.floor(i / 7) * .008; st.rotation.set(Math.PI / 2, 0, .9 + (i % 3) * .08); }
+            [[-.62, .1], [-.55, .22]].forEach(([x, z]) => { const c = K.add(new THREE.Mesh(new THREE.TorusGeometry(.04, .014, 6, 14), S(0x9aa0a6, .35, .7)), x, .035, z); c.rotation.x = Math.PI / 2; });
+            [[.12, .25, 0xc62828], [.18, .22, 0x1e88e5], [.15, .32, 0xfdd835]].forEach(([x, z, c]) => K.cyl(.02, .02, .045, S(c, .4, .3), x, .02, z, 10));
+            fishLantern(K, .02, .07, .45, 0xe53935, .5, 1.1);
+            // Mẹ ngồi xổm với bé cầm lồng đèn thỏ, các bé chơi đùa
+            person(K, .28, .62, { sit: true, hat: false, col: 0xb85a4a, ry: -2.4 }); person(K, .12, .72, { hat: false, col: 0xf2d33a, s: .7, ry: .4 }); rabbitLantern(K, .17, .1, .7);
+            person(K, .33, .02, { hat: false, col: 0xe85a3a, s: .72 }); person(K, .45, .05, { hat: false, col: 0xf29a3a, s: .74 }); rabbitLantern(K, .39, .14, .05);
+            person(K, .0, -.05, { sit: true, hat: false, col: 0xc0392b });
+            person(K, .78, .62, { hat: false, col: 0x6b6b6b });
+        },
+        // 22. Làng nghề bánh pía Vũng Thơm — Sóc Trăng (theo ảnh mẫu)
         VU_THOM: K => {
-            ground(K, GM.brick(), 1.96, 1.96, 0, 0); ground(K, GM.asphalt(), 1.96, .35, 0, .8);
-            northHouse(K, -.35, -.45, .9, .5, { roof: MAT.roofTerra() });
-            K.box(.9, .32, .04, S(0xe8c768, .85), -.35, .05, -.7); sign(K, -.72, -.15, .3, .12, 'LÒ BÁNH PÍA VŨ THƠM', '#7a4b2a', '#fde68a', .22, 0);
-            const oven = K.add(new THREE.Mesh(lathe('pia', [[0, 0], [.17, 0], [.18, .1], [.14, .22], [.06, .28], [0, .29]], 16), S(0xb47a4a, .85)), .55, 0, -.45); K.box(.08, .07, .02, S(0x1a0a05), .55, .02, -.28); const fl = K.box(.06, .05, .01, c4('fireM', () => new THREE.MeshStandardMaterial({ color: 0xff7a1a, emissive: 0xff5a00, emissiveIntensity: 1.2 })), .55, .02, -.275); K.cyl(.025, .025, .25, S(0x9a6a4a), .62, .2, -.55, 8); smoke(K, .62, .45, -.55);
-            for (let i = 0; i < 3; i++) { K.box(.28, .02, .18, S(0x8a6a3a), -.3 + i * .3, .12, .15); [-1, 1].forEach(a => [-1, 1].forEach(b => K.box(.012, .12, .012, S(0x6b4a2f), -.3 + i * .3 + a * .12, 0, .15 + b * .07))); for (let j = 0; j < 8; j++) K.cyl(.022, .022, .015, S(0xe3b26a, .7), -.39 + i * .3 + (j % 4) * .06, .14, .1 + Math.floor(j / 4) * .08, 10); }
-            for (let i = 0; i < 6; i++) K.box(.1, .08, .08, S(i % 2 ? 0xd62828 : 0xf2c230, .6), .1 + (i % 3) * .11, Math.floor(i / 3) * .08, -.62);
-            stack(K, .35, .42, 8, 0xd6a548, .07); stack(K, .55, .4, 6, 0xd6a548, .07);
-            people(K, [[-.45, .1], [-.15, .25], [.15, .05], [.4, .2], [-.6, .45], [-.75, .3], [.6, -.2]]);
-            tree(K, 'PALM', .2, -.85, .9); tree(K, 'PALM', .45, -.9, .85); const pom = K.grp(.82, 0, -.8); pom.cyl(.04, .05, .3, S(0x6b4a2f), 0, 0, 0, 6); pom.sph(.22, S(0x3f7f3a, .85), 0, .42, 0, 1); for (let i = 0; i < 6; i++) pom.sph(.03, S(0xb8c84a, .6), Math.cos(i) * .18, .38 + (i % 2) * .1, Math.sin(i) * .18, 0);
-            moto(K, -.75, .78, 0); people(K, [[-.6, .7], [-.85, .65]]);
+            ground(K, GM.brick(), 1.96, 1.96, 0, 0);
+            // Kênh nước + bờ cỏ phía trước bên phải
+            const can = waterBox(K, 1.2, .5, .38, .7, 0x6fc6c0); can.position.y = .005;
+            K.box(1.2, .03, .06, S(0x5a9a3a, .9), .38, 0, .42); for (let i = 0; i < 8; i++) K.sph(.05, S(0x8a8a80, .9), -.2 + i * .16, .02, .44, 0).scale.y = .5;
+            const br = K.grp(.1, .05, .7); for (let i = 0; i < 6; i++) br.box(.05, .015, .2, S(0x8a6440, .8), -.13 + i * .052, 0, 0); [-1, 1].forEach(a => br.box(.3, .01, .012, S(0x6b4a2f), 0, .06, a * .09));
+            [[.45, .62, .3], [.78, .78, -.2], [.62, .9, .1]].forEach(([x, z, ry]) => { const B = boat(K, x, z, ry); B.g.scale.setScalar(.55); for (let i = 0; i < 6; i++) durian(B, -.1 + (i % 3) * .08, .07, (Math.floor(i / 3) - .5) * .05, .028); });
+            const bk = K.grp(.25, .02, .9); bk.cyl(.07, .05, .05, S(0x8a6440, .8), 0, 0, 0, 12); for (let i = 0; i < 5; i++) durian(bk, (i % 3 - 1) * .035, .07, (Math.floor(i / 3) - .5) * .04, .028);
+            // Lò bánh: nhà gạch cắt mặt, mái ngói, lò vòm và lò thép, ống khói
+            const H = K.grp(-.38, 0, -.38); const brick = MAT.brick();
+            H.box(1.1, .04, .9, S(0xb5653e, .85), 0, 0, 0);
+            H.box(1.1, .42, .05, brick, 0, .04, -.43); H.box(.05, .42, .9, brick, -.53, .04, 0); H.box(.05, .26, .5, brick, .53, .04, -.2);
+            const roof = gableRoof(.75, .9, .32, MAT.roofTerra(), 0x7a3a22); roof.position.set(-.18, .46, 0); H.g.add(roof);
+            [[.08, -.3], [.3, -.3]].forEach(([x, z]) => { const ov = H.add(new THREE.Mesh(lathe('piaKiln', [[0, 0], [.13, 0], [.14, .1], [.11, .2], [.05, .25], [0, .26]], 16), S(0xb0643a, .85)), x, .04, z); const f = H.box(.07, .06, .01, c4('fireM', () => new THREE.MeshStandardMaterial({ color: 0xff7a1a, emissive: 0xff5a00, emissiveIntensity: 1.3 })), x, .06, z + .135); animatedElements.push({ type: 'FN', fn: t => { f.scale.y = .8 + Math.abs(Math.sin(t * 7 + x * 9)) * .4; } }); H.cyl(.025, .025, .38, S(0x8a5a3a, .8), x, .2, z - .05, 8); smoke(H, x, .6, z - .05); });
+            H.box(.18, .22, .16, S(0x9aa0a6, .35, .6), .45, .04, -.15); H.box(.1, .06, .01, c4('fireM', () => new THREE.MeshStandardMaterial({ color: 0xff7a1a, emissive: 0xff5a00, emissiveIntensity: 1.3 })), .45, .1, -.065); H.cyl(.02, .02, .35, S(0x7a8088, .4, .6), .45, .26, -.18, 8); smoke(H, .45, .65, -.18);
+            for (let i = 0; i < 4; i++) { const tx = -.38 + (i % 2) * .3, tz = -.05 + Math.floor(i / 2) * .28; H.box(.24, .02, .14, S(0x8a6a3a, .8), tx, .12, tz); [-1, 1].forEach(a => [-1, 1].forEach(b => H.box(.012, .12, .012, S(0x6b4a2f), tx + a * .1, .04, tz + b * .055))); for (let j = 0; j < 6; j++) H.cyl(.018, .018, .012, S(0xe8c070, .6), tx - .07 + (j % 3) * .07, .14, tz - .03 + Math.floor(j / 3) * .06, 10); }
+            for (let i = 0; i < 3; i++) H.cyl(.05, .05, .1 + i * .05, S(0xa07a4a, .8), -.45, .04, -.35 + i * .1, 10);
+            crowd(H, [[-.38, -.15], [-.08, -.15], [-.38, .13], [-.08, .13], [.2, -.05], [-.25, .3]], { hat: false });
+            [[.2, -.12], [.32, .05]].forEach(([x, z]) => person(H, x, z, { hat: false, col: 0xf2f2f2 }));
+            // Xe máy giao bánh với thùng hàng đỏ vàng
+            [[-.72, .32, .1], [-.45, .72, -.2]].forEach(([x, z, ry]) => { const M = K.grp(x, 0, z, ry); M.box(.22, .04, .06, S(0xc62828, .5), 0, .05, 0); [-1, 1].forEach(a => { const w2 = M.cyl(.04, .04, .02, S(0x111111), a * .09, .04, 0, 12); w2.rotation.x = Math.PI / 2; w2.position.set(a * .09, .04, 0); }); person(M, .02, 0, { s: .8, hat: false }).g.position.y = .05; const cart = M.grp(-.2, 0, 0); cart.box(.16, .02, .14, S(0x6b4a2f, .8), 0, .05, 0); for (let i = 0; i < 6; i++) cart.box(.06, .05, .06, S(i % 2 ? 0xd62828 : 0xf2c230, .6), -.04 + (i % 2) * .07, .07 + Math.floor(i / 4) * .05, (Math.floor(i / 2) % 2 - .5) * .07); });
+            // Chồng bánh pía khổng lồ (một chiếc cắt lộ nhân đậu xanh, lòng đỏ trứng muối) + thang + du khách
+            const P = K.grp(.55, 0, -.42, 0, 1.2); const crust = TX('piaTop', 128, 128, (g, w, h) => { const gr = g.createRadialGradient(64, 64, 10, 64, 64, 64); gr.addColorStop(0, '#e9b04a'); gr.addColorStop(1, '#b8792a'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#a8191a'; g.font = '900 30px "Baloo 2", Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Pía', 64, 66); g.strokeStyle = '#b8231e'; g.lineWidth = 3; g.beginPath(); g.arc(64, 64, 44, 0, 6.28); g.stroke(); }, 1, 1, { roughness: .6 });
+            const side = S(0xd9b06a, .7), fill = S(0xd6c04a, .8), yolk = S(0xf07a10, .5);
+            P.add(new THREE.Mesh(new THREE.CylinderGeometry(.26, .26, .14, 28), [side, crust, side]), 0, .07, .05);
+            P.add(new THREE.Mesh(new THREE.CylinderGeometry(.24, .24, .13, 28), [side, crust, side]), -.04, .205, .04).rotation.y = .4;
+            const fillD = c4('piaFill', () => new THREE.MeshStandardMaterial({ color: 0xd8c24a, roughness: .8, side: THREE.DoubleSide }));
+            const yolkD = c4('piaYolk', () => new THREE.MeshStandardMaterial({ color: 0xf07a10, roughness: .5, side: THREE.DoubleSide }));
+            const C = P.grp(.02, .34, .05, 1.2), END = Math.PI * 1.45, r0 = .23, h0 = .13;
+            C.add(new THREE.Mesh(new THREE.CylinderGeometry(r0, r0, h0, 28, 1, false, 0, END), [side, crust, side]), 0, h0 / 2, 0);
+            [0, END].forEach(ang => {
+                const f = C.add(new THREE.Mesh(new THREE.PlaneGeometry(r0, h0), fillD), Math.sin(ang) * r0 / 2, h0 / 2, Math.cos(ang) * r0 / 2); f.rotation.y = ang - Math.PI / 2;
+                const y = C.add(new THREE.Mesh(new THREE.CircleGeometry(.035, 16), yolkD), Math.sin(ang) * r0 * .5, h0 / 2, Math.cos(ang) * r0 * .5); y.rotation.y = ang - Math.PI / 2; y.translateZ(ang ? -.002 : .002);
+            });
+            const lad = P.grp(-.3, 0, .2, .5); [-1, 1].forEach(a => { const r = lad.box(.012, .5, .012, S(0x6b4a2f), a * .04, 0, 0); r.rotation.x = -.35; }); for (let i = 0; i < 6; i++) lad.box(.09, .008, .012, S(0x6b4a2f), 0, .05 + i * .075, -.02 - i * .027);
+            person(P, -.06, .14, { hat: false, col: 0x2f8ad8, s: .75 }).g.position.y = .41; crowd(K, [[.2, -.05], [.35, .0], [.05, .15]], { hat: false });
+            // Cây sầu riêng, dừa, chuối, dây lồng đèn
+            [[.92, -.9], [.2, -.9]].forEach(([x, z]) => { const T = K.grp(x, 0, z); T.cyl(.03, .045, .35, S(0x5a4532, .9), 0, 0, 0, 6); T.sph(.2, S(0x3f7f3a, .85), 0, .45, 0, 1).scale.y = .8; for (let i = 0; i < 6; i++) durian(T, Math.cos(i * 1.1) * .17, .36 + (i % 2) * .08, Math.sin(i * 1.1) * .17, .03); });
+            tree(K, 'PALM', .58, -.95, .85); tree(K, 'PALM', -.15, -.95, .8); banana(K, -.92, .62, .9); banana(K, -.9, -.95, .85);
+            const LC = [0xe53935, 0xfdd835, 0xff7043];
+            for (let i = 0; i < 13; i++) miniLantern(K, .12 + i * .066, .6 - Math.abs(i - 6) * .012, -.15 + i * .013, LC[i % 3]);
+            [.12, .92].forEach(x => K.cyl(.01, .01, .66, S(0x6b4a2f), x, 0, -.15 + (x - .12) * .2, 6));
+            for (let i = 0; i < 8; i++) miniLantern(K, -.1 + i * .06, .3, .5 + (i % 2) * .02, LC[i % 3]); [-.12, .34].forEach(x => K.cyl(.006, .006, .32, S(0x6b4a2f), x, 0, .5, 5));
         },
         // 23. Muối Bạc Liêu
         BAC_LIEU_SALT2: K => {
