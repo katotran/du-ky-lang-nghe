@@ -1,40 +1,70 @@
     /* =================================================================================
-     * L. CƠ CHẾ CỜ TỶ PHÚ 2 BƯỚC: BẢN ĐỒ ĐẤT TRỐNG BAN ĐẦU -> MUA ĐẤT -> XÂY DỰNG LÀNG NGHỀ 3D
-     *    · Lúc đầu toàn bộ 37 ô tài sản (PROPERTY) là Đất Trống (chưa hiện sa bàn làng nghề 3D)
-     *    · Bước 1 (Lần đầu dừng ở ô đất trống): Mua Đất Quy Hoạch -> cắm cờ sở hữu, thu phí thuê đất cơ bản
-     *    · Bước 2 (Khi đi hết vòng và dẫm lại vào ô đất của mình ở lượt sau): Xây Dựng Làng Nghề 3D
-     *      -> Sa bàn kiến trúc 3D của làng nghề mọc lên trên bản đồ, phí dịch vụ tăng mạnh!
+     * L. CƠ CHẾ ĐẦU TƯ & NÂNG CẤP SAO (1-5 SAO)
+     *    · Toàn bộ sa bàn làng nghề 3D hiện đầy đủ ngay từ đầu ván (không còn ô đất trống)
+     *    · [Đầu Tư Làng Nghề]: dừng ở làng chưa có chủ -> làng đạt 1 Sao, thuộc quyền sở hữu, thu phí cơ bản
+     *    · [Nâng Cấp Dịch Vụ]: chủ làng dừng lại ở các lượt sau -> 2 → 3 → 4 → 5 Sao (Chuẩn Quốc Tế)
+     *    · gameState.propertyBuilt[idx] lưu SỐ SAO (1-5) của ô đã có chủ (giữ tên cũ để đồng bộ Online)
      * ================================================================================= */
     gameState.propertyBuilt = {};
     const tileDioramas = {};
-    const tilePlotMarkers = {};
+    const tilePlotMarkers = {};           // không còn dùng (giữ để tương thích)
+    const tileStarSprites = {};
     window.tileDioramas = tileDioramas;
     window.tilePlotMarkers = tilePlotMarkers;
 
-    // 1. Thiết lập bảng giá 2 bước cho từng ô tài sản (PROPERTY)
+    // ---------------------------------------------------------------------------------
+    // BẢNG CẤU HÌNH SAO — chỉnh ở đây để cân bằng game. Mọi giá đều tính theo % GIÁ GỐC (tile.price) của ô
+    //   costMul : chi phí để ĐẠT bậc sao này (bậc 1 = Đầu Tư, bậc 2-5 = Nâng Cấp)
+    //   rentMul : phí trải nghiệm khách trả cho chủ khi làng đang ở bậc này
+    // Mặc định: đầu tư đủ 5 sao ≈ 3.75× giá gốc; phí sao 5 gấp ~4 lần sao 1.
+    // ---------------------------------------------------------------------------------
+    const STAR_CONFIG = {
+        maxStars: 5,
+        levels: [
+            null,
+            { name: 'Cơ bản',        costMul: 1.00, rentMul: 0.30 },
+            { name: 'Khá',           costMul: 0.50, rentMul: 0.45 },
+            { name: 'Tốt',           costMul: 0.60, rentMul: 0.70 },
+            { name: 'Cao cấp',       costMul: 0.75, rentMul: 1.00 },
+            { name: 'Chuẩn Quốc Tế', costMul: 0.90, rentMul: 1.25 }
+        ]
+    };
+    window.STAR_CONFIG = STAR_CONFIG;
+    const round5 = v => Math.max(5, Math.round(v / 5) * 5);
+
     BOARD_TILES.forEach(t => {
         if (t.type === 'PROPERTY') {
-            t.landPrice = t.price;
-            t.buildCost = Math.round(t.price * 0.65 / 5) * 5;
-            t.landRent = Math.max(15, Math.round(t.price * 0.3 / 5) * 5);
-            t.builtRent = Math.round(t.price * 0.85 / 5) * 5;
-            t.rent = t.landRent;
+            t.starCost = [0];
+            t.starRent = [0];
+            for (let s = 1; s <= STAR_CONFIG.maxStars; s++) {
+                t.starCost[s] = round5(t.price * STAR_CONFIG.levels[s].costMul);
+                t.starRent[s] = round5(t.price * STAR_CONFIG.levels[s].rentMul);
+            }
+            t.rent = t.starRent[1];
         }
     });
 
-    function isTileBuilt(idx) {
-        return !!(gameState.propertyBuilt && gameState.propertyBuilt[idx]);
+    // Số sao hiện tại của ô (0 = chưa có chủ)
+    function starsOf(idx) {
+        if (gameState.propertyOwners[idx] === undefined) return 0;
+        const n = +(gameState.propertyBuilt && gameState.propertyBuilt[idx]) || 1;
+        return Math.max(1, Math.min(STAR_CONFIG.maxStars, n));
     }
+    window.starsOf = starsOf;
+    const starText = n => '★'.repeat(n);
     function propertyValueOf(idx) {
         const t = BOARD_TILES[idx];
         if (!t || t.type !== 'PROPERTY') return 0;
-        return t.price + (isTileBuilt(idx) ? t.buildCost : 0);
+        let v = 0;
+        for (let s = 1; s <= starsOf(idx); s++) v += t.starCost[s];
+        return v;
     }
     function currentRentOf(idx) {
         const t = BOARD_TILES[idx];
         if (!t || t.type !== 'PROPERTY') return 0;
-        return isTileBuilt(idx) ? t.builtRent : t.landRent;
+        return t.starRent[Math.max(1, starsOf(idx))];
     }
+
 
     // 2. Giữ từng sa bàn làng nghề thành nhóm riêng khi gộp khối (mergeStaticMeshes)
     //    để có thể ẩn lúc đầu và bật hiệu ứng mọc 3D khi xây dựng làng nghề
@@ -48,9 +78,55 @@
         return g;
     };
 
-    // 3. Mô hình 3D Ô Đất Trống & Khu Đất Đã Mua Chờ Xây: xem createPlotMarker3D trong k7_plots.js
 
-    // 4. Cập nhật huy hiệu 3D phía trước mỗi ô theo trạng thái (Đất trống / Đã mua đất / Đã xây làng nghề)
+    // 3. Sao vàng lơ lửng phía trên mô hình làng (1-5 sao) để mọi người nhìn là biết cấp độ
+    function makeStarTexture(n) {
+        const c = document.createElement('canvas');
+        c.width = 400; c.height = 96;
+        const g = c.getContext('2d');
+        const R = 34, gap = 76, x0 = 200 - (n - 1) * gap / 2;
+        for (let i = 0; i < n; i++) {
+            const cx = x0 + i * gap, cy = 50;
+            g.beginPath();
+            for (let k = 0; k < 10; k++) {
+                const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? R * 0.46 : R;
+                g[k ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+            }
+            g.closePath();
+            const grad = g.createLinearGradient(0, cy - R, 0, cy + R);
+            grad.addColorStop(0, '#fff3a6'); grad.addColorStop(1, '#f5a512');
+            g.fillStyle = grad; g.fill();
+            g.lineJoin = 'round'; g.lineWidth = 6; g.strokeStyle = '#8a4b05'; g.stroke();
+        }
+        return new THREE.CanvasTexture(c);
+    }
+    function updateTileStars(idx, pulse) {
+        const item = tileLabelSprites[idx];
+        if (!item || !item.sprite || !item.sprite.parent) return;
+        const n = starsOf(idx);
+        let sp = tileStarSprites[idx];
+        if (n === 0) { if (sp) sp.visible = false; return; }
+        if (!sp) {
+            sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthWrite: false }));
+            sp.position.set(0, 2.75, 0.25);
+            sp.renderOrder = 5;
+            item.sprite.parent.add(sp);
+            tileStarSprites[idx] = sp;
+            gsap.to(sp.position, { y: 2.95, duration: 1.3, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+        }
+        const old = sp.material.map;
+        sp.material.map = makeStarTexture(n);
+        sp.material.needsUpdate = true;
+        if (old && old.dispose) old.dispose();
+        const sx = 1.68, sy = 0.4;   // 400x96 px; các sao luôn cùng cỡ, căn giữa
+        sp.scale.set(sx, sy, 1);
+        sp.visible = true;
+        if (pulse) {
+            gsap.fromTo(sp.scale, { x: sx * 1.8, y: sy * 1.8 }, { x: sx, y: sy, duration: 0.8, ease: 'elastic.out(1,0.5)' });
+        }
+    }
+
+    // 4. Cập nhật huy hiệu 3D phía trước mỗi ô theo trạng thái (Chưa có chủ / n Sao)
     function updateTile3DBadge(idx) {
         const item = tileLabelSprites[idx];
         const tile = BOARD_TILES[idx];
@@ -58,7 +134,7 @@
 
         const ownerId = gameState.propertyOwners[idx];
         const owner = ownerId !== undefined ? PLAYERS[ownerId] : null;
-        const built = isTileBuilt(idx);
+        const n = starsOf(idx);
         const shortName = tile.name.replace(/Làng |Vườn |Cánh Đồng |Đồi /g, '');
 
         const c = document.createElement('canvas');
@@ -67,8 +143,8 @@
         const ctx = c.getContext('2d');
 
         ctx.fillStyle = 'rgba(28, 18, 10, 0.9)';
-        ctx.strokeStyle = built ? '#fde047' : (owner ? owner.color : '#fbbf24');
-        ctx.lineWidth = built ? 8 : 6;
+        ctx.strokeStyle = n >= 5 ? '#fde047' : (owner ? owner.color : '#fbbf24');
+        ctx.lineWidth = 4 + n;
         ctx.beginPath();
         ctx.roundRect(6, 8, 372, 96, 48);
         ctx.fill();
@@ -80,29 +156,25 @@
         ctx.fill();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 30px "Be Vietnam Pro", sans-serif';
+        ctx.font = '900 30px "Nunito", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(built ? '🏯' : `${idx}`, 54, 58);
+        ctx.fillText(`${idx}`, 54, 58);
 
         ctx.textAlign = 'left';
         ctx.fillStyle = '#fef3c7';
-        ctx.font = '800 25px "Be Vietnam Pro", sans-serif';
+        ctx.font = '800 25px "Nunito", sans-serif';
         ctx.fillText(shortName.slice(0, 16), 104, tile.type === 'PROPERTY' ? 42 : 58);
 
         if (tile.type === 'PROPERTY') {
-            if (owner === null) {
+            if (n === 0) {
                 ctx.fillStyle = '#6ee7b7';
-                ctx.font = '700 21px "Be Vietnam Pro", sans-serif';
-                ctx.fillText(`Đất trống: ${tile.price}đ`, 104, 76);
-            } else if (!built) {
-                ctx.fillStyle = '#fcd34d';
-                ctx.font = '700 20px "Be Vietnam Pro", sans-serif';
-                ctx.fillText(`Đất ${owner.shortName} • Thuê ${tile.landRent}đ`, 104, 76);
+                ctx.font = '700 21px "Nunito", sans-serif';
+                ctx.fillText(`Đầu tư: ${tile.starCost[1]}đ`, 104, 76);
             } else {
                 ctx.fillStyle = '#fde047';
-                ctx.font = '800 20px "Be Vietnam Pro", sans-serif';
-                ctx.fillText(`Làng nghề • Phí ${tile.builtRent}đ`, 104, 76);
+                ctx.font = '800 20px "Nunito", sans-serif';
+                ctx.fillText(`${starText(n)} ${owner.shortName} • Phí ${tile.starRent[n]}đ`, 104, 76);
             }
         }
 
@@ -112,81 +184,35 @@
         if (oldMap && oldMap.dispose) oldMap.dispose();
     }
 
-    // 5. Đồng bộ trạng thái 3D của 1 ô (Ẩn/Hiện sa bàn Làng nghề 3D & Cọc mốc đất trống)
-    function syncTile3DState(tileIndex, animateBuild) {
+    // 5. Đồng bộ trạng thái 3D của 1 ô (mô hình luôn hiện; sao & huy hiệu theo cấp)
+    //    animate: 'INVEST' (vừa đầu tư 1 sao) | 'UPGRADE' (vừa nâng sao) | false
+    function syncTile3DState(tileIndex, animate) {
         const tile = BOARD_TILES[tileIndex];
         if (!tile || tile.type !== 'PROPERTY') return;
 
         tile.rent = currentRentOf(tileIndex);
         const ownerId = gameState.propertyOwners[tileIndex];
-        const built = isTileBuilt(tileIndex);
         const d = tileDioramas[tileIndex];
-        const pm = tilePlotMarkers[tileIndex];
-
-        if (ownerId === undefined) {
-            if (d) d.visible = false;
-            if (pm) {
-                pm.visible = true;
-                pm.userData.unowned.visible = true;
-                pm.userData.owned.visible = false;
-            }
-        } else if (!built) {
-            if (d) d.visible = false;
-            if (pm) {
-                pm.visible = true;
-                pm.userData.unowned.visible = false;
-                pm.userData.owned.visible = true;
-                const owner = PLAYERS[ownerId];
-                if (owner && pm.userData.ownerTrimMat) {
-                    pm.userData.ownerTrimMat.color.setHex(owner.hex);
-                }
-                if (animateBuild === 'LAND') {
-                    pm.userData.owned.scale.set(0.01, 0.01, 0.01);
-                    gsap.to(pm.userData.owned.scale, {
-                        x: 1, y: 1, z: 1, duration: 0.65, ease: 'back.out(1.6)',
-                        onComplete: () => { if (renderer && renderer.shadowMap) renderer.shadowMap.needsUpdate = true; }
-                    });
-                } else {
-                    pm.userData.owned.scale.set(1, 1, 1);
-                }
-            }
-        } else {
-            if (pm) pm.visible = false;
-            if (d) {
-                d.visible = true;
-                if (animateBuild === 'VILLAGE' || animateBuild === true) {
-                    d.scale.set(0.01, 0.01, 0.01);
-                    gsap.to(d.scale, {
-                        x: 0.95, y: 0.95, z: 0.95,
-                        duration: 0.95,
-                        ease: 'elastic.out(1, 0.55)',
-                        onUpdate: () => { if (renderer && renderer.shadowMap) renderer.shadowMap.needsUpdate = true; },
-                        onComplete: () => { if (renderer && renderer.shadowMap) renderer.shadowMap.needsUpdate = true; }
-                    });
-                    const owner = PLAYERS[ownerId];
-                    if (owner) tileCelebrate(tileIndex, owner.hex);
-                    try {
-                        const topPos = tileTop(tileIndex);
-                        ring(topPos, 0xfacc15, 1600, 2.6);
-                        burstSprites(topPos.clone().add(new THREE.Vector3(0, 0.5, 0)), ['🏗️', '🏯', '✨', tile.icon || '🏺'], 16, { speed: 2.0, life: 1900 });
-                    } catch (e) {}
-                } else {
-                    d.scale.setScalar(0.95);
-                }
-            }
-            // Thêm đỉnh sao vàng trên cờ thương hiệu khi đã xây dựng Làng nghề
-            const fg = ownerFlags[tileIndex];
-            if (fg && !fg.userData.hasStar) {
-                const star = new THREE.Mesh(
-                    new THREE.OctahedronGeometry(0.16, 0),
-                    new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0xf59e0b, emissiveIntensity: 0.6, metalness: 0.5, roughness: 0.2 })
-                );
-                star.position.set(0, 1.78, 0);
-                fg.add(star);
-                fg.userData.hasStar = true;
-            }
+        if (d) {
+            d.visible = true;
+            if (!animate && d.scale.x !== 0.95) d.scale.setScalar(0.95);
+        }
+        const lvl = starsOf(tileIndex);
+        if (animate && d && lvl > 0) {
+            gsap.fromTo(d.scale, { x: 0.95, y: 0.95, z: 0.95 }, {
+                x: 1.06, y: 1.1, z: 1.06, duration: 0.28, yoyo: true, repeat: 1, ease: 'power2.out',
+                onComplete: () => { d.scale.setScalar(0.95); if (renderer && renderer.shadowMap) renderer.shadowMap.needsUpdate = true; }
+            });
+            const owner = PLAYERS[ownerId];
+            if (owner) tileCelebrate(tileIndex, owner.hex);
+            try {
+                const topPos = tileTop(tileIndex);
+                ring(topPos, 0xfacc15, 1600, 2.6);
+                burstSprites(topPos.clone().add(new THREE.Vector3(0, 0.5, 0)), ['⭐', '✨', tile.icon || '🏺'], lvl >= 5 ? 22 : 12, { speed: 2.0, life: 1900 });
+            } catch (e) {}
         }
 
+        updateTileStars(tileIndex, !!animate);
         updateTile3DBadge(tileIndex);
         if (renderer && renderer.shadowMap) renderer.shadowMap.needsUpdate = true;
     }
@@ -196,7 +222,7 @@
     const _spawnBanner0 = spawnOwnerBannerOnTile;
     spawnOwnerBannerOnTile = function (tileIndex, ownerId) {
         _spawnBanner0(tileIndex, ownerId);
-        syncTile3DState(tileIndex, isTileBuilt(tileIndex) ? false : 'LAND');
+        syncTile3DState(tileIndex, false);
     };
 
     const _removeBanner0 = removeOwnerBannerFromTile;
@@ -215,36 +241,39 @@
         };
     }
 
-    // 8. BƯỚC 1: MUA ĐẤT QUY HOẠCH (Khi dừng ở ô đất trống chưa có chủ)
+
+    // 8. [ĐẦU TƯ LÀNG NGHỀ] — dừng ở làng chưa có chủ: đạt 1 Sao, thuộc quyền sở hữu, bắt đầu thu phí
     completePropertyPurchase = function (player, tile, pricePaid) {
         player.cash -= pricePaid;
         if (!player.properties.includes(tile.index)) player.properties.push(tile.index);
         gameState.propertyOwners[tile.index] = player.id;
-        delete gameState.propertyBuilt[tile.index];
-        tile.rent = tile.landRent;
+        gameState.propertyBuilt[tile.index] = 1;
+        tile.rent = tile.starRent[1];
 
         playSFX('coin');
         spawnOwnerBannerOnTile(tile.index, player.id);
+        syncTile3DState(tile.index, 'INVEST');
         updateAllHUD();
         updateTileInspector(tile.index);
 
-        addLog(`🏳️ <b>${player.shortName}</b> chi <b>${pricePaid} đồng</b> mua đất quy hoạch tại <b>${tile.name} (${tile.region})</b>! <i>(Quay lại ô này ở vòng sau để Xây dựng Làng nghề 3D)</i>`, '🌱', 'text-emerald-300 font-semibold');
-        showBanner(`${player.shortName} đã mua đất ${tile.name}!`, '🏳️', 2000);
+        addLog(`⭐ <b>${player.shortName}</b> chi <b>${pricePaid} đồng</b> đầu tư <b>${tile.name} (${tile.region})</b> đạt <b>1 Sao</b>! Phí trải nghiệm <b>${tile.starRent[1]}đ</b>. <i>(Quay lại ô này ở lượt sau để Nâng Cấp Dịch Vụ lên tối đa 5 Sao)</i>`, '🌱', 'text-emerald-300 font-semibold');
+        showBanner(`${player.shortName} đầu tư ${tile.name} ★`, '⭐', 2000);
     };
 
     handleUnownedProperty = withNetRouting(async function (player, tile) {
         const hasBargainCard = player.skills.includes('THANH_MAC_CA');
-        const discountedPrice = Math.round(tile.price * 0.7);
+        const baseCost = tile.starCost[1];
+        const discountedPrice = Math.round(baseCost * 0.7);
 
         if (player.isNPC) {
             await sleep(900);
-            let finalPrice = player.discountActive ? discountedPrice : tile.price;
+            let finalPrice = player.discountActive ? discountedPrice : baseCost;
 
             if (!player.discountActive && hasBargainCard && player.cash >= discountedPrice + 60) {
                 const sIdx = player.skills.indexOf('THANH_MAC_CA');
                 player.skills.splice(sIdx, 1);
                 finalPrice = discountedPrice;
-                addLog(`<b>${player.shortName}</b> tung thẻ <b>"Thánh Mặc Cả"</b> giảm 30% giá mua đất ${tile.name} còn <b>${finalPrice} đồng</b>!`, '🏷️', 'text-amber-300');
+                addLog(`<b>${player.shortName}</b> tung thẻ <b>"Thánh Mặc Cả"</b> giảm 30% vốn đầu tư ${tile.name} còn <b>${finalPrice} đồng</b>!`, '🏷️', 'text-amber-300');
             }
 
             if (player.cash - finalPrice >= 70) {
@@ -252,36 +281,37 @@
                 completePropertyPurchase(player, tile, finalPrice);
                 await sleep(1000);
             } else {
-                addLog(`<b>${player.shortName}</b> cân nhắc dòng tiền và quyết định chưa mua đất <b>${tile.name}</b>.`, '🤔');
+                addLog(`<b>${player.shortName}</b> cân nhắc dòng tiền và quyết định chưa đầu tư <b>${tile.name}</b>.`, '🤔');
                 showBanner(`${player.shortName} giữ tiền mặt dự phòng`, '🤔', 1400);
                 await sleep(800);
             }
             return;
         }
 
-        const currentPrice = player.discountActive ? discountedPrice : tile.price;
+        const currentPrice = player.discountActive ? discountedPrice : baseCost;
         const canAfford = player.cash >= currentPrice;
+        const ladder = [1, 2, 3, 4, 5].map(s => `<span class="inline-block mr-1.5"><b>${s}★</b> ${tile.starRent[s]}đ</span>`).join('');
 
         return new Promise(resolve => {
             openModal(`
                 <div class="text-center">
-                    <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-100 text-xs font-extrabold uppercase tracking-wider">🌱 Bước 1: Ô Đất Trống • ${tile.region}</span>
+                    <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-100 text-xs font-extrabold uppercase tracking-wider">🌱 Làng Nghề Chưa Có Chủ • ${tile.region}</span>
                     <div class="text-5xl my-3">${tile.icon}</div>
                     <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">${tile.name}</h2>
-                    <p class="text-xs text-amber-900/85 mt-1">Mảnh đất này đang trống! Hãy <b>Mua đất</b> để cắm cờ chủ quyền. Khi đi hết vòng và quay lại ô đất này ở lượt sau, bạn sẽ được <b>Xây dựng Làng nghề 3D</b>!</p>
+                    <p class="text-xs text-amber-900/85 mt-1">Hãy <b>Đầu Tư Làng Nghề</b> để đạt <b>1 Sao</b>, cắm cờ sở hữu và bắt đầu thu phí trải nghiệm. Ở các lượt sau, quay lại để <b>Nâng Cấp Dịch Vụ</b> lên tối đa <b>5 Sao</b>!</p>
 
                     <div class="bg-amber-900/10 border border-amber-800/30 rounded-2xl p-3.5 my-4 text-left space-y-2 text-xs">
                         <div class="flex justify-between items-center">
-                            <span class="font-semibold text-amber-900">🌱 Giá Mua Đất (Bước 1):</span>
+                            <span class="font-semibold text-amber-900">⭐ Vốn Đầu Tư (đạt 1 Sao):</span>
                             <span class="font-black text-base text-emerald-800">${currentPrice} đồng ${player.discountActive ? '(Đã giảm 30%)' : ''}</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="font-semibold text-amber-900">🏳️ Phí cho thuê đất trống:</span>
-                            <span class="font-bold text-amber-800">${tile.landRent} đồng / lượt khách</span>
+                            <span class="font-semibold text-amber-900">💰 Phí trải nghiệm 1 Sao:</span>
+                            <span class="font-bold text-amber-800">${tile.starRent[1]} đồng / lượt khách</span>
                         </div>
-                        <div class="flex justify-between items-center border-t border-amber-800/15 pt-1.5">
-                            <span class="font-semibold text-amber-900">🏯 Xây Làng nghề ở vòng sau (Bước 2):</span>
-                            <span class="font-extrabold text-red-700">+${tile.buildCost}đ → Thu ${tile.builtRent}đ/lượt</span>
+                        <div class="border-t border-amber-800/15 pt-1.5">
+                            <div class="font-semibold text-amber-900 mb-0.5">📈 Phí theo cấp sao:</div>
+                            <div class="font-extrabold text-red-700 leading-5">${ladder}</div>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="font-semibold text-amber-900">🛠️ Công cụ làng nghề:</span>
@@ -292,11 +322,11 @@
                     <div class="flex flex-col sm:flex-row gap-2.5 justify-center mt-4">
                         ${hasBargainCard && !player.discountActive ? `
                             <button id="modal-btn-bargain" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold px-4 py-2.5 rounded-xl border-2 border-amber-700 text-xs shadow">
-                                🏷️ Dùng "Thánh Mặc Cả" (Mua đất ${discountedPrice}đ)
+                                🏷️ Dùng "Thánh Mặc Cả" (Đầu tư ${discountedPrice}đ)
                             </button>
                         ` : ''}
                         <button id="modal-btn-buy" ${canAfford ? '' : 'disabled'} class="wood-btn px-5 py-2.5 rounded-xl font-extrabold text-sm flex-1">
-                            🌱 Mua Đất Quy Hoạch (${currentPrice}đ)
+                            ⭐ Đầu Tư Làng Nghề (${currentPrice}đ)
                         </button>
                         <button id="modal-btn-pass" class="bg-stone-300 hover:bg-stone-400 text-stone-800 font-bold px-4 py-2.5 rounded-xl text-sm">
                             Bỏ Qua
@@ -327,40 +357,51 @@
 
             document.getElementById('modal-btn-pass').onclick = () => {
                 closeModal();
-                addLog(`<b>${player.shortName}</b> quyết định giữ tiền mặt, chưa mua đất tại <b>${tile.name}</b>.`, '👣');
+                addLog(`<b>${player.shortName}</b> quyết định giữ tiền mặt, chưa đầu tư <b>${tile.name}</b>.`, '👣');
                 resolve();
             };
         });
     });
 
-    // 9. BƯỚC 2: XÂY DỰNG LÀNG NGHỀ 3D (Khi đi hết vòng và dẫm lại đúng vào ô đất của mình)
+    // 9. [NÂNG CẤP DỊCH VỤ] — chủ làng dừng lại ở lượt sau: 2 → 3 → 4 → 5 Sao
     function completeVillageBuild(player, tile, costPaid) {
+        const nextStar = Math.min(STAR_CONFIG.maxStars, starsOf(tile.index) + 1);
         player.cash -= costPaid;
-        gameState.propertyBuilt[tile.index] = true;
-        tile.rent = tile.builtRent;
+        gameState.propertyBuilt[tile.index] = nextStar;
+        tile.rent = tile.starRent[nextStar];
 
         playSFX('build');
-        syncTile3DState(tile.index, 'VILLAGE');
+        syncTile3DState(tile.index, 'UPGRADE');
         updateAllHUD();
         updateTileInspector(tile.index);
 
-        addLog(`🏯 <b>${player.shortName}</b> đầu tư <b>${costPaid} đồng</b> chính thức <b>Xây dựng ${tile.name}</b>! Mô hình kiến trúc 3D đã hiện lên trên bản đồ (Phí dịch vụ tăng lên <b>${tile.builtRent}đ</b>)!`, '🏗️', 'text-amber-300 font-semibold');
-        showBanner(`🏯 Đã xây dựng ${tile.name}!`, tile.icon, 2400);
+        const lvlName = STAR_CONFIG.levels[nextStar].name;
+        addLog(`⭐ <b>${player.shortName}</b> chi <b>${costPaid} đồng</b> nâng cấp <b>${tile.name}</b> lên <b>${nextStar} Sao</b> (${lvlName})! Phí trải nghiệm tăng lên <b>${tile.starRent[nextStar]}đ</b>${nextStar >= STAR_CONFIG.maxStars ? ' — <b>CHUẨN QUỐC TẾ!</b>' : ''}`, '🏗️', 'text-amber-300 font-semibold');
+        showBanner(`${starText(nextStar)} ${tile.name} lên ${nextStar} Sao!`, tile.icon, 2400);
     }
     window.completeVillageBuild = completeVillageBuild;
 
     const handleOwnPropertyBuild = withNetRouting(async function (player, tile) {
+        const cur = starsOf(tile.index);
+        if (cur >= STAR_CONFIG.maxStars) {
+            tileCelebrate(tile.index, player.hex);
+            addLog(`🏯 <b>${player.shortName}</b> ghé thăm Làng nghề <b>${tile.name}</b> đã đạt <b>5 Sao Chuẩn Quốc Tế</b> của chính mình.`, '🏡', 'text-emerald-200');
+            await sleep(600);
+            return;
+        }
+        const next = cur + 1;
+        const upCost = tile.starCost[next];
         const hasBargainCard = player.skills.includes('THANH_MAC_CA');
-        const discountedBuild = Math.round(tile.buildCost * 0.7);
+        const discountedBuild = Math.round(upCost * 0.7);
 
         if (player.isNPC) {
             await sleep(900);
-            let finalCost = player.discountActive ? discountedBuild : tile.buildCost;
+            let finalCost = player.discountActive ? discountedBuild : upCost;
             if (!player.discountActive && hasBargainCard && player.cash >= discountedBuild + 50) {
                 const sIdx = player.skills.indexOf('THANH_MAC_CA');
                 player.skills.splice(sIdx, 1);
                 finalCost = discountedBuild;
-                addLog(`<b>${player.shortName}</b> dùng thẻ <b>"Thánh Mặc Cả"</b> giảm 30% chi phí xây dựng ${tile.name} còn <b>${finalCost} đồng</b>!`, '🏷️', 'text-amber-300');
+                addLog(`<b>${player.shortName}</b> dùng thẻ <b>"Thánh Mặc Cả"</b> giảm 30% chi phí nâng cấp ${tile.name} còn <b>${finalCost} đồng</b>!`, '🏷️', 'text-amber-300');
             }
 
             if (player.cash - finalCost >= 50) {
@@ -368,50 +409,51 @@
                 completeVillageBuild(player, tile, finalCost);
                 await sleep(1100);
             } else {
-                addLog(`<b>${player.shortName}</b> quay lại mảnh đất <b>${tile.name}</b> nhưng tạm giữ tiền mặt, hẹn lượt sau xây dựng Làng nghề.`, '🏗️');
-                showBanner(`${player.shortName} chưa đủ vốn xây ${tile.name}`, '⏳', 1500);
+                addLog(`<b>${player.shortName}</b> ghé <b>${tile.name}</b> (${cur} Sao) nhưng tạm giữ tiền mặt, hẹn lượt sau nâng cấp.`, '🏗️');
+                showBanner(`${player.shortName} chưa đủ vốn nâng cấp ${tile.name}`, '⏳', 1500);
                 await sleep(700);
             }
             return;
         }
 
-        const currentCost = player.discountActive ? discountedBuild : tile.buildCost;
+        const currentCost = player.discountActive ? discountedBuild : upCost;
         const canAfford = player.cash >= currentCost;
 
         return new Promise(resolve => {
             openModal(`
                 <div class="text-center">
-                    <span class="px-3 py-1 rounded-full bg-amber-600 text-amber-950 text-xs font-extrabold uppercase tracking-wider">🏗️ Bước 2: Xây Dựng Làng Nghề 3D • Đất Của Bạn</span>
+                    <span class="px-3 py-1 rounded-full bg-amber-600 text-amber-950 text-xs font-extrabold uppercase tracking-wider">⭐ Nâng Cấp Dịch Vụ • Làng Của Bạn</span>
                     <div class="text-5xl my-3">${tile.icon}</div>
-                    <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">Khởi Công ${tile.name}</h2>
-                    <p class="text-xs text-amber-900/85 mt-1">Bạn đã hoàn thành vòng đi và quay trở lại mảnh đất của mình! Hãy đầu tư <b>Xây dựng Làng nghề</b> để dựng mô hình kiến trúc 3D trên bản đồ và nâng cấp phí dịch vụ.</p>
+                    <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">${tile.name}</h2>
+                    <div class="text-2xl font-black text-amber-500 tracking-widest">${starText(cur)}<span class="text-amber-950/25">${'★'.repeat(STAR_CONFIG.maxStars - cur)}</span></div>
+                    <p class="text-xs text-amber-900/85 mt-1">Làng đang ở <b>${cur} Sao</b>. Nâng cấp lên <b>${next} Sao${next >= STAR_CONFIG.maxStars ? ' (Chuẩn Quốc Tế)' : ''}</b> để tăng phí trải nghiệm thu từ khách.</p>
 
                     <div class="bg-amber-900/15 border-2 border-amber-700/40 rounded-2xl p-3.5 my-4 text-left space-y-2 text-xs">
                         <div class="flex justify-between items-center">
-                            <span class="font-semibold text-amber-900">🏗️ Chi phí Xây dựng Làng nghề:</span>
+                            <span class="font-semibold text-amber-900">🏗️ Chi phí nâng lên ${next} Sao:</span>
                             <span class="font-black text-base text-emerald-800">${currentCost} đồng ${player.discountActive ? '(Đã giảm 30%)' : ''}</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="font-semibold text-amber-900">📈 Phí thu khách nâng cấp:</span>
-                            <span class="font-extrabold text-red-700">Từ ${tile.landRent}đ → ${tile.builtRent} đồng / lượt</span>
+                            <span class="font-semibold text-amber-900">📈 Phí trải nghiệm:</span>
+                            <span class="font-extrabold text-red-700">${tile.starRent[cur]}đ → ${tile.starRent[next]} đồng / lượt</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="font-semibold text-amber-900">💎 Tổng giá trị di sản sau xây:</span>
-                            <span class="font-bold text-amber-950">${tile.price + tile.buildCost} đồng</span>
+                            <span class="font-semibold text-amber-900">💎 Tổng vốn đã đầu tư sau nâng cấp:</span>
+                            <span class="font-bold text-amber-950">${propertyValueOf(tile.index) + upCost} đồng</span>
                         </div>
                         <div class="pt-1.5 border-t border-amber-800/20 italic text-amber-950">
-                            <b>Tình huống mở khóa khi xây xong:</b> "${tile.situation}"
+                            <b>Tình huống trải nghiệm:</b> "${tile.situation}"
                         </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-2.5 justify-center mt-4">
                         ${hasBargainCard && !player.discountActive ? `
                             <button id="modal-btn-bargain-build" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold px-4 py-2.5 rounded-xl border-2 border-amber-700 text-xs shadow">
-                                🏷️ Dùng "Thánh Mặc Cả" (Xây giá ${discountedBuild}đ)
+                                🏷️ Dùng "Thánh Mặc Cả" (Nâng cấp ${discountedBuild}đ)
                             </button>
                         ` : ''}
                         <button id="modal-btn-build" ${canAfford ? '' : 'disabled'} class="wood-btn px-5 py-2.5 rounded-xl font-extrabold text-sm flex-1">
-                            🏯 Xây Dựng Làng Nghề 3D (${currentCost}đ)
+                            ⭐ Nâng Cấp Dịch Vụ (${currentCost}đ)
                         </button>
                         <button id="modal-btn-pass" class="bg-stone-300 hover:bg-stone-400 text-stone-800 font-bold px-4 py-2.5 rounded-xl text-sm">
                             Để Lượt Sau
@@ -442,7 +484,7 @@
 
             document.getElementById('modal-btn-pass').onclick = () => {
                 closeModal();
-                addLog(`<b>${player.shortName}</b> ghé thăm mảnh đất <b>${tile.name}</b> và để dành vốn xây dựng Làng nghề vào lượt sau.`, '🏡');
+                addLog(`<b>${player.shortName}</b> ghé thăm <b>${tile.name}</b> (${cur} Sao) và để dành vốn nâng cấp vào lượt sau.`, '🏡');
                 resolve();
             };
         });
@@ -451,14 +493,14 @@
 
     // 10. KHÁCH GHÉ THĂM ĐẤT / LÀNG NGHỀ CỦA NGƯỜI KHÁC
     handleVisitorOnOwnedProperty = withNetRouting(async function (visitor, tile, owner) {
-        const built = isTileBuilt(tile.index);
+        const stars = starsOf(tile.index);
         const isDouble = owner.doubleRentTurns > 0;
-        const baseRent = built ? tile.builtRent : tile.landRent;
+        const baseRent = tile.starRent[stars];
         const rentFee = isDouble ? baseRent * 2 : baseRent;
         const matchingToolIdx = visitor.tools.indexOf(tile.toolId);
         const vipSkillIdx = visitor.skills.indexOf('VE_VIP');
         const toolInfo = TOOL_CATEGORIES[tile.toolId];
-        const feeLabel = built ? `phí trải nghiệm Làng nghề ${tile.name}` : `phí thuê đất tại ${tile.name}`;
+        const feeLabel = `phí trải nghiệm Làng nghề ${stars} Sao ${tile.name}`;
 
         if (visitor.isNPC) {
             await sleep(1000);
@@ -487,22 +529,23 @@
         return new Promise(resolve => {
             openModal(`
                 <div class="text-center">
-                    <span class="px-3 py-1 rounded-full ${built ? 'bg-red-800 text-amber-100' : 'bg-amber-800 text-amber-100'} text-xs font-extrabold uppercase">
-                        ${built ? `🏯 Làng Nghề Đã Xây Dựng • Sở hữu bởi ${owner.shortName}` : `🏳️ Đất Đã Có Chủ (Chưa xây Làng nghề) • Sở hữu bởi ${owner.shortName}`}
+                    <span class="px-3 py-1 rounded-full bg-red-800 text-amber-100 text-xs font-extrabold uppercase">
+                        🏯 Làng Nghề ${stars} Sao • Sở hữu bởi ${owner.shortName}
                     </span>
                     <div class="text-5xl my-3">${tile.icon}</div>
                     <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">${tile.name}</h2>
+                    <div class="text-xl font-black text-amber-500 tracking-widest">${starText(stars)}</div>
 
                     <div class="bg-amber-900/15 border-2 border-amber-800/40 rounded-2xl p-4 my-3 text-left">
                         <div class="text-xs font-extrabold uppercase text-amber-900 mb-1">
-                            ${built ? '📜 Tình Huống Trải Nghiệm Làng Nghề:' : '🌱 Khu Đất Quy Hoạch Làng Nghề:'}
+                            📜 Tình Huống Trải Nghiệm Làng Nghề:
                         </div>
                         <p class="text-sm font-semibold text-amber-950 italic">
-                            ${built ? `"${tile.situation}"` : `"Mảnh đất tại ${tile.name} đã thuộc quyền sở hữu của ${owner.shortName} nhưng chưa xây dựng Làng nghề nên chỉ thu phí thuê đất cơ bản."`}
+                            "${tile.situation}"
                         </p>
                         <div class="mt-3 pt-2 border-t border-amber-800/20 flex justify-between items-center text-xs">
                             <span>Công cụ hóa giải: <b>${tile.toolSpec}</b></span>
-                            <span class="text-red-800 font-extrabold text-sm">${built ? 'Phí Làng nghề' : 'Phí thuê đất'}: ${rentFee}đ ${isDouble ? '(x2 Được mùa)' : ''}</span>
+                            <span class="text-red-800 font-extrabold text-sm">Phí ${stars} Sao: ${rentFee}đ ${isDouble ? '(x2 Được mùa)' : ''}</span>
                         </div>
                     </div>
 
@@ -518,7 +561,7 @@
                             </button>
                         ` : ''}
                         <button id="modal-pay-rent" class="wood-btn px-5 py-3 rounded-xl font-extrabold text-sm">
-                            💸 Trả ${built ? 'Phí Dịch Vụ Làng Nghề' : 'Phí Thuê Đất'} (${rentFee} đồng)
+                            💸 Trả Phí Trải Nghiệm ${stars} Sao (${rentFee} đồng)
                         </button>
                     </div>
                 </div>
@@ -571,14 +614,8 @@
             } else if (ownerId !== player.id) {
                 await handleVisitorOnOwnedProperty(player, tile, PLAYERS[ownerId]);
             } else {
-                // Chủ đất dẫm lại vào ô đất của chính mình ở vòng sau!
-                if (!isTileBuilt(tile.index)) {
-                    await handleOwnPropertyBuild(player, tile);
-                } else {
-                    tileCelebrate(tile.index, player.hex);
-                    addLog(`🏯 <b>${player.shortName}</b> ghé thăm Làng nghề <b>${tile.name}</b> trù phú của chính mình.`, '🏡', 'text-emerald-200');
-                    await sleep(600);
-                }
+                // Chủ làng dừng lại ô của mình: Nâng Cấp Dịch Vụ (hoặc đã 5 Sao thì chỉ ghé thăm)
+                await handleOwnPropertyBuild(player, tile);
             }
             return;
         }
@@ -608,12 +645,12 @@
         if (creditor) creditor.cash += payer.cash;
         payer.cash = 0;
         props.forEach(i => {
-            const wasBuilt = isTileBuilt(i);
+            const keptStars = starsOf(i);
             removeOwnerBannerFromTile(i);
             if (creditor) {
                 creditor.properties.push(i);
                 gameState.propertyOwners[i] = creditor.id;
-                if (wasBuilt) gameState.propertyBuilt[i] = true;
+                gameState.propertyBuilt[i] = keptStars;
                 spawnOwnerBannerOnTile(i, creditor.id);
                 syncTile3DState(i, false);
             } else {
@@ -626,7 +663,7 @@
         const pw = playerPawns[payer.id];
         gsap.to(pw.rotation, { y: '+=12', duration: 1.2 });
         gsap.to(pw.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 1.2, ease: 'back.in(2)', onComplete: () => { pw.visible = false; } });
-        addLog(`💥 <b>${payer.shortName}</b> PHÁ SẢN (${why})! ${creditor ? `Toàn bộ tiền và <b>${props.length} ô di sản</b> chuyển cho <b>${creditor.shortName}</b>.` : `<b>${props.length} ô di sản</b> được trả về thị trường thành Đất trống.`}`, '💥', 'text-red-400 font-extrabold');
+        addLog(`💥 <b>${payer.shortName}</b> PHÁ SẢN (${why})! ${creditor ? `Toàn bộ tiền và <b>${props.length} ô di sản</b> chuyển cho <b>${creditor.shortName}</b>.` : `<b>${props.length} ô di sản</b> được trả về thị trường trở lại thị trường chưa có chủ.`}`, '💥', 'text-red-400 font-extrabold');
         showBanner(`${payer.shortName} đã phá sản!`, '💥', 2500);
         updateAllHUD();
         await sleep(1400);
@@ -645,12 +682,12 @@
         return new Promise(resolve => {
             const listHTML = user.properties.map(tIdx => {
                 const t = BOARD_TILES[tIdx];
-                const built = isTileBuilt(tIdx);
+                const stars = starsOf(tIdx);
                 const val = propertyValueOf(tIdx);
                 return `
                     <div class="bg-amber-950/10 border border-amber-800/30 p-3 rounded-xl flex justify-between items-center">
                         <div class="text-left">
-                            <div class="font-bold text-sm text-amber-950">${t.icon} ${t.name} <span class="text-[10px] px-1.5 py-0.5 rounded-full ${built ? 'bg-amber-600 text-white' : 'bg-stone-500 text-white'}">${built ? '🏯 Đã xây Làng nghề' : '🏳️ Đất trống'}</span></div>
+                            <div class="font-bold text-sm text-amber-950">${t.icon} ${t.name} <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-600 text-white">${starText(stars)} ${stars} Sao</span></div>
                             <div class="text-xs text-amber-900/70">Giá trị thu hồi từ Ngân hàng: <b class="text-emerald-800">+${val} đồng</b></div>
                         </div>
                         <button onclick="confirmUserMortgage(${tIdx})" class="wood-btn px-3.5 py-2 rounded-xl text-xs font-extrabold">
@@ -697,8 +734,8 @@
         }
         while (payer.cash < amount && payer.properties.length > 0) {
             if (payer.isNPC) {
-                // NPC ưu tiên bán ô đất chưa xây làng nghề trước
-                payer.properties.sort((a, b) => (isTileBuilt(a) ? 1 : 0) - (isTileBuilt(b) ? 1 : 0));
+                // NPC ưu tiên bán ô ít sao nhất trước
+                payer.properties.sort((a, b) => starsOf(a) - starsOf(b));
                 const soldTileIdx = payer.properties.shift();
                 const soldTile = BOARD_TILES[soldTileIdx];
                 const val = propertyValueOf(soldTileIdx);
@@ -739,12 +776,11 @@
         renderTileArtToCanvas(tile, canvas);
 
         const ownerId = gameState.propertyOwners[tileIndex];
-        const built = isTileBuilt(tileIndex);
+        const stars = starsOf(tileIndex);
         let ownerText = tile.region || 'Ô Chức Năng';
         if (tile.type === 'PROPERTY') {
-            if (ownerId === undefined) ownerText = '🌱 Đất trống chưa mua';
-            else if (!built) ownerText = `🏳️ Đất: ${PLAYERS[ownerId].shortName} (Chờ xây)`;
-            else ownerText = `🏯 Làng nghề: ${PLAYERS[ownerId].shortName}`;
+            if (ownerId === undefined) ownerText = '🌱 Chưa có chủ';
+            else ownerText = `${starText(stars)} ${PLAYERS[ownerId].shortName} (${stars} Sao)`;
         }
 
         document.getElementById('insp-badge').textContent = `#${tileIndex} • ${ownerText}`;
@@ -753,14 +789,14 @@
         const statsEl = document.getElementById('insp-stats');
         if (tile.type === 'PROPERTY') {
             const statusLabel = ownerId === undefined
-                ? `🌱 Đất trống quy hoạch tại ${tile.region}.`
-                : (!built
-                    ? `🏳️ Đất của ${PLAYERS[ownerId].shortName} • Quay lại lượt sau để xây Làng nghề (+${tile.buildCost}đ).`
-                    : `🏯 Làng nghề 3D đã xây dựng bởi ${PLAYERS[ownerId].shortName}.`);
+                ? `🌱 Làng nghề chưa có chủ tại ${tile.region}. Dừng chân để Đầu Tư (${tile.starCost[1]}đ) đạt 1 Sao.`
+                : (stars < STAR_CONFIG.maxStars
+                    ? `${starText(stars)} Của ${PLAYERS[ownerId].shortName} • Chủ làng quay lại để Nâng Cấp Dịch Vụ lên ${stars + 1} Sao (+${tile.starCost[stars + 1]}đ).`
+                    : `🏯 Của ${PLAYERS[ownerId].shortName} • Đã đạt 5 Sao Chuẩn Quốc Tế.`);
             document.getElementById('insp-desc').textContent = statusLabel;
             statsEl.classList.remove('hidden');
-            document.getElementById('insp-price').textContent = `Đất ${tile.price}đ + Xây ${tile.buildCost}đ`;
-            document.getElementById('insp-rent').textContent = `${built ? tile.builtRent : tile.landRent}đ ${built ? '(Làng nghề)' : '(Đất trống)'}`;
+            document.getElementById('insp-price').textContent = ownerId === undefined ? `Đầu tư ${tile.starCost[1]}đ` : (stars < STAR_CONFIG.maxStars ? `Nâng cấp +${tile.starCost[stars + 1]}đ` : 'Tối đa 5 Sao');
+            document.getElementById('insp-rent').textContent = `${tile.starRent[Math.max(1, stars)]}đ (${Math.max(1, stars)} Sao)`;
             document.getElementById('insp-tool').textContent = `${tile.toolSpec} (${TOOL_CATEGORIES[tile.toolId].shortName})`;
             document.getElementById('insp-situation').textContent = `"${tile.situation}"`;
         } else {
@@ -796,19 +832,19 @@
                 tooltip.classList.add('opacity-100');
 
                 const ownerId = gameState.propertyOwners[tIdx];
-                const built = isTileBuilt(tIdx);
+                const stars = starsOf(tIdx);
                 document.getElementById('tt-badge').textContent = `Ô #${tIdx} • ${tile.region}`;
                 document.getElementById('tt-owner').textContent = ownerId !== undefined
-                    ? (built ? `🏯 Làng nghề: ${PLAYERS[ownerId].shortName}` : `🏳️ Đất: ${PLAYERS[ownerId].shortName}`)
-                    : (tile.type === 'PROPERTY' ? '🌱 Đất trống' : 'Chức năng');
+                    ? `${starText(stars)} ${PLAYERS[ownerId].shortName}`
+                    : (tile.type === 'PROPERTY' ? '🌱 Chưa có chủ' : 'Chức năng');
                 document.getElementById('tt-icon').textContent = tile.icon || '🏯';
                 document.getElementById('tt-name').textContent = tile.name;
                 document.getElementById('tt-sub').textContent = tile.type === 'PROPERTY'
                     ? (ownerId === undefined
-                        ? `Mua đất: ${tile.price}đ • Xây làng nghề: +${tile.buildCost}đ`
-                        : (!built
-                            ? `Thuê đất: ${tile.landRent}đ • Xây làng nghề: +${tile.buildCost}đ`
-                            : `🏯 Phí dịch vụ Làng nghề: ${tile.builtRent}đ`))
+                        ? `Đầu tư 1 Sao: ${tile.starCost[1]}đ • Phí ${tile.starRent[1]}đ`
+                        : (stars < STAR_CONFIG.maxStars
+                            ? `${stars} Sao • Phí ${tile.starRent[stars]}đ • Nâng cấp +${tile.starCost[stars + 1]}đ`
+                            : `🏯 5 Sao Chuẩn Quốc Tế • Phí ${tile.starRent[5]}đ`))
                     : (tile.subtitle || tile.desc.slice(0, 36));
                 return;
             }
@@ -824,11 +860,11 @@
         try {
             const itemsHTML = BOARD_TILES.map(t => {
                 const ownerId = gameState.propertyOwners[t.index];
-                const built = isTileBuilt(t.index);
+                const stars = starsOf(t.index);
                 const ownerBadge = ownerId !== undefined
-                    ? `<span class="text-[9px] px-1.5 py-0.5 rounded-full text-white font-bold" style="background:${PLAYERS[ownerId].color}">${built ? '🏯 ' : '🏳️ '}${PLAYERS[ownerId].shortName}</span>`
+                    ? `<span class="text-[9px] px-1.5 py-0.5 rounded-full text-white font-bold" style="background:${PLAYERS[ownerId].color}">${starText(stars)} ${PLAYERS[ownerId].shortName}</span>`
                     : (t.type === 'PROPERTY'
-                        ? `<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-800/15 text-emerald-900 font-bold">🌱 Đất: ${t.price}đ</span>`
+                        ? `<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-800/15 text-emerald-900 font-bold">🌱 Đầu tư: ${t.starCost[1]}đ</span>`
                         : `<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-800/15 text-amber-900 font-bold">Sự kiện</span>`);
 
                 return `
@@ -838,7 +874,7 @@
                             <span class="text-lg shrink-0">${t.icon}</span>
                             <div class="min-w-0">
                                 <div class="font-extrabold text-[11px] text-amber-950 truncate">${t.name}</div>
-                                <div class="text-[9px] text-amber-800 truncate">${t.region} ${t.type === 'PROPERTY' ? `• Xây +${t.buildCost}đ` : ''}</div>
+                                <div class="text-[9px] text-amber-800 truncate">${t.region} ${t.type === 'PROPERTY' ? `• Phí 1★ ${t.starRent[1]}đ` : ''}</div>
                             </div>
                         </div>
                         <div class="shrink-0">${ownerBadge}</div>
@@ -851,7 +887,7 @@
                     <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3">
                         <div>
                             <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Danh Mục 47 Địa Danh Làng Nghề Việt Nam</h2>
-                            <p class="text-[11px] text-amber-900/80">🌱 Đất trống → 🏳️ Mua đất → 🏯 Quay lại ở vòng sau để Xây dựng Làng nghề 3D!</p>
+                            <p class="text-[11px] text-amber-900/80">⭐ Đầu tư làng nghề (1 Sao) → quay lại ở các lượt sau để Nâng Cấp Dịch Vụ lên 5 Sao!</p>
                         </div>
                         <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button>
                     </div>
@@ -892,14 +928,14 @@
             const p = PLAYERS[+m[1]];
             if (!p) return;
             const totalAsset = netWorth(p);
-            const builtCount = p.properties.filter(i => isTileBuilt(i)).length;
+            const starSum = p.properties.reduce((t, i) => t + starsOf(i), 0);
             const tsEl = card.querySelector('.text-right .text-\\[9px\\] b');
             if (tsEl) tsEl.textContent = `${totalAsset}đ`;
             const barEl = card.querySelector('.h-full.rounded-full');
             if (barEl) barEl.style.width = `${Math.min(100, Math.round((totalAsset / maxAsset) * 100))}%`;
             const statsSpans = card.querySelectorAll('.mt-1.pt-0\\.5 span');
             if (statsSpans.length >= 2) {
-                statsSpans[1].innerHTML = `🏳️<b>${p.properties.length}</b> 🏯<b>${builtCount}</b> 🛠️<b>${p.tools.length}</b> ⚡<b>${p.skills.length}</b>`;
+                statsSpans[1].innerHTML = `🏯<b>${p.properties.length}</b> ⭐<b>${starSum}</b> 🛠️<b>${p.tools.length}</b> ⚡<b>${p.skills.length}</b>`;
             }
         });
     };
@@ -921,28 +957,19 @@
         _applySnapK0(s);
         BOARD_TILES.forEach((t, i) => {
             if (t.type === 'PROPERTY') {
-                const newlyBuilt = !oldBuilt[i] && gameState.propertyBuilt[i];
-                syncTile3DState(i, newlyBuilt ? 'VILLAGE' : false);
+                const was = +oldBuilt[i] || 0, now = +gameState.propertyBuilt[i] || 0;
+                syncTile3DState(i, now > was ? (was ? 'UPGRADE' : 'INVEST') : false);
             }
         });
     };
 
-    // 15. Khởi tạo bản đồ ở trạng thái Đất Trống ngay sau khi init3DScene hoàn tất
+    // 15. Đồng bộ trạng thái ban đầu: mô hình hiện đầy đủ, huy hiệu hiện giá đầu tư
     const _initMonopoly0 = init3DScene;
     init3DScene = function () {
         _initMonopoly0();
         try {
             BOARD_TILES.forEach((tile, idx) => {
-                if (tile.type === 'PROPERTY') {
-                    const d = tileDioramas[idx];
-                    if (d && d.parent) {
-                        const pm = createPlotMarker3D(tile);
-                        pm.position.set(0, 0.15, 0);
-                        d.parent.add(pm);
-                        tilePlotMarkers[idx] = pm;
-                    }
-                    syncTile3DState(idx, false);
-                }
+                if (tile.type === 'PROPERTY') syncTile3DState(idx, false);
             });
             if (renderer && renderer.shadowMap) renderer.shadowMap.needsUpdate = true;
         } catch (e) {

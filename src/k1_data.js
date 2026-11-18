@@ -171,7 +171,7 @@
         TOUR_LIEN_KET: (u, c) => { let s = 0; live().forEach(q => { if (q.id !== u.id) { const k = Math.min(20, q.cash); q.cash -= k; s += k; } }); coin(u, s + 30); return `thu <b>+${s + 30} đồng</b> từ tour liên kết`; },
         SAN_TMDT: (u, c) => { const n = 40 + u.tools.length * 15; coin(u, n); return `nhận <b>+${n} đồng</b> từ sàn TMĐT`; },
         QUY_KHOI_NGHIEP: (u, c) => { coin(u, 120); return 'nhận <b>+120 đồng</b> vốn khởi nghiệp'; },
-        BAO_HIEM_NGHE: (u, c) => { coin(u, 60); u.discountActive = true; return 'nhận <b>+60 đồng</b> & giảm 30% giá mua đất'; }
+        BAO_HIEM_NGHE: (u, c) => { coin(u, 60); u.discountActive = true; return 'nhận <b>+60 đồng</b> & giảm 30% giá đầu tư làng nghề'; }
     };
     function useNewSkill(u, id) {
         const c = BAN_LINH_CARDS.find(x => x.id === id), f = BL_EFFECT[id]; if (!c || !f) return false;

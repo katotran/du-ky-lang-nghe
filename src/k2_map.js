@@ -22,7 +22,7 @@
         const G2 = new THREE.BufferGeometry(); G2.setAttribute('position', new THREE.BufferAttribute(pos, 3)); G2.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); return G2;
     }
     const M = (hex, r, m, o) => { const k = 'km' + hex + '_' + r + '_' + m + '_' + (o || ''); return c4(k, () => new THREE.MeshStandardMaterial(Object.assign({ color: hex, roughness: r === undefined ? .6 : r, metalness: m || 0 }, o || {}))); };
-    const textTex = (key, text, w, h, bg, fg, font) => vCanvasTex(key, w, h, (g, W, H) => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = fg; g.font = font || `800 ${Math.round(H * .55)}px "Be Vietnam Pro", Arial`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, W / 2, H / 2 + 1, W - 10); });
+    const textTex = (key, text, w, h, bg, fg, font) => vCanvasTex(key, w, h, (g, W, H) => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = fg; g.font = font || `800 ${Math.round(H * .55)}px "Nunito", Arial`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, W / 2, H / 2 + 1, W - 10); });
 
     /* ---------- 1. Mặt nước Biển Đông: nông – sâu theo bờ, sóng lấp lánh, bọt trắng ven bờ ---------- */
     function buildWaterSurface() {

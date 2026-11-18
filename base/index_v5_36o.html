@@ -22,7 +22,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -30,7 +30,7 @@
             --kraft-dark: #d8c39e;
             --wood-brown: #5c3a21;
             --wood-dark: #3b2313;
-            --lacquer-red: #9e2a2b;
+            --lacquer-red: #b3201f;
             --lacquer-gold: #e09f3e;
             --jade-green: #2a6f4e;
         }
@@ -46,13 +46,13 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: 'Be Vietnam Pro', sans-serif;
+            font-family: 'Nunito', sans-serif;
             background-color: #0f171e;
             color: #2c1d11;
         }
 
         .font-serif-vn {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Baloo 2', sans-serif;
         }
 
         /* Kraft Paper & FSC Recycled Texture Effect */
@@ -63,36 +63,36 @@
                 radial-gradient(rgba(92, 58, 33, 0.04) 1px, transparent 0);
             background-size: 24px 24px;
             background-position: 0 0, 12px 12px;
-            border: 2px solid #c8ad7f;
+            border: 2px solid #d9a93f;
             box-shadow: 0 10px 25px -5px rgba(15, 23, 30, 0.55), inset 0 0 18px rgba(166, 124, 82, 0.18);
         }
 
         .wood-panel {
-            background: linear-gradient(145deg, rgba(68, 40, 20, 0.95), rgba(40, 22, 10, 0.96));
-            border: 2px solid #a47545;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.65), inset 0 1px 1px rgba(255,235,200,0.22);
-            color: #f7ebd4;
+            background: linear-gradient(145deg, rgba(122, 22, 24, 0.95), rgba(72, 10, 14, 0.96));
+            border: 2px solid #e2b04a;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.65), inset 0 1px 1px rgba(255,226,160,0.30);
+            color: #fff1d0;
             backdrop-filter: blur(6px);
         }
 
         .wood-btn {
-            background: linear-gradient(180deg, #b8332a 0%, #7d1d16 100%);
-            border: 2px solid #f2c166;
-            color: #fff8eb;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-            box-shadow: 0 4px 0 #4d0e0a, 0 8px 15px rgba(0,0,0,0.4);
+            background: linear-gradient(180deg, #e0a93b 0%, #b87a14 100%);
+            border: 2px solid #fff0b8;
+            color: #4a0d10;
+            text-shadow: 0 1px 0 rgba(255,240,190,0.6);
+            box-shadow: 0 4px 0 #6b4308, 0 8px 15px rgba(0,0,0,0.4);
             transition: all 0.15s ease;
         }
 
         .wood-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 0 #4d0e0a, 0 12px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 6px 0 #6b4308, 0 12px 20px rgba(0,0,0,0.5);
             filter: brightness(1.08);
         }
 
         .wood-btn:active:not(:disabled) {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 #4d0e0a, 0 4px 8px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 0 #6b4308, 0 4px 8px rgba(0,0,0,0.4);
         }
 
         .wood-btn:disabled {
@@ -108,11 +108,11 @@
             height: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(60, 36, 21, 0.2);
+            background: rgba(90, 14, 18, 0.25);
             border-radius: 8px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #8c6239;
+            background: #d9a93f;
             border-radius: 8px;
         }
 
@@ -158,8 +158,8 @@
             transform: translateY(calc(100% - 42px));
         }
         .glass-pill {
-            background: rgba(34, 20, 10, 0.85);
-            border: 1.5px solid rgba(224, 159, 62, 0.6);
+            background: rgba(88, 14, 18, 0.88);
+            border: 1.5px solid rgba(240, 190, 80, 0.75);
             backdrop-filter: blur(10px);
             color: #fef3c7;
         }
@@ -833,8 +833,8 @@
                 id: 'THANH_MAC_CA',
                 title: 'Thánh Mặc Cả',
                 icon: '🏷️',
-                desc: 'Giảm 30% giá mua một Ô Địa Danh Làng Nghề bất kỳ ở lượt hiện tại của bạn.',
-                usableTiming: 'Khi mua đất hoặc kích hoạt trong lượt'
+                desc: 'Giảm 30% vốn đầu tư/nâng cấp một Ô Địa Danh Làng Nghề bất kỳ ở lượt hiện tại của bạn.',
+                usableTiming: 'Khi đầu tư hoặc kích hoạt trong lượt'
             },
             {
                 id: 'VE_VIP',
@@ -1819,15 +1819,15 @@
             ctx.arc(820, 260, 52, 0, Math.PI * 2);
             ctx.stroke();
             ctx.fillStyle = '#fef08a';
-            ctx.font = '800 22px "Be Vietnam Pro", sans-serif';
+            ctx.font = '800 22px "Nunito", sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('BẮC', 820, 195);
             ctx.fillText('NAM', 820, 342);
 
             ctx.fillStyle = 'rgba(254, 240, 138, 0.65)';
-            ctx.font = '800 36px "Playfair Display", serif';
+            ctx.font = '800 36px "Baloo 2", sans-serif';
             ctx.fillText('BIỂN ĐÔNG', 780, 520);
-            ctx.font = '800 44px "Be Vietnam Pro", sans-serif';
+            ctx.font = '800 44px "Nunito", sans-serif';
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = 'rgba(0,0,0,0.55)';
             ctx.shadowBlur = 12;
@@ -2378,7 +2378,7 @@
             anim(t => walkers.forEach((w, i) => { const a = t * .4 + i * 3; w.position.x = Math.sin(a) * .8; w.rotation.y = Math.cos(a) > 0 ? Math.PI / 2 : -Math.PI / 2; }));
             {
                 const nm0 = tile.name.split(/ [&\-–] /)[0].trim().toUpperCase(), cv = document.createElement('canvas'); cv.width = 512; cv.height = 128; const cx = cv.getContext('2d');
-                let sz = 84; cx.font = `800 ${sz}px "Be Vietnam Pro", Arial, sans-serif`; while (cx.measureText(nm0).width > 470 && sz > 28) { sz -= 4; cx.font = `800 ${sz}px "Be Vietnam Pro", Arial, sans-serif`; }
+                let sz = 84; cx.font = `800 ${sz}px "Nunito", Arial, sans-serif`; while (cx.measureText(nm0).width > 470 && sz > 28) { sz -= 4; cx.font = `800 ${sz}px "Nunito", Arial, sans-serif`; }
                 cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.lineJoin = 'round'; cx.lineWidth = 16; cx.strokeStyle = '#7a4a28'; cx.strokeText(nm0, 256, 66); cx.lineWidth = 5; cx.strokeStyle = '#d9a46a'; cx.strokeText(nm0, 256, 62); cx.fillStyle = '#ffffff'; cx.fillText(nm0, 256, 62);
                 const tx = new THREE.CanvasTexture(cv); tx.anisotropy = renderer.capabilities.getMaxAnisotropy();
                 const pl = new THREE.Mesh(new THREE.PlaneGeometry(2.0, .5), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false })); pl.position.set(0, .2, 1.16); g.add(pl);
@@ -4363,7 +4363,7 @@
             ctx.stroke();
 
             ctx.fillStyle = textColor || '#ffffff';
-            ctx.font = `${isBold ? '900' : '700'} 34px "Be Vietnam Pro", sans-serif`;
+            ctx.font = `${isBold ? '900' : '700'} 34px "Nunito", sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, 256, 66);
@@ -4459,7 +4459,7 @@
 
             // Bottom price or index badge
             ctx.fillStyle = tile.color || '#5c3a21';
-            ctx.font = `800 ${Math.floor(w * 0.11)}px "Be Vietnam Pro", sans-serif`;
+            ctx.font = `800 ${Math.floor(w * 0.11)}px "Nunito", sans-serif`;
             const footerText = tile.type === 'PROPERTY' ? `${tile.price}Đ` : `#${tile.index}`;
             ctx.fillText(footerText, w / 2, h * 0.8);
         }
@@ -4552,7 +4552,7 @@
             ctx.fill();
 
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 32px "Be Vietnam Pro", sans-serif';
+            ctx.font = '900 32px "Nunito", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(`${idx}`, 54, 58);
@@ -4560,12 +4560,12 @@
             // Location Short Name & Price
             ctx.textAlign = 'left';
             ctx.fillStyle = '#fef3c7';
-            ctx.font = '800 26px "Be Vietnam Pro", sans-serif';
+            ctx.font = '800 26px "Nunito", sans-serif';
             ctx.fillText(shortName.slice(0, 16), 104, price ? 44 : 58);
 
             if (price) {
                 ctx.fillStyle = '#34d399';
-                ctx.font = '700 22px "Be Vietnam Pro", sans-serif';
+                ctx.font = '700 22px "Nunito", sans-serif';
                 ctx.fillText(`${price} đồng`, 104, 76);
             }
 
@@ -4751,7 +4751,7 @@
             ctx.font = '900 130px serif';
             ctx.textAlign = 'center';
             ctx.fillText(symbol, 128, 210);
-            ctx.font = 'bold 28px "Be Vietnam Pro", sans-serif';
+            ctx.font = 'bold 28px "Nunito", sans-serif';
             ctx.fillText(label, 128, 310);
 
             const tex = new THREE.CanvasTexture(c);
@@ -6089,7 +6089,7 @@ function createVietnameseCostumePawn3D(player) {
                 user.discountActive = true;
                 playSFX('card');
                 addLog(`🏷️ <b>${user.shortName}</b> đã kích hoạt <b>"Thánh Mặc Cả"</b>: Giảm 30% giá mua Ô Tài sản trong lượt này!`, '🏷️', 'text-amber-300 font-semibold');
-                showBanner('Đã bật giảm 30% giá mua đất!', '🏷️', 1800);
+                showBanner('Đã bật giảm 30% giá đầu tư làng nghề!', '🏷️', 1800);
                 updateAllHUD();
             } else if (sId === 'TOC_HANH') {
                 user.skills.splice(skillArrayIndex, 1);
@@ -6136,8 +6136,8 @@ function createVietnameseCostumePawn3D(player) {
                 user.cash += 100;
                 user.discountActive = true;
                 playSFX('coin');
-                addLog(`🧭 <b>${user.shortName}</b> kích hoạt <b>"Bước Nhảy Thương Gia"</b>: Nhận <b>+100 đồng</b> lộ phí & giảm 30% giá mua đất!`, '🧭', 'text-emerald-300 font-semibold');
-                showBanner('+100 đồng & Giảm 30% giá mua đất!', '🧭', 1800);
+                addLog(`🧭 <b>${user.shortName}</b> kích hoạt <b>"Bước Nhảy Thương Gia"</b>: Nhận <b>+100 đồng</b> lộ phí & giảm 30% giá đầu tư làng nghề!`, '🧭', 'text-emerald-300 font-semibold');
+                showBanner('+100 đồng & Giảm 30% giá đầu tư làng nghề!', '🧭', 1800);
                 updateAllHUD();
             }
         }
@@ -6619,7 +6619,7 @@ function createVietnameseCostumePawn3D(player) {
         .dk-back.bl { background: radial-gradient(circle at 50% 38%, #ffad66, #e04e10 75%); }
         .dk-back::before { content: ''; position: absolute; inset: 7px; border: 1.5px dashed rgba(246,220,154,.75); border-radius: 9px; }
         .dk-back::after { content: ''; position: absolute; left: 4px; right: 4px; bottom: 6px; height: 30px; background: var(--cloud-green) no-repeat center/contain; opacity: .95; }
-        .dk-mark { font: 900 52px 'Playfair Display', serif; color: #f6dc9a; text-shadow: 0 3px 0 rgba(0,0,0,.3); margin-top: -14px; }
+        .dk-mark { font: 900 52px 'Baloo 2', sans-serif; color: #f6dc9a; text-shadow: 0 3px 0 rgba(0,0,0,.3); margin-top: -14px; }
         .dk-stage { position: relative; perspective: 900px; height: 250px; display: grid; place-items: center; margin-top: 8px; }
         .dk-stage::before { content: ''; position: absolute; width: 230px; height: 230px; border-radius: 50%; background: radial-gradient(circle, rgba(246,220,154,.75), rgba(255,86,18,.15) 55%, transparent 70%); animation: dkGlow 1.4s ease-out both; }
         @keyframes dkGlow { from { transform: scale(.3); opacity: 0; } 60% { opacity: 1; } }
@@ -6633,10 +6633,10 @@ function createVietnameseCostumePawn3D(player) {
         .dk-face.bl { background: linear-gradient(160deg, #ff8a45, #e04e10); }
         .dk-kind { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; opacity: .9; }
         .dk-ic { font-size: 54px; line-height: 1; }
-        .dk-t { font: 800 17px 'Playfair Display', serif; line-height: 1.2; }
+        .dk-t { font: 800 17px 'Baloo 2', sans-serif; line-height: 1.2; }
         .dk-d { font-size: 11px; opacity: .9; }
         .net-hide { display: none !important; }
-        #net-chip { font-family: 'Playfair Display', serif; letter-spacing: 2px; }
+        #net-chip { font-family: 'Baloo 2', sans-serif; letter-spacing: 2px; }
     </style>
     <script>
     'use strict';
@@ -7582,7 +7582,7 @@ function createVietnameseCostumePawn3D(player) {
             });
             // Tên lá bài
             g.globalAlpha = fade; g.textAlign = 'center'; g.textBaseline = 'middle';
-            g.font = '800 30px "Playfair Display", serif'; g.lineWidth = 6; g.strokeStyle = 'rgba(59,35,19,.85)';
+            g.font = '800 30px "Baloo 2", sans-serif'; g.lineWidth = 6; g.strokeStyle = 'rgba(59,35,19,.85)';
             const cap = `${card.icon} ${card.title}`; g.strokeText(cap, W / 2, H * .2); g.fillStyle = '#fef3c7'; g.fillText(cap, W / 2, H * .2);
             g.globalAlpha = 1;
             if (k < 1) fxRun = requestAnimationFrame(frame); else g.clearRect(0, 0, W, H);
@@ -8153,7 +8153,7 @@ function createVietnameseCostumePawn3D(player) {
         const tx = vCanvasTex('plq' + tile.index, 512, 96, (g, w, h) => {
             const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f3d98a'); gr.addColorStop(.5, '#c99a3c'); gr.addColorStop(1, '#a87a26');
             g.fillStyle = gr; g.fillRect(0, 0, w, h); g.strokeStyle = '#6b4a14'; g.lineWidth = 6; g.strokeRect(4, 4, w - 8, h - 8);
-            g.fillStyle = '#3a2508'; g.font = '700 34px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, h / 2 + 2, w - 30);
+            g.fillStyle = '#3a2508'; g.font = '700 34px "Baloo 2", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, h / 2 + 2, w - 30);
         });
         const plq = new THREE.Mesh(new THREE.PlaneGeometry(W * .62, W * .62 * 96 / 512), new THREE.MeshStandardMaterial({ map: tx, roughness: .3, metalness: .6 }));
         plq.position.set(0, 0, W / 2 + .004); block.add(plq);

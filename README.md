@@ -32,7 +32,6 @@ ruby -run -e httpd . -p 8766
 | `src/k4_monopoly.js` | Cơ chế mua đất trống → xây làng nghề 3D |
 | `src/k5_newmap.js` | Địa hình phẳng kiểu mới, đảo, bờ đất bao quanh biển (thay khung bàn gỗ) |
 | `src/k6_tiles_pawns.js` | Bệ địa danh bo tròn, nhân vật chibi cổ phục và hoạt ảnh (thở, chớp mắt, vẫy tay, nhảy mừng) |
-| `src/k7_plots.js` | Tiểu cảnh ô đất trống / đất chờ xây: đồ nghề theo từng làng, hàng rào, cây theo vùng miền |
 | `tools/build47.rb` | Script dựng `index.html` từ `base/` + `src/` |
 
 ## Dựng lại `index.html`

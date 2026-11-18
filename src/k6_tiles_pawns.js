@@ -29,7 +29,7 @@
         const tx = vCanvasTex('k6plq' + tile.index, 512, 96, (g, w, h) => {
             g.clearRect(0, 0, w, h); const r = 40; g.beginPath(); g.moveTo(r, 4); g.arcTo(w - 4, 4, w - 4, h - 4, r); g.arcTo(w - 4, h - 4, 4, h - 4, r); g.arcTo(4, h - 4, 4, 4, r); g.arcTo(4, 4, w - 4, 4, r); g.closePath();
             g.fillStyle = '#fffaf0'; g.fill(); g.strokeStyle = rim; g.lineWidth = 7; g.stroke();
-            g.fillStyle = '#4a3418'; g.font = '800 36px "Be Vietnam Pro", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, h / 2 + 2, w - 56);
+            g.fillStyle = '#4a3418'; g.font = '800 36px "Nunito", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(label, w / 2, h / 2 + 2, w - 56);
         });
         const plq = new THREE.Mesh(new THREE.PlaneGeometry(W * .66, W * .66 * 96 / 512), new THREE.MeshBasicMaterial({ map: tx, transparent: true, alphaTest: .4 }));
         plq.rotation.x = -1.05; plq.position.set(0, .33, W / 2 + .2); block.add(plq);

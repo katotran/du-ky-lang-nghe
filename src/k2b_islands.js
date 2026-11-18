@@ -47,7 +47,7 @@
     // Chữ trắng nằm phẳng trên mặt biển (như ảnh mẫu)
     function seaLabel(text, x, z, w) {
         const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 150; const g = cv.getContext('2d');
-        g.font = '800 104px "Be Vietnam Pro", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.font = '800 104px "Nunito", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
         g.shadowColor = 'rgba(8,90,170,.55)'; g.shadowBlur = 10; g.shadowOffsetY = 3; g.fillStyle = 'rgba(255,255,255,.96)'; g.fillText(text, 512, 78, 990);
         const t = new THREE.CanvasTexture(cv); t.anisotropy = 8;
         const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 150 / 1024), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false }));
