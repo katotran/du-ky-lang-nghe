@@ -1,7 +1,7 @@
     /* =================================================================================
      * K5. BẢN ĐỒ KIỂU MỚI (theo ảnh mẫu của nhóm)
      *    · Đất liền là một khối phẳng, vách kem, mặt trên chia mảng xanh non – vàng cát
-     *    · Biển xanh sáng nằm trong lòng một vùng bờ đất có vách cát, cây cối, nhà cửa
+     *    · Biển xanh trong khay chữ nhật có khung gỗ, ngoài khung là nền trơn (không còn bờ đất, rừng, đồi)
      *    · Bỏ núi bậc thang, sông 3D, rừng cây rải trên bản đồ, khung bàn gỗ
      * ================================================================================= */
     const LAND_Y = .56;                      // cao độ mặt đất (mặt biển ở .1)
@@ -147,9 +147,13 @@
     // Thay khung bàn gỗ + viền vàng bằng đáy biển và bờ đất
     buildWoodenTableAndEastSea = function () {
         const R = BOARD_RECT;
-        const bed = new THREE.Mesh(new THREE.BoxGeometry(R.W + 6, .3, R.D + 6), flat(0x1b9ce8));
+        // Bản đồ gọn trong một khay biển chữ nhật có khung gỗ bao quanh, ngoài khung là nền trơn
+        const bed = new THREE.Mesh(new THREE.BoxGeometry(R.W, .3, R.D), flat(0x1b9ce8));
         bed.position.set(R.cx, -.12, R.cz); bed.receiveShadow = true; scene.add(bed);
-        try { buildShore(); } catch (e) { console.warn('shore', e); }
+        { const T = 1.5, H = 1.1, Y = H / 2 - .27, woodTop = flat(0xb9702c), woodSide = flat(0x8a4b1e);
+          const bar = (w, d, x, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), [woodSide, woodSide, woodTop, woodSide, woodSide, woodSide]); m.position.set(x, Y, z); m.castShadow = true; m.receiveShadow = true; scene.add(m); };
+          bar(R.W + 2 * T, T, R.cx, R.z0 - T / 2); bar(R.W + 2 * T, T, R.cx, R.z1 + T / 2);
+          bar(T, R.D, R.x0 - T / 2, R.cz); bar(T, R.D, R.x1 + T / 2, R.cz); }
         buildMapExtras();
         // nhãn thành phố: hiện khi zoom xa, ẩn khi zoom gần
         const labels = [['Hà Nội', 105.85, 21.03], ['Sa Pa', 103.84, 22.34], ['Huế', 107.59, 16.46], ['Đà Nẵng', 108.2, 16.05], ['Nha Trang', 109.19, 12.24], ['Đà Lạt', 108.44, 11.94], ['TP. Hồ Chí Minh', 106.7, 10.78], ['Cần Thơ', 105.78, 10.04]].map(a => {

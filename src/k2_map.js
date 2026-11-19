@@ -36,25 +36,23 @@
         const color = document.createElement('canvas'); color.width = CW; color.height = CH; const g = color.getContext('2d');
         const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#1fa6ee'); gr.addColorStop(.5, '#1a9be9'); gr.addColorStop(1, '#168fe2'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
         const halo = (blur, fill, grow) => { g.filter = `blur(${blur}px)`; g.fillStyle = fill; g.strokeStyle = fill; g.lineWidth = grow; g.lineJoin = 'round'; landPath(g); g.fill(); g.stroke(); isl.forEach(([x, y, rx, ry]) => { g.beginPath(); g.ellipse(x, y, rx + grow / 2, ry + grow / 2, 0, 0, 7); g.fill(); }); reefs.forEach(([p, r]) => { const [x, y] = toC(p[0], p[1]); g.beginPath(); g.arc(x, y, r * (grow / 40 + .4), 0, 7); g.fill(); }); };
-        halo(34, 'rgba(40,190,240,.55)', 70); halo(14, 'rgba(64,214,240,.8)', 30); halo(5, 'rgba(150,240,246,.95)', 12);
-        g.filter = 'blur(10px)'; g.strokeStyle = 'rgba(70,214,240,.7)'; g.lineWidth = 34; poolPath(g, 0); g.stroke(); g.filter = 'blur(4px)'; g.strokeStyle = 'rgba(150,240,246,.8)'; g.lineWidth = 12; poolPath(g, 0); g.stroke();
+        // (đã bỏ các quầng nước nông xanh ngọc quanh bờ/đảo: biển giữ một màu)
         g.filter = 'none';
         g.lineCap = 'round'; g.lineWidth = 1.6;
         for (let i = 0; i < 1500; i++) { const x = Math.random() * CW, y = Math.random() * CH, w = 5 + Math.random() * 9, k = Math.random(); g.strokeStyle = k < .6 ? `rgba(140,222,255,${.25 + Math.random() * .3})` : k < .85 ? `rgba(10,110,205,${.14 + Math.random() * .14})` : `rgba(255,255,255,${.25 + Math.random() * .25})`; g.beginPath(); g.moveTo(x - w, y); g.quadraticCurveTo(x - w / 2, y - 3.2, x, y); g.quadraticCurveTo(x + w / 2, y + 3.2, x + w, y); g.stroke(); }
         const coast = document.createElement('canvas'); coast.width = CW; coast.height = CH; const c = coast.getContext('2d');
         c.fillStyle = '#000'; c.fillRect(0, 0, CW, CH); c.filter = 'blur(5px)'; c.strokeStyle = '#fff'; c.lineWidth = 11; landPath(c); c.stroke();
         isl.forEach(([x, y, rx, ry]) => { c.beginPath(); c.ellipse(x, y, rx + 2, ry + 2, 0, 0, 7); c.stroke(); });
-        poolPath(c, .3); c.stroke();
         c.filter = 'none';
         const tColor = new THREE.CanvasTexture(color), tCoast = new THREE.CanvasTexture(coast);
-        const u = { uT: { value: 0 }, uColor: { value: tColor }, uCoast: { value: tCoast }, uSun: { value: new THREE.Vector3(-.45, .8, -.38).normalize() } };
+        const u = { uT: { value: 0 }, uColor: { value: tColor }, uCoast: { value: tCoast }, uSun: { value: new THREE.Vector3(-.45, .8, -.38).normalize() }, uRect: { value: new THREE.Vector4(R.x0, R.z0, R.W, R.D) } };
         const mat = new THREE.ShaderMaterial({
             uniforms: u, transparent: true, depthWrite: false,
-            vertexShader: 'varying vec2 vUv; varying vec3 vW; void main(){ vUv=uv; vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }',
+            vertexShader: 'uniform vec4 uRect; varying vec2 vUv; varying vec3 vW; void main(){ vec4 w=modelMatrix*vec4(position,1.); vUv=(w.xz-uRect.xy)/uRect.zw; vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }',
             fragmentShader: `uniform float uT; uniform sampler2D uColor,uCoast; uniform vec3 uSun; varying vec2 vUv; varying vec3 vW;
               float h(vec2 p){ return sin(p.x*1.7+uT*1.3)*.5+sin(p.y*2.1-uT*1.1)*.5+sin((p.x+p.y)*3.3+uT*2.2)*.25+sin((p.x-p.y)*5.1-uT*2.9)*.12; }
               void main(){
-                vec3 base=texture2D(uColor,vUv).rgb; float cst=texture2D(uCoast,vUv).r;
+                vec2 uc=clamp(vUv,0.,1.); vec3 base=mix(texture2D(uColor,uc).rgb,vec3(.1,.6,.9),smoothstep(0.,.05,length(vUv-uc))); float cst=0.*texture2D(uCoast,uc).r*(1.-smoothstep(0.,.02,length(vUv-uc)));
                 vec2 p=vW.xz; float e=.05; vec3 n=normalize(vec3(h(p-vec2(e,0.))-h(p+vec2(e,0.)), 6., h(p-vec2(0.,e))-h(p+vec2(0.,e))));
                 vec3 v=normalize(cameraPosition-vW); vec3 r=reflect(-uSun,n); float sp=pow(max(dot(r,v),0.),90.)*1.4;
                 float fr=pow(1.-max(dot(n,v),0.),3.)*.35; float dif=.82+.18*dot(n,uSun);
