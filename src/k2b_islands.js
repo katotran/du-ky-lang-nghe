@@ -46,10 +46,15 @@
     }
     // Chữ trắng nằm phẳng trên mặt biển (như ảnh mẫu)
     function seaLabel(text, x, z, w) {
-        const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 150; const g = cv.getContext('2d');
-        g.font = '800 104px "Nunito", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.shadowColor = 'rgba(8,90,170,.55)'; g.shadowBlur = 10; g.shadowOffsetY = 3; g.fillStyle = 'rgba(255,255,255,.96)'; g.fillText(text, 512, 78, 990);
+        const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 150;
         const t = new THREE.CanvasTexture(cv); t.anisotropy = 8;
+        const draw = () => {
+            const g = cv.getContext('2d'); g.clearRect(0, 0, 1024, 150);
+            g.font = '800 104px "Be Vietnam Pro", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+            g.shadowColor = 'rgba(8,90,170,.55)'; g.shadowBlur = 10; g.shadowOffsetY = 3; g.fillStyle = 'rgba(255,255,255,.96)'; g.fillText(typeof i18nText === 'function' ? i18nText(text) : text, 512, 78, 990);
+            t.needsUpdate = true;
+        };
+        draw(); if (typeof onLangChange === 'function') onLangChange(draw);
         const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 150 / 1024), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false }));
         m.rotation.x = -Math.PI / 2; m.position.set(x, .17, z); m.renderOrder = 4; scene.add(m); return m;
     }

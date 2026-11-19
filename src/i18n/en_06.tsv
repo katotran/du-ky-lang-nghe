@@ -1,0 +1,120 @@
+6ce2ec61	{0} welcomes an international tour group and receives <b>+90 dong</b>!
+db44985d	{0} loses 1 <b>{1}</b> card.
+02ee6221	{0} has no Tool Card so pays 30 dong.
+03668544	scarce raw materials
+8bb72210	{0} receives <b>+40 dong</b> and 1 <b>{1}</b> card!
+b27974bc	Boats head ashore to shelter from the storm - owners of sea and island tiles pay 20 dong per tile.
+57e40a63	sea storm shelter
+4fc7c320	{0} receives <b>+70 dong</b> in preferential loans!
+7934bc56	{0} pays {1} dong in environmental protection fees.
+c12e97d3	environmental protection fee
+88451769	Tourists head to the highlands - owners of Northwest and Northeast tiles receive 30 dong per tile!
+40b68b8c	Full moon festival night! <b>{0}</b> receives <b>+60 dong</b>, everyone else receives <b>+30 dong</b>.
+ce0b5eea	receive <b>+{0} dong</b> from exports
+2a2708ef	double service fees for 1 round
+baa669fb	receive <b>+50 dong</b> & 2 Tool Cards
+70462019	collect <b>+{0} dong</b> from the linked tour
+2b9cc4b0	receive <b>+{0} dong</b> from the e-commerce storefront
+3ef7a393	receive <b>+120 dong</b> in startup funds
+4fe59f26	receive <b>+60 dong</b> & 30% off village investment
+3c4de5cb	{0} <b>{1}</b> activated <b>"{2}"</b>: {3}!
+244d2bff	COAST GUARD
+50c18ed2	VIETNAM
+8ecf4f12	HOANG SA ARCHIPELAGO - VIETNAM
+d53f095c	TRUONG SA ARCHIPELAGO - VIETNAM
+60836d2e	HOANG SA ISL.
+d1835600	TRUONG SA ISL.
+9436f64c	South
+edcf74ec	Hoang Sa - Truong Sa Islands
+d5b79330	[47 landmarks]
+28fda39c	tiles · max offset
+460341e4	AN NGAI RICE PAPER CRAFT VILLAGE
+624d4b6c	RICE PAPER
+4f35e7c5	TRA CUON
+f23f3973	BANH TET
+1afaa3a9	TRA CUON BANH TET
+05e61795	ALLEY 49 - PHU BINH LANTERN HAMLET
+b1ffa465	Pia
+dbbf4cea	PHU QUOC PEARLS
+90e018e9	CAI RANG FLOATING MARKET
+8c187350	TAN CHAU SILK CRAFT VILLAGE
+815b4012	SA DEC FLOWER VILLAGE
+958b9ea3	BINH AN DRUM CRAFT VILLAGE
+0b55a030	TRANG BANG RICE PAPER
+959cf152	DEW-DRIED RICE PAPER
+ec7f3e94	STONE CRAFTS
+f09cfbca	BUU LONG STONE VILLAGE
+efba518d	LIENG NUNG WATERFALL
+55813bf0	BUON MA THUOT COFFEE
+80b20fb3	BUON MA THUOT
+932c4e97	IA NUENG VILLAGE
+a5f26e87	KON TUM BROCADE
+1601161f	NAM DAN SOYBEAN PASTE SPECIALTY
+2980ac20	NAM DAN SOYBEAN PASTE VILLAGE
+2afa7f74	LUNG TAM LINEN WEAVING COOPERATIVE
+9a8f6852	TO THI MOUNTAIN
+c87ac956	THU DUONG CHU NOODLE COOPERATIVE
+fc51a982	Basic
+38f98c65	Good
+23601b06	Very good
+44a8a1ca	Premium
+08c0f719	International Standard
+b04d35f2	Invest: {0}đ
+af834bae	{0} {1} • Fee {2}đ
+039e7608	⭐ <b>{0}</b> spends <b>{1} dong</b> to invest in <b>{2} ({3})</b> and reaches <b>1 Star</b>! Experience fee <b>{4}đ</b>. <i>(Return to this tile on a later turn to Upgrade the Service up to 5 Stars)</i>
+a5e13f3e	{0} invests in {1} ★
+da10d823	<b>{0}</b> plays <b>"Master Haggler"</b> to cut the investment in {1} by 30% to <b>{2} dong</b>!
+88329d21	<b>{0}</b> weighs their cash flow and decides not to invest in <b>{1}</b> yet.
+8142f27a	<b>{0}</b> decides to keep cash and not invest in <b>{1}</b>.
+a77de836	<span class="inline-block mr-1.5"><b>{0}★</b> {1}đ</span>
+9ee41ff4	<button id="modal-btn-bargain" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold px-4 py-2.5 rounded-xl border-2 border-amber-700 text-xs shadow"> 🏷️ Use "Master Haggler" (Invest {0}đ) </button>
+2c0b0399	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-emerald-800 text-emerald-100 text-xs font-extrabold uppercase tracking-wider">🌱 Unowned Craft Village • {0}</span> <div class="text-5xl my-3">{1}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">{2}</h2> <p class="text-xs text-amber-900/85 mt-1"><b>Invest in the Craft Village</b> to reach <b>1 Star</b>, plant your ownership flag and start collecting experience fees. On later turns, come back to <b>Upgrade the Service</b> up to <b>5 Stars</b>!</p> <div class="bg-amber-900/10 border border-amber-800/30 rounded-2xl p-3.5 my-4 text-left space-y-2 text-xs"> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">⭐ Investment (reach 1 Star):</span> <span class="font-black text-base text-emerald-800">{3} dong {4}</span> </div> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">💰 1-Star experience fee:</span> <span class="font-bold text-amber-800">{5} dong / visitor turn</span> </div> <div class="border-t border-amber-800/15 pt-1.5"> <div class="font-semibold text-amber-900 mb-0.5">📈 Fee by star level:</div> <div class="font-extrabold text-red-700 leading-5">{6}</div> </div> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">🛠️ Craft village tool:</span> <span class="font-bold text-teal-900">{7}</span> </div> </div> <div class="flex flex-col sm:flex-row gap-2.5 justify-center mt-4"> {8} <button id="modal-btn-buy" {9} class="wood-btn px-5 py-2.5 rounded-xl font-extrabold text-sm flex-1"> ⭐ Invest in Craft Village ({10}đ) </button> <button id="modal-btn-pass" class="bg-stone-300 hover:bg-stone-400 text-stone-800 font-bold px-4 py-2.5 rounded-xl text-sm"> Pass </button> </div> </div>
+6c923164	— <b>INTERNATIONAL STANDARD!</b>
+3b6bca9e	⭐ <b>{0}</b> spends <b>{1} dong</b> to upgrade <b>{2}</b> to <b>{3} Stars</b> ({4})! The experience fee rises to <b>{5}đ</b>{6}
+0af0fe22	{0} {1} reaches {2} Stars!
+31ebc185	🏯 <b>{0}</b> visits their own Craft Village <b>{1}</b>, already at <b>5-Star International Standard</b>.
+306d779d	<b>{0}</b> plays <b>"Master Haggler"</b> to cut the upgrade cost of {1} by 30% to <b>{2} dong</b>!
+86f8e39e	<b>{0}</b> stops at <b>{1}</b> ({2} Stars) but holds on to cash, saving the upgrade for a later turn.
+b6e33c5c	{0} lacks the funds to upgrade {1}
+b7632a43	<b>{0}</b> visits <b>{1}</b> ({2} Stars) and saves funds to upgrade on a later turn.
+b771e93a	(International Standard)
+e47578da	<button id="modal-btn-bargain-build" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold px-4 py-2.5 rounded-xl border-2 border-amber-700 text-xs shadow"> 🏷️ Use "Master Haggler" (Upgrade {0}đ) </button>
+482b4c4d	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-amber-600 text-amber-950 text-xs font-extrabold uppercase tracking-wider">⭐ Service Upgrade • Your Village</span> <div class="text-5xl my-3">{0}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">{1}</h2> <div class="text-2xl font-black text-amber-500 tracking-widest">{2}<span class="text-amber-950/25">{3}</span></div> <p class="text-xs text-amber-900/85 mt-1">The village is at <b>{4} Stars</b>. Upgrade to <b>{5} Stars{6}</b> to raise the experience fee you collect from visitors.</p> <div class="bg-amber-900/15 border-2 border-amber-700/40 rounded-2xl p-3.5 my-4 text-left space-y-2 text-xs"> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">🏗️ Cost to reach {7} Stars:</span> <span class="font-black text-base text-emerald-800">{8} dong {9}</span> </div> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">📈 Experience fee:</span> <span class="font-extrabold text-red-700">{10}đ → {11} dong / turn</span> </div> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">💎 Total invested after the upgrade:</span> <span class="font-bold text-amber-950">{12} dong</span> </div> <div class="pt-1.5 border-t border-amber-800/20 italic text-amber-950"> <b>Visitor experience:</b> "{13}" </div> </div> <div class="flex flex-col sm:flex-row gap-2.5 justify-center mt-4"> {14} <button id="modal-btn-build" {15} class="wood-btn px-5 py-2.5 rounded-xl font-extrabold text-sm flex-1"> ⭐ Upgrade Service ({16}đ) </button> <button id="modal-btn-pass" class="bg-stone-300 hover:bg-stone-400 text-stone-800 font-bold px-4 py-2.5 rounded-xl text-sm"> Next Turn </button> </div> </div>
+2ca53daf	{0}-Star craft village experience fee {1}
+f9aad9c3	🛠️ <b>{0}</b> enters <b>{1}</b> and plays the card <b>"{2}"</b> to handle the craft challenge on their own -> <b>Free!</b>
+f51d3e6a	🎫 <b>{0}</b> shows the <b>"VIP Visit Pass"</b> at <b>{1}</b> -> <b>Free!</b>
+9aa49e83	🛠️ <b>{0}</b> used the card <b>{1}</b> to resolve the challenge at <b>{2}</b> and kept their cash!
+1eaa0893	🎫 <b>{0}</b> used the <b>VIP Visit Pass</b> and enjoys a completely free visit at <b>{1}</b>!
+41237f8f	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-red-800 text-amber-100 text-xs font-extrabold uppercase"> 🏯 {0}-Star Craft Village • Owned by {1} </span> <div class="text-5xl my-3">{2}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">{3}</h2> <div class="text-xl font-black text-amber-500 tracking-widest">{4}</div> <div class="bg-amber-900/15 border-2 border-amber-800/40 rounded-2xl p-4 my-3 text-left"> <div class="text-xs font-extrabold uppercase text-amber-900 mb-1"> 📜 Craft Village Experience Challenge: </div> <p class="text-sm font-semibold text-amber-950 italic"> "{5}" </p> <div class="mt-3 pt-2 border-t border-amber-800/20 flex justify-between items-center text-xs"> <span>Tool to resolve it: <b>{6}</b></span> <span class="text-red-800 font-extrabold text-sm">{7}-Star fee: {8}đ {9}</span> </div> </div> <div class="flex flex-col gap-2.5 mt-4"> {10} {11} <button id="modal-pay-rent" class="wood-btn px-5 py-3 rounded-xl font-extrabold text-sm"> 💸 Pay the {12}-Star Experience Fee ({13} dong) </button> </div> </div>
+2c87b795	<b>{0} heritage tiles</b> are returned to the market, unowned again.
+e3821eee	<div class="bg-amber-950/10 border border-amber-800/30 p-3 rounded-xl flex justify-between items-center"> <div class="text-left"> <div class="font-bold text-sm text-amber-950">{0} {1} <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-600 text-white">{2} {3} Stars</span></div> <div class="text-xs text-amber-900/70">Value recovered from the Bank: <b class="text-emerald-800">+{4} dong</b></div> </div> <button onclick="confirmUserMortgage({5})" class="wood-btn px-3.5 py-2 rounded-xl text-xs font-extrabold"> Mortgage (+{6}đ) </button> </div>
+022a2387	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-red-800 text-white text-xs font-extrabold uppercase">Liquidity Warning</span> <h2 class="font-serif-vn font-extrabold text-2xl text-red-900 mt-2">Not Enough Cash to Pay!</h2> <p class="text-xs text-amber-950 mt-1">You are short by <b class="text-red-700 text-sm">{0} dong</b>. Choose a Heritage Tile to mortgage back to the Bank:</p> <div class="space-y-2 my-4 max-h-60 overflow-y-auto pr-1"> {1} </div> </div>
+825fd884	🌱 No owner yet
+eed5e54d	🌱 Unowned craft village in {0}. Stop here to Invest ({1}đ) and reach 1 Star.
+aad91aff	{0} Owned by {1} • The owner returns to Upgrade the Service to {2} Stars (+{3}đ).
+458b62ea	🏯 Owned by {0} • Reached 5-Star International Standard.
+06a8f372	Invest {0}đ
+bcd664b2	Upgrade +{0}đ
+84b758e7	Max 5 Stars
+7f75a0a1	{0}đ ({1} Stars)
+cf12fc21	1-Star investment: {0}đ • Fee {1}đ
+dc4916ec	{0} Stars • Fee {1}đ • Upgrade +{2}đ
+1b229726	🏯 5-Star International Standard • Fee {0}đ
+7a6d4d96	<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-800/15 text-emerald-900 font-bold">🌱 Invest: {0}đ</span>
+73d3c285	• 1★ fee {0}đ
+0eeeefa9	<div class="text-left"> <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3"> <div> <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Directory of 47 Vietnamese Craft Village Landmarks</h2> <p class="text-[11px] text-amber-900/80">⭐ Invest in a craft village (1 Star) → return on later turns to Upgrade the Service up to 5 Stars!</p> </div> <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button> </div> <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[60vh] overflow-y-auto pr-1"> {0} </div> </div>
+4c3ed323	Starting Station
+20365da3	Pass to receive
+ccddb166	+300đ
+655c48b1	Tool Station
+4f7474f3	Buy Tool Cards
+34e333d7	at the station
+e57a3be8	Event Card (!)
+e0164523	Draw 1 card
+295d0617	carried out immediately
+d491b6a6	Skill Card (?)
+68859b1a	kept in hand
+0c88a333	5-Star International Standard • {0}
+1c185a80	Unowned craft village • {0}
+5998ea26	Upgrade / Fee:
+55f176ad	Level / Fee:

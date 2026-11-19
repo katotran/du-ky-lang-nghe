@@ -1,0 +1,120 @@
+c676e4b7	<b>You</b> decide to keep your cash and not invest in <b>{0}</b>.
+9c77540a	🏳️ <b>{0}</b> invests <b>{1} dong</b> to own <b>{2} ({3})</b> and plants a brand flag!
+0318a719	{0} owns {1}!
+3423f2de	🛠️ <b>{0}</b> enters <b>{1}</b> and plays the card <b>"{2}"</b> to handle the craft challenge on their own -> <b>Service free!</b>
+3929b043	{0} used a Tool -> Free!
+0df18c13	🎫 <b>{0}</b> shows the <b>"VIP Visit Pass"</b> at <b>{1}</b> -> <b>Service free!</b>
+05bb8e0f	{0} used a VIP Pass -> Free!
+ff874f5e	experience fee at {0}
+a98c5cf7	(x2 Bumper Harvest)
+f57a7484	<button id="modal-use-tool" class="bg-teal-700 hover:bg-teal-600 text-white font-extrabold px-5 py-3 rounded-xl border-2 border-teal-300 shadow-lg text-sm"> 🛠️ Play Card "{0}" -> Do the Craft Yourself & FREE (0đ) </button>
+891d0ddc	<button id="modal-use-vip" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold px-5 py-3 rounded-xl border-2 border-amber-800 shadow-lg text-sm"> 🎫 Use "VIP Visit Pass" Card -> FREE (0đ) </button>
+16bfbd7e	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-red-800 text-amber-100 text-xs font-extrabold uppercase">Owned Land • Owned by {0}</span> <div class="text-5xl my-3">{1}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">{2}</h2> <div class="bg-amber-900/15 border-2 border-amber-800/40 rounded-2xl p-4 my-3 text-left"> <div class="text-xs font-extrabold uppercase text-amber-900 mb-1">📜 Craft Village Experience Challenge:</div> <p class="text-sm font-semibold text-amber-950 italic">"{3}"</p> <div class="mt-3 pt-2 border-t border-amber-800/20 flex justify-between items-center text-xs"> <span>Tool to resolve it: <b>{4}</b></span> <span class="text-red-800 font-extrabold text-sm">Service fee: {5}đ {6}</span> </div> </div> <div class="flex flex-col gap-2.5 mt-4"> {7} {8} <button id="modal-pay-rent" class="wood-btn px-5 py-3 rounded-xl font-extrabold text-sm"> 💸 Pay the Service Fee in Cash ({9} dong) </button> </div> </div>
+d9097e20	🛠️ <b>You</b> used the card <b>{0}</b> to resolve the challenge at <b>{1}</b> and kept your cash!
+cc2964da	Challenge resolved -> Free!
+f3b4c9c5	🎫 <b>You</b> used the <b>VIP Visit Pass</b> and enjoy a completely free visit at <b>{0}</b>!
+b7e131e6	VIP Pass -> Service free!
+d03821f7	service fee at {0}
+0895aed0	🛠️ At <b>{0}</b>, <b>{1}</b> buys a reserve card <b>"{2}"</b> ({3}đ).
+21138288	<b>{0}</b> stops by <b>{1}</b> to rest but buys no more tools.
+ef389469	<div class="bg-amber-950/10 border border-amber-800/30 p-3 rounded-2xl flex items-center justify-between gap-2 text-left"> <div class="flex items-center gap-2.5"> <span class="text-2xl">{0}</span> <div> <div class="font-bold text-xs text-amber-950">{1} <span class="text-[10px] bg-teal-800 text-white px-1.5 py-0.5 rounded-full ml-1">You have: {2}</span></div> <div class="text-[10px] text-amber-900/80 leading-tight mt-0.5">{3}</div> </div> </div> <button onclick="buyToolFromShop('{4}', {5})" {6} class="wood-btn px-3 py-2 rounded-xl font-extrabold text-xs shrink-0"> Buy {7}đ </button> </div>
+22798329	<span class="text-red-700 font-bold">(Price Storm x2 active)</span>
+8a98ff75	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-teal-800 text-teal-100 text-xs font-extrabold uppercase">Rest Stop • Supply Station</span> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950 mt-2">{0}</h2> <p class="text-xs text-amber-900/80 mt-0.5">Your current balance: <b class="text-emerald-800 text-sm">{1} dong</b> {2}</p> <div class="space-y-2 my-4 max-h-64 overflow-y-auto pr-1"> {3} </div> <button id="modal-close-shop" class="bg-stone-700 hover:bg-stone-600 text-amber-100 font-extrabold px-6 py-2.5 rounded-xl text-sm w-full"> Finish Shopping & End Turn </button> </div>
+bed61eb1	🛠️ <b>You</b> bought a reserve <b>{0}</b> for <b>{1} dong</b>.
+fb37751b	❗ <b>[{0}]</b> {1} draws a card: all Tool Card prices double for 1 round!
+70676ba3	❗ <b>[{0}]</b> {1} has a bumper harvest: service-fee income doubles for 1 round!
+5056c4e6	❗ <b>[{0}]</b> {1} must pay the Bank 50 dong to repair the craft village.
+aed60195	repair fee after bad weather
+df2b2712	❗ <b>[{0}]</b> {1} must pay a 40-dong storage fee to keep the farm produce.
+8cc8e84a	storage and preservation fee
+fffcc742	❗ <b>[{0}]</b> {1} pays 45 dong to reinforce dikes against saltwater intrusion.
+2c2d974c	dike reinforcement cost
+19a6cc95	❗ <b>[{0}]</b> {1} instantly receives a <b>+100 dong</b> festival bonus from the Bank!
+30bc29da	❗ <b>[{0}]</b> {1} reaches 5-star OCOP standard and gets a quick bonus of <b>+120 dong</b>!
+2c943623	❗ <b>[{0}]</b> {1} is awarded <b>+50 dong</b> and 1 <b>{2}</b> card!
+6f4868e4	❗ <b>[{0}]</b> The heritage train brings guests! <b>{1}</b> receives <b>+80 dong</b>, the other merchants receive <b>+40 dong</b>!
+be18fa9d	❗ <b>[{0}]</b> {1} receives <b>+{2} dong</b> from craft village export orders!
+285f315f	{0} draws an Event Card: {1}
+1d9cc115	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-red-800 text-amber-100 text-xs font-extrabold uppercase">Market Event Card (!)</span> <div class="text-6xl my-4">{0}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-red-900">{1}</h2> <p class="text-sm text-amber-950 my-4 bg-red-900/10 border border-red-800/30 p-4 rounded-2xl">{2}</p> <button id="modal-ack-biendong" class="wood-btn px-6 py-3 rounded-xl font-extrabold text-sm w-full"> Carry Out the Effect Now </button> </div>
+088eb7bb	❓ <b>{0}</b> draws 1 <b>Skill Card</b> and keeps it secret in hand.
+7f4de2df	{0} receives 1 Skill Card!
+03bcc684	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-amber-600 text-amber-950 text-xs font-extrabold uppercase">Tactical Skill Card (?)</span> <div class="text-6xl my-4">{0}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">{1}</h2> <p class="text-sm text-amber-950 my-4 bg-amber-500/15 border border-amber-700/30 p-4 rounded-2xl">{2}</p> <div class="text-xs text-amber-900/80 mb-4">💡 <i>When to use: {3}</i></div> <button id="modal-keep-skill" class="wood-btn px-6 py-3 rounded-xl font-extrabold text-sm w-full"> Put in Skill Card Bag </button> </div>
+9ff28311	❓ <b>{0}</b> receives the Skill Card <b>"{1}"</b> and keeps it in hand.
+3f4728f2	🏷️ <b>{0}</b> activated <b>"Master Haggler"</b>: 30% off the price of a property tile this turn!
+659d0ba3	30% off village investment activated!
+8be1863d	🐎 <b>{0}</b> activated <b>"Express Across Vietnam"</b>: roll the dice twice in a row!
+86d73e5e	Double dice roll activated!
+185cb63d	🧰 <b>{0}</b> activated <b>"Artisan's Secret"</b> and gets 2 free Tool Cards!
+22279071	Received +2 free Tool Cards!
+86b6dc7c	🤝 <b>{0}</b> activated <b>"Cooperative Alliance"</b> and receives a dividend of <b>+{1} dong</b>!
+b1a7b5c4	The cooperative rewards +{0} dong!
+183af13c	🚩 <b>{0}</b> activated <b>"Vietnam Tourism Ambassador"</b> and collects <b>+{1} dong</b> in promotion fees from the other players!
+47a3d0d1	Tourism Ambassador: +{0} dong!
+5f79274f	🧭 <b>{0}</b> activated <b>"Merchant's Leap"</b>: receives <b>+100 dong</b> travel allowance & 30% off village investment!
+0cdbd730	+100 dong & 30% off village investment!
+f5fea928	💰 {0} reaches {1} dong in total assets - the Great Tycoon!
+9d10e25f	🏺 {0} monopolizes 2 trades - Master of the Craft Villages!
+c0c304cf	All cash and <b>{0} heritage tiles</b> go to <b>{1}</b>.
+646d114b	<b>{0} heritage tiles</b> are returned to the market.
+f3c0e471	💥 <b>{0}</b> GOES BANKRUPT ({1})! {2}
+cd6be03f	{0} went bankrupt!
+2fa2535b	Only 1 player remains on the board!
+a2ed2ec7	<div class="text-center"><div class="text-5xl">💀</div> <h2 class="font-serif-vn font-extrabold text-2xl text-red-900 mt-2">{0} went bankrupt!</h2> <p class="text-xs text-amber-950 mt-1">You no longer have enough money or heritage to pay. The game goes on among the remaining merchants.</p> <button onclick="closeModal()" class="wood-btn mt-4 py-3 rounded-xl font-extrabold text-sm w-full">👁️ Keep Watching the Game</button></div>
+39a865a1	Does {0} confirm SURRENDER and declare bankruptcy? All heritage will return to the market.
+d46fe4c3	surrender
+035aef06	⚠️ <b>{0}</b> cannot afford <b>{1} dong</b> ({2}).
+16e6a9ee	🏦 Short of cash, <b>{0}</b> must mortgage <b>{1}</b> back to the Bank and gets <b>{2} dong</b>.
+b9a0f5f5	💸 <b>{0}</b> pays <b>{1} dong</b> {2} to <b>{3}</b>.
+e8432ef4	{0} pays {1}đ to {2}
+206eccda	🏦 <b>{0}</b> pays <b>{1} dong</b> ({2}) to the Bank.
+7f9838ef	💥 <b>{0}</b> has run out of both cash and assets and is officially <b>BANKRUPT</b>!
+a21eac4d	<div class="bg-amber-950/10 border border-amber-800/30 p-3 rounded-xl flex justify-between items-center"> <div class="text-left"> <div class="font-bold text-sm text-amber-950">{0} {1}</div> <div class="text-xs text-amber-900/70">Value recovered from the Bank: <b class="text-emerald-800">+{2} dong</b></div> </div> <button onclick="confirmUserMortgage({3})" class="wood-btn px-3.5 py-2 rounded-xl text-xs font-extrabold"> Mortgage (+{4}đ) </button> </div>
+0abdc73e	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-red-800 text-white text-xs font-extrabold uppercase">Liquidity Warning</span> <h2 class="font-serif-vn font-extrabold text-2xl text-red-900 mt-2">Not Enough Cash to Pay!</h2> <p class="text-xs text-amber-950 mt-1">You are short by <b class="text-red-700 text-sm">{0} dong</b>. Choose a Property Card to mortgage back to the Bank:</p> <div class="space-y-2 my-4"> {1} </div> </div>
+b3dce14e	🏦 <b>{0}</b> mortgaged <b>{1}</b> to the Bank and received <b>+{2} dong</b> in liquidity.
+1c74ea87	No merchants remain on the board!
+689e2530	⚖️ <b>Round {0}</b> begins! The <b>Bank Treasurer</b> role passes to <b>{1}</b>.
+4e60a964	{0}'s turn! Roll the wooden dice
+4af7936c	Unstick the turn? (Only use if the game is stuck and the dice cannot be clicked)
+8c128d20	⚠️ A small glitch occurred this turn; the game is recovering itself...
+f1b8ad65	The turn hit an error - click the "🔄 Unstick turn" button to continue
+4e733d0b	The 10-minute time limit for this game has run out!
+3fff2465	<span class="text-red-700 text-xs">(Bankrupt)</span>
+f3c8679f	<div class="p-3 rounded-2xl border-2 flex items-center justify-between {0}"> <div class="flex items-center gap-3"> <span class="font-black text-lg w-6 text-amber-900">#{1}</span> <span class="text-2xl">{2}</span> <div class="text-left"> <div class="font-extrabold text-sm text-amber-950">{3} {4}</div> <div class="text-[11px] text-amber-900/80">Cash: <b>{5}đ</b> + Heritage ({6} tiles): <b>{7}đ</b></div> </div> </div> <div class="text-right"> <div class="font-black text-base text-emerald-800">{8} dong</div> <div class="text-[10px] text-amber-900/70">Total assets</div> </div> </div>
+e6d7c697	Defeat!
+b5913a65	Victory!
+ec30a14b	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-amber-700 text-amber-100 text-xs font-extrabold uppercase">Final Asset Audit</span> <div class="text-5xl my-2">{0}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">{1}Champion: {2}</h2> <p class="text-xs text-amber-900/80 mt-1">{3}</p> <div class="text-[11px] bg-amber-900/10 border border-amber-800/30 rounded-xl p-2 my-3 font-semibold text-amber-950"> Formula: Total Assets = Cash on Hand + Original Purchase Price of All Property Tiles </div> <div class="space-y-2 my-3 text-left"> {4} </div> <button onclick="window.location.reload()" class="wood-btn mt-3 py-3 rounded-xl font-extrabold text-sm w-full"> 🔄 Play a New Game on the 3D Board </button> </div>
+cf6f46a7	<option value="OFF" {0}>❌ Sit out</option>
+7cce8c2a	<div class="p-3 rounded-2xl border-2 border-amber-800/30 bg-amber-950/5 flex flex-col gap-2"> <div class="flex items-center justify-between gap-2"> <div class="flex items-center gap-2"> <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background:{0}">{1}</span> <input id="cfg-name-{2}" type="text" value="{3}" maxlength="16" class="px-2.5 py-1 rounded-lg border border-amber-700 bg-amber-50 font-extrabold text-xs text-amber-950 w-32"> </div> <div class="flex items-center gap-2 text-xs"> <select id="cfg-role-{4}" class="px-2 py-1 rounded-lg border border-amber-700 bg-white font-bold text-amber-950"> <option value="HUMAN" {5}>👤 Player</option> <option value="NPC" {6}>🤖 Computer (NPC)</option> {7} </select> </div> </div> <div class="flex items-center justify-between gap-2 text-[11px]"> <span class="text-amber-900 font-semibold">3D costume:</span> <select id="cfg-costume-{8}" class="flex-1 px-2 py-1 rounded-lg border border-amber-700/60 bg-amber-50/80 font-semibold text-amber-950"> {9} </select> </div> </div>
+87ae0e5e	<div class="text-left"> <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3"> <div> <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">👥 Multiplayer Mode (Up to 5 Players) & Costumes</h2> <p class="text-[11px] text-amber-900/80">Customize 2 to 5 merchants (Quốc Anh, Khánh Vy, Quốc An, Ngọc Vy, Kim) - supports several real players together or against NPCs!</p> </div> <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button> </div> <div class="space-y-2 max-h-[55vh] overflow-y-auto pr-1"> {0} </div> <button onclick="saveCostumeSelection()" class="wood-btn mt-4 py-2.5 rounded-xl font-extrabold text-sm w-full"> ✨ Apply Game Mode & Update 3D Characters </button> </div>
+3b008f41	Board updated with {0} merchants successfully!
+a7ecf29e	<div class="text-left"> <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3"> <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">📖 How to Play "Journey of the Craft Villages 3D"</h2> <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button> </div> <div class="space-y-3 text-xs text-amber-950 leading-relaxed max-h-[62vh] overflow-y-auto pr-1"> <div class="p-3 rounded-2xl bg-amber-900/10 border border-amber-800/30"> <div class="font-extrabold text-sm text-amber-900 mb-1">👥 1. Game Mode (1 to 5 Players & NPC Kim)</div> <p>The game has up to <b>5 Merchants</b> in Vietnamese costumes: <b>Quốc Anh, Khánh Vy, Quốc An, Ngọc Vy and Kim</b>. Click the <b>"5 Players"</b> button on the toolbar to play solo against 4 NPCs, or switch characters to <b>"👤 Player"</b> so friends and family can roll the dice together on one screen!</p> </div> <div class="p-3 rounded-2xl bg-emerald-900/10 border border-emerald-800/30"> <div class="font-extrabold text-sm text-emerald-900 mb-1">🗺️ 2. A Closed Loop Journey Through 47 Landmarks</div> <p>Everyone starts with <b>300 dong</b>. Pawns travel a closed loop through <b>47 landmarks placed in their true geographic regions</b>: from <b>Uncle Ho's Mausoleum - Hanoi (#0)</b> down the Northern Delta coast and the Central Coast (out to Ly Son island #11) to the South, across the sea to <b>Phu Quoc (#24)</b> → back up through the Mekong Delta, the Southeast and the Central Highlands (#25–#35) → Quang Tri Citadel, Nghe An, the Northwest and the Northeast (#36–#46), then closing the loop back at Hanoi. There are 6 Event / Skill tiles and 4 Tool Stations (Van Don, Tien Sa, Cai Rang, Northwest Market).</p> </div> <div class="p-3 rounded-2xl bg-teal-900/10 border border-teal-800/30"> <div class="font-extrabold text-sm text-teal-900 mb-1">🛠️ 3. Invest in Craft Villages & Use Tool Cards to Dodge Fees</div> <p>• <b>Invest in a Craft Village:</b> Every craft village shows its 3D model from the start of the game. Stop at a village with no owner and click <b>[Invest in Craft Village]</b> to reach <b>1 Star</b>, plant your ownership flag and start collecting experience fees.<br>• <b>Upgrade Service:</b> On later turns, when you stop at your own village, click <b>[Upgrade Service]</b> to climb <b>2 → 3 → 4 → 5 Stars</b> (International Standard). More stars means higher fees - 5 Stars is the highest. The star count shows as golden stars floating above the model.<br> • <b>Owned Land:</b> You must complete the <i>craft challenge</i> (e.g. simmering Ben Tre coconut candy, painting Lai Thieu piggy banks, harvesting Nha Trang bird's nests...). If you hold a matching <b>Tool Card</b> (bought at the 4 Rest Stops) or a <b>VIP Visit Pass</b> → <b>100% FREE</b>! With no tool → you must pay the service fee in cash to the landowner.</p> </div> <div class="p-3 rounded-2xl bg-red-900/10 border border-red-800/30"> <div class="font-extrabold text-sm text-red-900 mb-1">⚡ 4. A Stack of 10 Event Cards (!) & 7 Skill Cards (?)</div> <p>• <b>10 Event Cards (!):</b> Instant market effects (<i>Price storm x2, Bumper harvest x2, 5-star OCOP +120đ, UNESCO honor with a free tool, Heritage train, Spring tides...</i>).<br> • <b>7 Skill Cards (?):</b> Keep them in hand and activate when it pays off (<i>Master haggler -30%, VIP pass, Express double dice roll, Artisan's secret for 2 free tools, Cooperative alliance, Tourism ambassador, Merchant's leap</i>).</p> </div> </div> <button onclick="closeModal()" class="wood-btn mt-4 py-2.5 rounded-xl font-extrabold text-sm w-full">Ready to Set Off!</button> </div>
+5489c3f6	Welcome the 5 merchants: <b>Quốc Anh, Khánh Vy, Quốc An, Ngọc Vy & Kim</b> to the <b>3D Board of the Journey of the Craft Villages of Vietnam</b>!
+62fb897a	Click the <b>"How to Play"</b> or <b>"5 Players"</b> button at the top to see the rules and customize Multiplayer mode!
+901d6009	The 3D board for 5 merchants is ready!
+1205462f	Smooth
+4e754cb6	High
+01126a03	Ultra
+d7572596	Graphics: {0}
+fa7873e4	[Optimization] Merged {0} static meshes into {1}
+84cb0a2c	Only the room host can use this feature
+5de5b4ce	Your turn ({0})!
+d3b8a11e	{0}'s turn{1}...
+c8e0c957	{0}'s turn (🌐 online)...
+875c4666	You
+b1c6dde6	Waiting for the online player to decide…
+e1b4546c	⏳ Waiting for {0} to decide…
+db6fe506	Could not load the connection library (Internet required)
+4bad33e6	Host
+2d6d7937	Creating online room…
+3985645f	🌐 Online room <b>{0}</b> created. Send the code to friends so they can join.
+4a436ff1	Connection error:
+960b6479	🌐 <b>{0}</b> joined the room and controls the merchant in <b>{1}</b>.
+ef20bfee	Guest
+2cb0c346	📴 <b>{0}</b> left the room — the computer (NPC) will play for them.
+c2232a99	Online room closed
+f35cbbd0	The room code has 6 characters, e.g. K7Q2MX
+ff688eb5	Joining room {0}…
+0bd3d396	Trying to reconnect (attempt {0})…
+702c16c9	Could not connect. Check your network or the room code and try again
+ec884253	Room {0} not found
+d1e02a5b	🌐 Joined room <b>{0}</b>. You control the merchant in <b>{1}</b> — wait for your turn to roll the dice.

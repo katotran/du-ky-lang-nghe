@@ -1,0 +1,120 @@
+127725cc	Joined the online room!
+f9fed9c6	The room is full
+1e09cd7d	<div class="text-center"><div class="text-5xl">📴</div><h2 class="font-serif-vn font-extrabold text-2xl text-red-900 mt-2">Lost connection to the host</h2> <p class="text-xs text-amber-950 mt-1">The room was closed or the network was interrupted.</p> <button onclick="location.reload()" class="wood-btn mt-4 py-3 rounded-xl font-extrabold text-sm w-full">🔄 Reload the page</button></div>
+d7d38ea3	🌐 Room <b id="net-chip">{0}</b>
+ecc1677e	🌐 In room <b id="net-chip">{0}</b>
+cb4da45c	🏠 Host
+9d0d1ec1	<span class="ml-auto text-[10px] bg-emerald-700 text-white px-1.5 rounded">You</span>
+52cef931	<div class="text-left"><h2 class="font-serif-vn font-extrabold text-2xl text-emerald-800">🌐 Online Multi-Device Play</h2> <p class="text-xs text-amber-900/80 mt-1">All devices open the same game link and need Internet.</p> <label class="block text-xs font-bold text-amber-950 mt-3">Your name</label> <input id="on-name" maxlength="16" value="{0}" class="w-full px-3 py-2 rounded-xl border border-amber-700 bg-amber-50 font-bold text-amber-950 mt-1"> <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"> <div class="p-3 rounded-2xl border-2 border-emerald-700/40 bg-emerald-900/5"><b class="text-emerald-800">🏠 Create a room</b><p class="text-[11px] text-amber-900/80 mt-1">This device becomes the host and gets a 6-character code to send to friends.</p> <button onclick="NET.onlineOpen=false;closeModal();startHost(document.getElementById('on-name').value)" class="wood-btn w-full mt-2 py-2 rounded-xl font-extrabold text-sm">Create room</button></div> <div class="p-3 rounded-2xl border-2 border-red-800/30 bg-red-900/5"><b class="text-red-800">🚪 Join a room</b> <input id="on-code" maxlength="6" placeholder="e.g. K7Q2MX" class="w-full px-3 py-2 rounded-xl border border-amber-700 bg-white font-extrabold tracking-[4px] uppercase text-amber-950 mt-2"> <button onclick="NET.onlineOpen=false;const c=document.getElementById('on-code').value,n=document.getElementById('on-name').value;closeModal();startGuest(c,n)" class="bg-red-800 hover:bg-red-700 text-amber-100 w-full mt-2 py-2 rounded-xl font-extrabold text-sm">Join room</button></div> </div> <p class="text-[11px] text-amber-900/80 mt-3">💡 A player who joins takes the place of one computer merchant (NPC) and controls that character right away. If they leave, the computer plays for them.</p> <button onclick="NET.onlineOpen=false;closeModal()" class="w-full mt-3 py-2 rounded-xl bg-stone-300 hover:bg-stone-400 font-bold text-stone-800 text-sm">Close</button></div>
+0853edf4	<div class="text-center"><h2 class="font-serif-vn font-extrabold text-2xl text-emerald-800">🏠 Online Room</h2> <div class="text-[11px] font-bold text-amber-900/70 tracking-widest mt-2">ROOM CODE</div> <div class="font-serif-vn font-extrabold text-5xl tracking-[10px] text-red-800">{0}</div> {1} <div class="text-left space-y-1.5 mt-3">{2}</div> <p class="text-[11px] text-amber-900/80 mt-3 text-left">Friends open the same game link → click <b>🌐 Online</b> → enter the code → <b>Join room</b>. They take the place of the next NPC merchant (up to 4 players).</p> <div class="flex gap-2 mt-3"><button onclick="NET.onlineOpen=false;closeModal()" class="wood-btn flex-1 py-2 rounded-xl font-extrabold text-sm">Close</button> <button onclick="NET.onlineOpen=false;closeModal();closeRoom()" class="bg-red-800 hover:bg-red-700 text-amber-100 px-4 py-2 rounded-xl font-extrabold text-sm">Close room</button></div></div>
+763a76b6	<div class="text-center"><h2 class="font-serif-vn font-extrabold text-2xl text-emerald-800">🌐 Room {0}</h2> <p class="text-xs text-amber-950 mt-1">You control the merchant in <b>{1}</b>. On your turn, the <b>Roll dice</b> button lights up.</p> <div class="text-left space-y-1.5 mt-3">{2}</div> <div class="flex gap-2 mt-3"><button onclick="NET.onlineOpen=false;closeModal()" class="wood-btn flex-1 py-2 rounded-xl font-extrabold text-sm">Close</button> <button onclick="location.reload()" class="bg-red-800 hover:bg-red-700 text-amber-100 px-4 py-2 rounded-xl font-extrabold text-sm">Leave room</button></div></div>
+0e0e7899	Play online across devices
+5e9bfcb9	[Sunken tile fix] #{0} {1}: {2} → {3}
+c06e1551	Event Tile (!)
+f09a3ed9	Skill Tile (?)
+4127ecd9	<button class="dk-card dk-back {0}" style="--i:{1};--n:{2}" onclick="__dkPick({3})" title="Draw this card"><span class="dk-mark">{4}</span></button>
+cb821942	Event Card
+4d87fe9e	Skill Card
+5aae3faf	The computer merchant is picking a card…
+98666707	The deck is shuffled — click to pick 1 face-down card!
+7cf927ad	<div class="text-center">{0} <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950 mt-2">{1} draws {2}</h2> <p class="text-xs text-amber-900/80">{3}</p> <div class="dk-fan">{4}</div></div>
+2b956d66	<div class="dk-face bl dk-side-front"><div class="dk-kind">SKILL CARD</div><div class="dk-ic">❓</div><div class="dk-t">Secret</div><div class="dk-d">Kept hidden in hand</div></div>
+8f7b104d	EVENT CARD
+0a38db77	SKILL CARD
+2ae3ba59	<div class="text-center">{0} <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950 mt-2">{1} draws card number {2}…</h2> <div class="dk-stage"><div class="dk-flip"><div class="dk-card dk-back {3} dk-side-back"><span class="dk-mark">{4}</span></div>{5}</div></div></div>
+98d6e067	HO CHI MINH
+6b21a023	Page load {0}s · board build {1}s
+b3dbc002	[perf] page load
+99730d87	s; board build
+725bd4cd	Potter's Wheel, Carving & Forge
+f0c8d93d	Pottery, Carpentry & Forge Tools
+f40db644	Free service at Bat Trang, Dong Ho, Huong Thuy Xuan, Thanh Ha Pottery, Bau Truc Cham Pottery, Binh An Drums, Buu Long Stone, Jrai Wood Statues and Phuc Sen Forge.
+529ee3cd	Free service at Van Lam Embroidery, Nga Son Sedge Mats, Ba Don Conical Hats, Phu Binh Lanterns, Tan Chau Silk, Kon Tum Brocade, Son La Pieu Scarves and Lung Tam Linen Weaving.
+05aae145	Drying Racks, Greenhouse & Roasting Pan
+78e748b9	Farm Tools & Craft Kitchen
+51fb53f2	Free service at An Ngai Rice Paper, Ben Tre Coconut Candy, Tra Cuon Banh Tet, Vung Thom Pia Cakes, Sa Dec Flowers, Trang Bang Rice Paper, Da Lat Greenhouses, Buon Ma Thuot Coffee, Nam Dan Soybean Paste, Muong Vang Rice Wine, Binh Lu Glass Noodles, Chu Noodles and Tan Cuong Tea.
+3254f010	Free service at Ly Son Garlic, Nha Trang Bird's Nests, Phan Thiet Fish Sauce, Bac Lieu Salt, Ca Mau Shrimp and Phu Quoc Pearls.
+02359812	Ho Chi Minh Mausoleum
+20673783	Ba Dinh - Hanoi
+9c0b6083	Starting Station (+300đ)
+e83d95d9	The starting station at the Ho Chi Minh Mausoleum - Ba Dinh Square. Each time you pass or stop here, you receive 300 dong in salary.
+95640573	Visitors must coat Do paper with scallop shell and print the 5 color blocks of the painting "Prosperity and Wealth".
+f0625ef5	Van Don Trading Port
+9daf0142	Van Don - Quang Ninh
+efc6b148	The ancient Van Don trading port in Bai Tu Long Bay! Stop by to buy Tool Cards for the journey south.
+1be34868	Van Lam Embroidery Village
+f16dc346	Embroidery frame & Silk thread
+a841432e	Visitors must embroider an exquisite lotus lace amid the landscapes of Trang An.
+2151708d	Nga Son Sedge Mat Village
+16ca4ee3	Visitors must split sedge, dye it a deep vermilion and press the loom to weave a pair of patterned mats.
+ec0714c4	Cua Hoi - Nghe An
+62f158b1	The windswept mouth of the Lam River! Draw 1 Event Card and carry it out immediately.
+06d50348	Ba Don Conical Hat Village
+d7d3ab92	Ba Don - Quang Binh
+c53cda2e	Visitors must dry snow-white conical leaves and stitch a hat beside the Gianh River.
+a5d816d2	Hue Imperial City
+511222b2	Visitors must twist five-color agarwood incense and arrange it into vivid incense flowers under the Hue sun.
+6ce896bb	Tien Sa Trading Port
+687ccabe	Son Tra - Da Nang
+a1b06ac1	A bustling trading port beside the Son Tra peninsula! Merchant ships come and go restocking Tool Cards.
+e1f121e8	Thanh Ha Pottery Village
+ff2d585b	Thu Bon clay & Potter's wheel
+5c4637dd	Visitors must shape deep-red earthenware beside the Thu Bon River, next to Hoi An Old Town.
+12751e5c	Ly Son Garlic
+614f48ae	Visitors must pile coral sand to grow lone garlic on the volcanic island and build the boats for the Hoang Sa soldiers' send-off ritual.
+7b9bc754	Tay Son - Binh Dinh
+8f6e17e0	The martial land of Tay Son! Draw 1 Skill Card to hold a tactical privilege.
+2c4ddf6a	Nha Trang Bird's Nests
+f65bae3b	Rope ladder & Nest basket
+05612dbe	Visitors must climb the cliffs of Hon Noi to harvest swiftlet nests and clean every ivory-white strand.
+bc395294	Quao River clay & Burning straw
+f7d54fd3	Visitors must walk around the clay platform without using a wheel and fire the pottery in the open with straw and wood.
+a3b0ad25	Phan Thiet Fish Sauce
+29a152a3	Fermenting barrel & Coarse salt
+78115833	Visitors must ferment anchovies with salt in a barrel through the sunny season to draw off the prime sauce.
+ff136a12	An Ngai Rice Paper
+13a6ab67	Long Dien - Ba Ria Vung Tau
+93b62a83	Steaming pot & Bamboo drying trays
+84fe7180	Visitors must steam rice paper over a wood stove and fill the bamboo trays to dry in the sun in the village yard.
+5da4ba07	Thoi Son Islet Event
+553ce8cc	Thoi Son Islet - Tien Giang
+55a85611	A green islet in the Tien River where folk music echoes! Draw 1 Event Card and carry it out immediately.
+05d28fc4	Simmering pan & Candy cutter
+9e50e06a	Visitors must grate coconut, simmer malt on a cast-iron pan and cut and wrap each piece of coconut candy.
+ba945d29	Tra Cuon Banh Tet
+c421d441	Cau Ngang - Tra Vinh
+f485b220	Banana leaves & Large boiling pot
+f54d2870	Visitors must wrap a purple-leaf banh tet log with bean and pork filling and tend the boiling pot all night.
+97794b6c	Vung Thom Pia Cakes
+3820ba5c	Vinh Chau - Soc Trang
+a2c64951	Charcoal oven & Pressing mold
+8d51c8d5	Visitors must roll out the thousand-layer pastry, wrap durian and salted-egg filling and bake it in a charcoal oven.
+05714c55	Rake & Salt carrying poles
+bccd1eeb	Visitors must channel seawater into the crystallizing fields and rake up sparkling white salt mounds.
+fe4b0948	Ca Mau Shrimp Ponds
+4956cc55	Oxygen aerators & Net traps
+ccd3273e	Visitors must run the aerator paddles of a tiger-shrimp farm under the mangrove canopy of Ca Mau Cape.
+4e25d91a	Phu Quoc Pearls
+0dfc68a5	Culture raft & Pearl-seeding knife
+cd5e0c26	Visitors must dive to check the culture rafts and seed pearl nuclei into sea oysters amid the clear blue water.
+1f42f054	Cai Rang Floating Market
+a10b9370	Cai Rang - Can Tho
+35708648	Boats hang their "beo" poles, busy on the Hau River! Stop by to buy Tool Cards for the journey back north.
+ef29851a	Tan Chau Silk Village
+5331ec5e	Visitors must dye Lanh My A silk with mac nua fruit and dry it on the grass along the Tien River.
+0b622952	Sa Dec Flower Village
+39796437	Bamboo racks on water & Flower pots
+2abe5487	Visitors must row a skiff to tend the pompom chrysanthemum racks floating on the water.
+544ad647	Binh An Drum Village
+1525e278	Thu Thua - Long An
+0a32c345	Jackfruit wood & Buffalo hide
+49388e0d	Visitors must join the jackfruit-wood drum body, stretch the buffalo-hide head and test the booming sound.
+790c7385	Trang Bang - Tay Ninh
+be309d42	Steaming stove & Dew-drying racks
+3626439f	Visitors must steam double-layer rice paper, grill it until it puffs and stay up all night catching dew to make it chewy.
+1b2f6a0f	Buu Long Stone Carving
+5a0e0f98	Bien Hoa - Dong Nai
+87c49fb6	Steel chisels & Blue stone
+71c50364	Visitors must chisel a block of blue stone into a lion statue at the foot of Buu Long mountain.
+06e05b59	Lieng Nung Waterfall - Dak Nong
+d8f83ed9	Conquer Lieng Nung Waterfall in the great forest! Draw 1 Skill Card to hold a tactical privilege.

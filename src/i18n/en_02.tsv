@@ -1,0 +1,120 @@
+0129d4ba	Farm produce is piling up at the port! You must pay the Bank 40 dong in storage costs.
+1c9b05f3	Pay 40 dong storage fee
+f9440eab	Heritage Train Across Vietnam
+87740b92	A tourist train carrying visitors across Vietnam pulls in! Every active player receives 40 dong in tourism stimulus; you receive 80 dong.
+abfbfe80	You get +80đ, others get +40đ
+e4cce243	Spring Tides & Saltwater Intrusion
+161cfb88	Rising saltwater demands reinforced dikes and irrigation systems. You pay 45 dong into the climate-response fund.
+24b27e44	Pay 45 dong for dike reinforcement
+dd0a5b63	Master Haggler
+f2fe0d44	Get 30% off the investment/upgrade cost of any one Craft Village Landmark Tile during your current turn.
+9a1f111f	When investing or activating during your turn
+6c447665	VIP Heritage Visit Pass
+331f107f	Free entry once onto another player's Landmark Tile without spending a Tool Card or cash.
+2b91c5bd	Used automatically/actively when entering a guest's land
+39d31aed	Express Across Vietnam
+319d2837	Roll the dice twice in a row (gain an extra move right after your current turn ends).
+ce896c4e	Activate right away during your turn
+f976ba5f	Artisan's Secret
+bff1ba00	Activate to receive 2 random Tool Cards for free in your bag right away, without waiting for a stop.
+b24ca5e0	Cooperative Alliance
+686b3782	Activate to receive a 45-dong dividend for each Craft Village Tile you own (at least 90 dong from the Bank).
+83f0c8ca	Vietnam Tourism Ambassador
+25f151e1	Outstanding promotion of craft village culture! Activate to collect a 25-dong promotion fee from every other remaining player.
+7c803e34	Merchant's Leap
+0d594d4f	Activate to receive a 100-dong travel allowance and a 30% discount on the next tile you step onto.
+173ac6bf	Ao Ngu Than & Khan Dong
+bf9287e9	The traditional five-panel costume, symbolizing the parents of both sides and the wearer, paired with an elegant turban.
+d0a5a623	Hue Royal Court Ao Nhat Binh
+8aad8557	A Nguyen dynasty costume with a rectangular collar embroidered in vivid phoenix patterns, and a headdress.
+f0119e1c	Southern Ao Ba Ba & Khan Ran
+48b26fed	The simple, free-spirited outfit of the Mekong Delta river folk, with a checkered scarf over the shoulder and a conical hat.
+acb13405	Ao Tu Than & Non Quai Thao
+65cd5d22	The Kinh Bac "chi" costume with four flowing panels, a rosy-pink bodice underneath and a graceful flat-brimmed hat.
+3016e351	Ao Giao Linh & Golden Headwrap
+722733f6	An ancient cross-collar costume of the Ly - Tran - Le eras, with majestic wide sleeves, a silk belt and a golden headwrap.
+23869d5a	Quốc Anh (You)
+416e8b09	Ao Ngu Than
+0b97206e	Khánh Vy (NPC)
+f3f1e064	Khánh Vy
+a62a3f54	Ao Nhat Binh
+5153ac10	Quốc An (NPC)
+e6410416	Quốc An
+1511938f	Ao Ba Ba & Khan Ran
+6af7af21	Ngọc Vy (NPC)
+77d44223	Ngọc Vy
+48cd3622	Kinh Bac Ao Tu Than
+674b34f4	Ancient Ao Giao Linh
+3ad689e0	🎵 Successfully loaded {0} original video/music file(s) at 100%!
+e7e8ef07	Prosperous VN (Chamber Music)
+d8cb74b3	Ancient Crafts, Modern Soul (Erhu)
+3f2c6c14	🎻 Now playing Track 1: Prosperous Vietnam Shines (Chamber Version)
+580c2406	🪕 Now playing Track 2: Ancient Crafts, Modern Soul (Bamboo Clappers, Thunder Drum & Erhu)
+bc6de2f6	NORTH
+0032bf07	EAST SEA
+a2c48c50	BEAUTIFUL VIETNAM
+240bd2f5	Hanoi
+9bfa995b	Hue
+d5715ea1	Da Nang
+0cf6390c	Da Lat
+d5c224e4	Ho Chi Minh City
+53e12dd4	Can Tho
+a53f4c06	HOANG SA ARCHIPELAGO (VIETNAM)
+90987558	TRUONG SA ARCHIPELAGO (VIETNAM)
+c46485fa	Labels: Compact
+6923460a	Labels: Hidden
+525d68a6	3D Map Viewing Mode: info panels collapsed
+3774c26b	{0}đ
+eb98bbf4	{0} dong
+1dcfff9f	EVENT
+272930e1	SKILL
+d6bc8f59	Tile #{0} • {1}
+276e2a39	Owner: {0}
+e48f80d8	Vacant
+f939f87e	Function
+614828c3	Price: {0}đ • Fee: {1}đ
+711f0cd3	Speed: {0}x
+82d2f4cb	⚡ Game speed switched to {0}x!
+9d656364	On
+20401fd0	Off
+ed502aa3	Follow Pawn: {0}
+153f49b5	🎥 Auto camera following the pawn is on
+26f847f3	🎥 Auto camera following the pawn is off
+0686b8c8	Locating {0} at Tile #{1} {2}
+10aaaa55	<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-800/15 text-emerald-900 font-bold">{0}đ</span>
+ee5022c7	<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-800/15 text-amber-900 font-bold">Event</span>
+b4f4ba2d	<div class="text-left"> <div class="flex items-center justify-between border-b border-amber-800/30 pb-2 mb-3"> <div> <h2 class="font-serif-vn font-extrabold text-xl text-amber-950">🧭 Directory of 47 Vietnamese Craft Village Landmarks</h2> <p class="text-[11px] text-amber-900/80">Click any landmark to fly the 3D camera there and admire its architectural model up close!</p> </div> <button onclick="closeModal()" class="text-amber-900 hover:text-red-700 text-lg font-bold"><i class="fa-solid fa-xmark"></i></button> </div> <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[60vh] overflow-y-auto pr-1"> {0} </div> </div>
+09064260	Northern Vietnam
+75ea1a8a	Central Coast & Highlands
+aa886264	South & Islands
+7786da12	{0} Merchants
+88b02e04	<div class="glass-pill px-2.5 py-1 rounded-full text-[10px] font-bold text-red-300 shadow">📈 Tool Price Storm x2 ({0} turns)</div>
+bce30f23	<div class="glass-pill px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-300 shadow">🌾 {0}: Bumper Harvest x2 ({1} turns)</div>
+37a4d2b7	+{0}đ
+3674c0d8	{0}đ
+46a1ddc8	Player
+370a27fc	<span class="text-[8px] bg-amber-700 text-amber-100 px-1 rounded font-bold">Bank</span>
+25b6a485	<div onclick="focusCameraOnPlayer({0})" class="kraft-card p-2 rounded-xl transition-all cursor-pointer hover:brightness-105 {1} {2}" title="Click to point the 3D camera at {3}"> <div class="flex items-center justify-between gap-1"> <div class="flex items-center gap-1.5 min-w-0"> <div class="w-6 h-6 rounded-lg flex items-center justify-center text-sm text-white font-bold shadow shrink-0" style="background:{4}"> {5} </div> <div class="min-w-0"> <div class="flex items-center gap-1"> <span class="font-extrabold text-[11px] text-amber-950 truncate">{6}</span> <span class="text-[8px] px-1 rounded font-bold {7}">{8}</span> {9} </div> <div class="text-[9px] text-amber-800 truncate"> #{10} {11} </div> </div> </div> <div class="text-right shrink-0"> <div class="font-black text-xs text-emerald-800 flex items-center justify-end gap-1">{12}<span>{13}đ</span></div> <div class="text-[9px] text-amber-900/70">Assets: <b>{14}đ</b></div> </div> </div> <div class="w-full h-1 bg-amber-900/15 rounded-full overflow-hidden mt-1"> <div class="h-full rounded-full transition-all duration-500" style="width:{15}%; background:{16}"></div> </div> <div class="mt-1 pt-0.5 flex items-center justify-between text-[9px] text-amber-950"> <span class="truncate max-w-[95px] text-amber-900/80">{17}</span> <span>🏘️<b>{18}</b> 🛠️<b>{19}</b> ⚡<b>{20}</b></span> </div> </div>
+f494e8ad	<span class="text-[9px] bg-amber-700 text-white px-1 rounded">Use</span>
+96fb9e09	<button onclick="activateUserSkillCard({0})" {1} class="shrink-0 bg-amber-500/20 hover:bg-amber-500/40 border border-amber-700 px-2.5 py-1 rounded-xl flex items-center gap-1.5 text-xs transition {2}" title="{3} (Click to activate during your turn)"> <span>{4}</span> <span class="font-bold text-amber-950">{5}</span> {6} </button>
+342b618f	<span class="text-xs text-amber-900/60 italic">No reserve cards yet. Visit a Tool Station or a Skill Tile!</span>
+cc966108	{0}'s turn!
+b6275c13	{0}'s turn (NPC)...
+94549012	Function Tile
+c55c2949	Traditional craft village in {0}.
+43b05797	<b>{0}</b> plays the Skill Card <b>"Express Across Vietnam"</b> to roll the dice twice in a row!
+ab7c8570	{0} activates the Express Card!
+951f192f	{0} is rolling the wooden dice...
+76316fd2	<b>{0}</b> rolled <b>{1}</b>.
+1a231a2d	{0} moves {1} steps!
+ed80bcfd	Thanks to the <b>Express</b> card, <b>{0}</b> gets to roll the dice one more time!
+2d708eea	{0} goes again for a 2nd move!
+7dd43adb	🏯 <b>{0}</b> completes the journey across Vietnam through <b>Thang Long - Hanoi</b> and receives a salary of <b>+300 dong</b>!
+81f75da2	{0} receives a salary of +300 dong!
+68c23876	<b>{0}</b> visits their own facility <b>{1}</b>.
+32bdd4bb	<b>{0}</b> plays <b>"Master Haggler"</b> to cut the price of {1} by 30% to <b>{2} dong</b>!
+9d9043a9	<b>{0}</b> weighs their cash flow and decides not to buy <b>{1}</b>.
+dc14d45a	{0} keeps cash in reserve
+0e662c3f	(30% off applied)
+f758ed98	<button id="modal-btn-bargain" class="bg-amber-500 hover:bg-amber-400 text-amber-950 font-extrabold px-4 py-2.5 rounded-xl border-2 border-amber-700 text-xs shadow"> 🏷️ Use "Master Haggler" (Buy for {0}đ) </button>
+4c5a12d0	<div class="text-center"> <span class="px-3 py-1 rounded-full bg-amber-800 text-amber-100 text-xs font-extrabold uppercase tracking-wider">Unowned Property • {0}</span> <div class="text-5xl my-3">{1}</div> <h2 class="font-serif-vn font-extrabold text-2xl text-amber-950">{2}</h2> <p class="text-xs text-amber-900/80 mt-1">Invest to own a craft-village heritage site and build its 3D architectural model on the board!</p> <div class="bg-amber-900/10 border border-amber-800/30 rounded-2xl p-3.5 my-4 text-left space-y-2 text-xs"> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">Investment value:</span> <span class="font-black text-base text-emerald-800">{3} dong {4}</span> </div> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">Service fee collected:</span> <span class="font-bold text-red-700">{5} dong / visitor turn</span> </div> <div class="flex justify-between items-center"> <span class="font-semibold text-amber-900">Required tool:</span> <span class="font-bold text-teal-900">{6}</span> </div> <div class="pt-1.5 border-t border-amber-800/20 italic text-amber-950"> <b>Visitor experience:</b> "{7}" </div> </div> <div class="flex flex-col sm:flex-row gap-2.5 justify-center mt-4"> {8} <button id="modal-btn-buy" {9} class="wood-btn px-5 py-2.5 rounded-xl font-extrabold text-sm flex-1"> 💰 Invest & Buy Land ({10}đ) </button> <button id="modal-btn-pass" class="bg-stone-300 hover:bg-stone-400 text-stone-800 font-bold px-4 py-2.5 rounded-xl text-sm"> Pass </button> </div> </div>
