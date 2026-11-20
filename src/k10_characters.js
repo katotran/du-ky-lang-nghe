@@ -16,7 +16,7 @@
         AO_NGU_THAN: { kind: 'photographer', name: 'Nhiếp Ảnh Gia Film', short: 'Nhiếp Ảnh Gia', desc: 'Chàng trai mê máy ảnh film: áo bomber xanh rêu, quần cargo, mũ bucket, sneaker trắng và chiếc máy ảnh đeo cổ.' },
         AO_NHAT_BINH: { kind: 'vlogger', name: 'Vlogger Năng Động', short: 'Vlogger', desc: 'Cô bạn ham quay vlog: crop top hồng, quần ống rộng, tóc đuôi ngựa cao, tai nghe và gimbal luôn trên tay.' },
         AO_BA_BA: { kind: 'traveler', name: 'Phượt Thủ Núi Rừng', short: 'Phượt Thủ', desc: 'Chàng trai cao ráo mê khám phá: áo gió outdoor, quần túi hộp, ba lô leo núi lớn, mũ lưỡi trai, bình nước và giày trekking.' },
-        AO_TU_THAN: { kind: 'artist', name: 'Nghệ Sĩ Cá Tính', short: 'Nghệ Sĩ', desc: 'Cô nàng nghệ sĩ: hoodie oversize, chân váy xếp ly, tóc bob nhuộm tím nhẹ, kính tròn, túi tote vẽ tay và sổ phác thảo.' },
+        AO_TU_THAN: { kind: 'artist', name: 'Nghệ Sĩ Cá Tính', short: 'Nghệ Sĩ', desc: 'Cô nàng nghệ sĩ: hoodie vàng oversize, chân váy xếp ly, tóc bob nâu hạt dẻ, kính tròn, túi tote vẽ tay và sổ phác thảo.' },
         AO_GIAO_LINH: { kind: 'street', name: 'Streetstyle Cực Chất', short: 'Streetstyle', desc: 'Chàng trai phố thị: áo thun graphic, quần baggy, áo khoác thể thao, mũ snapback, headphone choàng cổ và balo mini.' }
     };
     // đổi tên/mô tả bộ trang phục trong dữ liệu gốc để sảnh chờ, bảng người chơi, chế độ chơi hiển thị đúng
@@ -101,7 +101,7 @@
         const skull = mk(head, KG.sph(.3, 40, 30), skin); skull.scale.set(1.06, .97, 1);
         [1, -1].forEach(s => { mk(head, KG.sph(.052, 14, 10), skin, s * .31, -.03, -.01).scale.set(.5, 1, .8); });
         mk(head, KG.sph(.021, 14, 10), VM(spec.skinDeep, .5), 0, -.075, .292).scale.set(1, .85, .85);
-        C.eyes = []; C.brows = [];
+        C.eyes = []; C.brows = []; C.browY0 = spec.browY || .074;
         [1, -1].forEach(s => {
             const E = new THREE.Group(); E.position.set(s * .118, -.035, .262); E.rotation.y = s * .3; head.add(E);
             mk(E, KG.sph(.064, 24, 18), eyeM).scale.set(1, 1.18, .5);
@@ -109,8 +109,8 @@
             mk(E, KG.sph(.02, 12, 10), white, .02, .03, .026); mk(E, KG.sph(.0095, 10, 8), white, -.02, -.026, .026);
             const lash = mk(E, new THREE.TorusGeometry(.066, .0065, 6, 20, Math.PI * .85), VM(0x1c110d, .5), 0, .004, .006); lash.rotation.z = Math.PI * .08; lash.scale.set(1, 1.1, .6);
             C.eyes.push(E);
-            const bg = new THREE.Group(); bg.position.set(s * .122, .074, .265); bg.rotation.y = s * .3; head.add(bg);
-            const b = mk(bg, KG.cyl(.0125, .0125, .086, 10), hairM); b.rotation.z = Math.PI / 2; mk(bg, KG.sph(.0125, 10, 8), hairM, .043, 0, 0); mk(bg, KG.sph(.0125, 10, 8), hairM, -.043, 0, 0);
+            const bg = new THREE.Group(); bg.position.set(s * .122, spec.browY || .074, .265); bg.rotation.y = s * .3; head.add(bg);
+            const bR = spec.browR || .0125, bL = spec.browLen || .086, b = mk(bg, KG.cyl(bR, bR, bL, 10), hairM); b.rotation.z = Math.PI / 2; mk(bg, KG.sph(bR, 10, 8), hairM, bL / 2, 0, 0); mk(bg, KG.sph(bR, 10, 8), hairM, -bL / 2, 0, 0);
             bg.userData.s = s; C.brows.push(bg);
             const bl = mk(head, new THREE.CircleGeometry(.046, 16), BLUSH, s * .19, -.1, .232); bl.rotation.y = s * .62; bl.castShadow = false;
         });
@@ -128,7 +128,7 @@
     function setExpr(C, name) {
         if (C.expr === name) return; C.expr = name; const E = EXPR[name] || EXPR.smile;
         Object.keys(C.mouths).forEach(k => { C.mouths[k].visible = k === E.mouth; });
-        C.brows.forEach(b => { b.rotation.z = -b.userData.s * E.brow; b.position.y = .074 + E.browY; });
+        C.brows.forEach(b => { b.rotation.z = -b.userData.s * E.brow; b.position.y = C.browY0 + E.browY; });
         C.exprEye = E.eye;
     }
 
@@ -196,7 +196,7 @@
     }
 
     /* ---------- năm nhân vật: trang phục, tóc, phụ kiện ---------- */
-    const SKINS = { photographer: [0xe3ac82, 0xc88f66], vlogger: [0xf8d9c6, 0xe8b79d], artist: [0xf0c9a8, 0xd9a984], traveler: [0xd49a6a, 0xb77d52], street: [0xe2b48d, 0xc79570] };
+    const SKINS = { photographer: [0xe3ac82, 0xc88f66], vlogger: [0xf8d9c6, 0xe8b79d], artist: [0xffdcc6, 0xe9b99c], traveler: [0xd49a6a, 0xb77d52], street: [0xe2b48d, 0xc79570] };
 
     function buildPhotographer(C, head, skinM) {
         const olive = VM(0x6f7d4a, .62), tee = VM(0xf6f2e8, .6), hairM = VM(0x3b2a22, .5), khaki = VM(0xb89f74, .65), white = VM(0xf3f4f6, .5), blue = VM(0x2f6df0, .4);
@@ -258,16 +258,16 @@
     }
 
     function buildArtist(C, head, skinM) {
-        const lilac = VM(0x8d6bd6, .75), hairM = VM(0x9a86ea, .5), white = VM(0xf5f5f7, .55), gold = VM(0xd9b04a, .3, { metalness: .8 });
+        const lilac = VM(0xe6a21e, .75), hairM = VM(0x5a3626, .55), white = VM(0xf5f5f7, .55), gold = VM(0x2e3a6b, .35, { metalness: .3 });
         C.hairM = hairM;
         buildSkeleton(C, {
             skinM, hipY: .56, torsoH: .6, neckTop: .64, shoulderX: .205, armLen: .54, skirt: true, sockM: white, shoeM: VM(0xf7e9f0, .5), soleM: VM(0xb9a6f0, .5), toeM: VM(0xdcd0fa, .5),
-            sleeve: { mat: lilac, r0: .068, r1: .08, cuff: VM(0x6f4fc0, .75) },
+            sleeve: { mat: lilac, r0: .068, r1: .08, cuff: VM(0xc99a2e, .75) },
             torso: T => {
                 kLathe(T, [[.0, -.12], [.2, -.12], [.245, .06], [.255, .24], [.25, .4], [.2, .54], [.1, .62], [0, .64]], lilac, 0, .88);
-                const hem = mk(T, new THREE.TorusGeometry(.2, .02, 10, 36), VM(0x6f4fc0, .75), 0, -.115, 0); hem.rotation.x = Math.PI / 2; hem.scale.y = .88;
-                const hood = mk(T, new THREE.TorusGeometry(.13, .05, 14, 28), lilac, 0, .6, -.07); hood.rotation.x = Math.PI / 2 - .5;
-                mk(T, KG.box(.2, .09, .05, .03), VM(0x7a58c8, .75), 0, .1, .205).rotation.x = -.1;
+                const hem = mk(T, new THREE.TorusGeometry(.2, .02, 10, 36), VM(0xc99a2e, .75), 0, -.115, 0); hem.rotation.x = Math.PI / 2; hem.scale.y = .88;
+                const hood = mk(T, new THREE.TorusGeometry(.12, .04, 14, 28), lilac, 0, .6, -.06); hood.rotation.x = Math.PI / 2 - .5;
+                mk(T, KG.box(.2, .09, .05, .03), VM(0xd9a93e, .75), 0, .1, .205).rotation.x = -.1;
                 [-1, 1].forEach(s => tubeBetween(T, [[s * .05, .58, .19], [s * .055, .45, .225], [s * .05, .34, .232]], .0085, white));
                 const skG = joint(T, 0, 0, 0), sk = new THREE.Mesh(new THREE.CylinderGeometry(.2, .31, .2, 22, 1, true), new THREE.MeshStandardMaterial({ color: 0x2e3a6b, roughness: .8, flatShading: true, side: THREE.DoubleSide })); sk.position.y = -.1; sk.scale.z = .9; sk.castShadow = true; skG.add(sk);
                 addSpring(C, skG, { ax: 'z', gY: .015, gF: .02, k: 50, d: 5, max: .25 });
@@ -278,12 +278,49 @@
                 tubeBetween(T, [[-.17, .58, .01], [-.24, .38, .04], [-.2, .12, .05]], .012, VM(0xe8dcc0, .8));
             }
         });
-        hairCap(head, hairM);
-        const open = 1.0, cur = mk(head, new THREE.SphereGeometry(.345, 40, 24, Math.PI / 2 + open, Math.PI * 2 - open * 2, Math.PI * .4, Math.PI * .42), hairM, 0, -.01, -.02); cur.scale.set(1.09, 1.0, 1.07); cur.material.side = THREE.DoubleSide;
-        fringe(head, hairM, 9, .15, 1.15, 1.45);
-        const tip = mk(head, new THREE.SphereGeometry(.349, 40, 8, Math.PI / 2 + open, Math.PI * 2 - open * 2, Math.PI * .74, Math.PI * .08), VM(0x35c6c0, .5), 0, -.01, -.02); tip.scale.set(1.09, 1.0, 1.07); tip.material.side = THREE.DoubleSide;
-        [1, -1].forEach(s => { const r = mk(head, new THREE.TorusGeometry(.075, .0072, 8, 28), gold, s * .118, -.033, .285); r.rotation.y = s * .3; mk(head, KG.cyl(.004, .004, .2, 6), gold, s * .3, -.03, .17).rotation.x = Math.PI / 2; });
-        mk(head, KG.cyl(.005, .005, .05, 6), gold, 0, -.027, .298).rotation.z = Math.PI / 2;
+        // Tóc bob + mái bằng lệch nhẹ: mọi phần là mảnh vỏ cầu cùng tâm với đầu nên liền khối, ôm sát hộp sọ
+        const PI = Math.PI, HR = .335;
+        const shell = (r, th0, thLen, phi0, phiLen, rep, y) => { const m = mk(head, new THREE.SphereGeometry(r, 64, 36, phi0, phiLen, th0, thLen), hairM, 0, y === undefined ? -.015 : y, -.02); m.scale.set(1.09, 1.03, 1.08); m.material.side = THREE.DoubleSide; return m; };
+        const gap = 1.2;
+        shell(HR, 0, PI * .4, PI / 2 + gap, PI * 2 - gap * 2, 2);                       // chỏm đầu phía sau
+        shell(HR, 0, PI * .36, PI / 2 - gap, gap * 2, 2);                               // chỏm đầu phía trước: chân tóc cao để lộ trán
+        shell(HR, PI * .4, PI * .2, PI / 2 + gap, PI * 2 - gap * 2, 1.25);                 // gáy + hai bên tới ngang tai (tóc búi cao nên lộ cổ)
+        // tự nhiên kiểu chibi: mảng tóc trơn có vệt sáng bóng vòng quanh đầu, mái tách thành các lọn nhọn đuôi xếp chồng
+        shell(HR + .006, PI * .15, PI * .06, PI / 2 + gap, PI * 2 - gap * 2, 1).material = VM(0x7d4d38, .35, { clearcoat: .5 });   // vệt sáng bóng
+        const onSurf = (phi, th, R) => [-Math.cos(phi) * Math.sin(th) * R * 1.09, Math.cos(th) * R * 1.03 - .015, Math.sin(phi) * Math.sin(th) * R * 1.08 - .02];
+        // mái rèm rẽ giữa: hai tấm tóc cong từ đường rẽ ra hai bên, mép dưới thấp dần về phía thái dương rồi hòa vào lọn ôm mặt
+        const onS = (phi, th, R) => onSurf(phi, th, R);
+        [1, -1].forEach(sd => {
+            const NU = 16, NV = 8, pos = [], idx = [];
+            for (let i = 0; i <= NU; i++) {
+                const u = i / NU, th1 = PI * (.37 + .14 * Math.pow(u, 1.25));
+                for (let j = 0; j <= NV; j++) {
+                    const v = j / NV, th = PI * .1 + (th1 - PI * .1) * v;
+                    const phi = PI / 2 + sd * (.01 + u * 1.17 + .28 * v * (1 - .35 * u));         // quét cong ra ngoài khi xuống thấp
+                    pos.push(...onS(phi, th, HR + .004 + .01 * Math.pow(Math.min(1, v * 1.5), 2) + .008 * Math.sin(Math.PI * v) * (1 - u * .4)));
+                }
+            }
+            for (let i = 0; i < NU; i++) for (let j = 0; j < NV; j++) { const a = i * (NV + 1) + j, b = a + NV + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+            const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+            const m = new THREE.Mesh(g, hairM.clone()); m.material.side = THREE.DoubleSide; m.material.clearcoat = .1; m.material.roughness = .62; m.castShadow = true; head.add(m);
+        });
+        // đường ngôi: rãnh tối mảnh chỉ ở phần mái (không kéo lên đỉnh đầu), hai tấm mái rẽ đều hai bên
+        { const pts = []; for (let k = 0; k <= 12; k++) { const th = PI * (.25 + .12 * k / 12); pts.push(onSurf(PI / 2, th, HR + .006)); }
+          tubeBetween(head, pts, .0032, VM(0x3a2216, .7)); }
+        // hai lọn dài ôm mặt rủ xuống cằm
+        [1, -1].forEach(s => { const m = mk(head, KG.sph(.06, 16, 12), hairM, s * .292, -.07, .1); m.scale.set(.5, 2.7, .7); m.rotation.set(0, s * .5, s * .06); });
+        // búi tóc cao lộn xộn + bút chì cài, có chút nảy theo chuyển động
+        const bun = joint(head, 0, .265, -.1);
+        mk(bun, KG.sph(.125, 28, 20), hairM, 0, .1, 0).scale.set(1.05, .92, 1);
+        mk(bun, KG.sph(.07, 16, 12), hairM, .09, .17, .0); mk(bun, KG.sph(.06, 16, 12), hairM, -.08, .17, -.01);
+        const band = mk(bun, new THREE.TorusGeometry(.085, .015, 10, 26), VM(0x2e3a6b, .45), 0, .0, 0); band.rotation.x = Math.PI / 2;
+        const pen = joint(bun, -.03, .12, .06); pen.rotation.set(.15, 0, -1.2);
+        mk(pen, KG.cyl(.0125, .0125, .36, 10), VM(0xf5c518, .4), 0, 0, 0); mk(pen, KG.cyl(.0125, .0125, .03, 10), VM(0xd9d9de, .3, { metalness: .6 }), 0, .195, 0); mk(pen, KG.sph(.0135, 10, 8), VM(0xf08aa0, .5), 0, .22, 0);
+        mk(pen, new THREE.ConeGeometry(.0125, .05, 10), VM(0xe8c9a0, .6), 0, -.205, 0).rotation.x = Math.PI;
+        addSpring(C, bun, { ax: 'x', gY: .035, gF: .02, k: 55, d: 6, max: .3 });
+        const clip = mk(head, KG.box(.09, .024, .02, .008), VM(0x2e3a6b, .4), .2, .15, .245); clip.rotation.set(-.2, .45, -.5);                  // kẹp tóc xanh navy
+        [1, -1].forEach(s => { const r = mk(head, new THREE.TorusGeometry(.079, .0052, 8, 32), gold, s * .118, -.033, .286); r.rotation.y = s * .3; mk(head, KG.cyl(.0035, .0035, .13, 6), gold, s * .3, -.03, .1).rotation.x = Math.PI / 2; });
+        mk(head, KG.cyl(.0042, .0042, .075, 6), gold, 0, -.02, .302).rotation.z = Math.PI / 2;
         const hold = joint(C.hands[1], 0, -.07, .05); hold.rotation.set(-.3, .2, .0);
         mk(hold, KG.box(.13, .17, .024, .01), VM(0xf4ead2, .8), 0, 0, 0); mk(hold, KG.box(.135, .175, .008, .006), VM(0x2fb5a5, .6), 0, 0, -.016);
         for (let i = 0; i < 6; i++) mk(hold, new THREE.TorusGeometry(.008, .0025, 6, 10), VM(0x333, .4), -.068, .06 - i * .024, 0);
@@ -352,7 +389,7 @@
         AO_NGU_THAN: { kind: 'photographer', skin: SKINS.photographer, eye: 0x2a1a14, build: buildPhotographer, idle: ['camera', 'hat', 'look'], grip: [null, null], rest: { sRZ: .22, sLZ: .22 }, arrive: ['photo', 'thumbs', 'point'] },
         AO_NHAT_BINH: { kind: 'vlogger', skin: SKINS.vlogger, eye: 0x2a1a14, build: buildVlogger, idle: ['selfie', 'wave', 'look'], grip: ['grip', null], rest: { sRX: -.85, eR: -.55, wRX: -.2, sRZ: .12, sLZ: .2 }, arrive: ['selfie', 'point', 'thumbs'] },
         AO_BA_BA: { kind: 'traveler', skin: SKINS.traveler, eye: 0x2a1a14, build: buildTraveler, idle: ['strap', 'lookfar', 'look'], grip: [null, null], rest: { sRZ: .22, sLZ: .22 }, arrive: ['point', 'thumbs', 'photo'] },
-        AO_TU_THAN: { kind: 'artist', skin: SKINS.artist, eye: 0x3a2418, build: buildArtist, idle: ['hair', 'sketch', 'look'], grip: [null, 'grip'], rest: { sLX: -.7, eL: -1.05, sRZ: .2, sLZ: .1 }, arrive: ['photo', 'thumbs', 'point'] },
+        AO_TU_THAN: { kind: 'artist', skin: SKINS.artist, skinGlow: 0x4a2414, browY: .064, browLen: .06, browR: .0085, eye: 0x3a2418, build: buildArtist, idle: ['hair', 'sketch', 'look'], grip: [null, 'grip'], rest: { sLX: -.7, eL: -1.05, sRZ: .2, sLZ: .1 }, arrive: ['photo', 'thumbs', 'point'] },
         AO_GIAO_LINH: { kind: 'street', skin: SKINS.street, eye: 0x2a1a14, build: buildStreet, idle: ['music', 'look', 'strap'], grip: [null, null], rest: { sRZ: .2, sLZ: .2, eR: -.2, eL: -.2 }, arrive: ['thumbs', 'photo', 'point'] }
     };
 
@@ -372,7 +409,7 @@
         group.add(fig); group.userData.figure = fig; group.userData.faceY = 0;
         const FEET = -.495; fig.position.y = FEET;
         const C = { player, group, fig, cfg: config, sec: [], ph: player.id * 1.7, last: null, lastVy: 0, vy: 0, hop: null, act: null, gest: null, nextG: 2 + Math.random() * 3, stepSide: 1, wave: 0, sad: 0, cheer: 0, tired: 0, blink: 2 + Math.random() * 3, cash: player.cash, lastT: 0, expr: null, lookYaw: 0, arrivals: 0, actCool: 0, FEET };
-        const sk = config.skin, skinM = VM(sk[0], .55, { clearcoat: .3 }), spec = { eye: config.eye, skinDeep: sk[1] };
+        const sk = config.skin, skinM = VM(sk[0], .55, { clearcoat: .3, emissive: config.skinGlow || 0x000000 }), spec = { eye: config.eye, skinDeep: sk[1], browY: config.browY, browLen: config.browLen, browR: config.browR };
         const head = C.head = new THREE.Group();
         config.build(C, head, skinM);
         buildHeadAndFace(C, spec, skinM, C.hairM, head);
