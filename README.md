@@ -33,6 +33,7 @@ ruby -run -e httpd . -p 8766
 | `src/k5_newmap.js` | Địa hình phẳng kiểu mới, đảo, bờ đất bao quanh biển (thay khung bàn gỗ) |
 | `src/k6_tiles_pawns.js` | Bệ địa danh bo tròn, nhân vật chibi cổ phục và hoạt ảnh (thở, chớp mắt, vẫy tay, nhảy mừng) |
 | `src/k10_characters.js` | 5 nhân vật chibi hiện đại kiểu vinyl toy: bộ xương phân cấp (hips/spine/head/vai/khuỷu/cổ tay/đùi/gối/cổ chân), 6 biểu cảm, hệ animation (idle riêng, nhảy giữa ô, tung xúc xắc, thắng/thua, đến làng nghề, tới lượt), chuyển động thứ cấp, bóng mềm, nhãn tên, avatar render từ mô hình 3D. `createCharacter(config, player)` + `CHARACTER_CONFIGS` để thêm nhân vật |
+| `src/k11_landmarks.js` | Thông tin 47 địa danh (từ file PDF của nhóm; số thứ tự PDF = chỉ số ô + 1) và nút **Tìm hiểu địa danh** trong thẻ thông tin ô → thẻ địa danh lật mặt 3D: mặt trước = tên + tỉnh, mặt sau = mô tả (bấm thẻ / nút "Lật thẻ" / phím Enter để lật, Esc để đóng). Sửa mô tả: sửa mảng `LANDMARK_INFO`, rồi thêm bản dịch EN bằng `node tools/i18n.js add` |
 | `src/k9_i18n_ui.js` | Nút chuyển VI/EN, vẽ lại chữ trong cảnh 3D khi đổi ngôn ngữ |
 | `src/i18n/*.tsv` | Từ điển tiếng Anh: `mã băm<TAB>bản dịch` (mã băm = FNV-1a của chuỗi gốc đã gộp khoảng trắng); `extra.txt` cho chữ ghép lúc chạy |
 | `tools/i18n.js`, `tools/i18n_runtime.js` | Bước dựng thứ hai: bọc chuỗi tiếng Việt bằng `__t`/`__tt`, nhúng từ điển + bộ dịch trình duyệt |

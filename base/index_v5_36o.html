@@ -7435,10 +7435,17 @@ function createVietnameseCostumePawn3D(player) {
         for (let i = 0; i < total; i++) {
             const A = BOARD_TILES[i], B = BOARD_TILES[(i + 1) % total];
             const dx = B.mapX - A.mapX, dz = B.mapZ - A.mapZ, len = Math.hypot(dx, dz);
-            const bend = ((i * 7) % 5 - 2) * .06 * len;
-            const mid = new THREE.Vector3((A.mapX + B.mapX) / 2 - dz / len * bend, 0, (A.mapZ + B.mapZ) / 2 + dx / len * bend);
-            const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(A.mapX, 0, A.mapZ), mid, new THREE.Vector3(B.mapX, 0, B.mapZ)], false, 'centripetal');
-            const n = Math.max(8, Math.ceil(len / .12)), sampled = curve.getSpacedPoints(n);
+            let bend = ((i * 7) % 5 - 2) * .06 * len;
+            const mkMid = bd => new THREE.Vector3((A.mapX + B.mapX) / 2 - dz / len * bd, 0, (A.mapZ + B.mapZ) / 2 + dx / len * bd);
+            const mkCurve = bd => new THREE.CatmullRomCurve3([new THREE.Vector3(A.mapX, 0, A.mapZ), mkMid(bd), new THREE.Vector3(B.mapX, 0, B.mapZ)], false, 'centripetal');
+            const n = Math.max(8, Math.ceil(len / .12));
+            // đường giữa hai ô đất liền phải nằm trên đất: thử vài độ cong, chọn đường ít điểm ra biển nhất (đoạn ra đảo vẫn giữ nguyên)
+            if (!A.island && !B.island) {
+                const seaPts = bd => mkCurve(bd).getSpacedPoints(n).filter(p => Math.hypot(p.x - A.mapX, p.z - A.mapZ) >= 1.05 && Math.hypot(p.x - B.mapX, p.z - B.mapZ) >= 1.05 && Math.max(...[[0, 0], [.13, 0], [-.13, 0], [0, .13], [0, -.13]].map(([ox, oz]) => terrainH(p.x + ox, p.z + oz))) < 0).length;
+                let best = seaPts(bend);
+                if (best > 0) for (const f of [0, .06, -.06, .12, -.12, .2, -.2, .3, -.3, .42, -.42]) { const bd = f * len, c = seaPts(bd); if (c < best) { best = c; bend = bd; if (c === 0) break; } }
+            }
+            const curve = mkCurve(bend), sampled = curve.getSpacedPoints(n);
             let run = [], runSea = null;
             const flush = () => {
                 if (run.length > 1) {
