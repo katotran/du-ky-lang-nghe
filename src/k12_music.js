@@ -1,19 +1,33 @@
     /* =================================================================================
      * K12. NHẠC NỀN CÓ SẴN (assets/music/*.m4a, tách âm thanh từ 2 video của nhóm)
-     *   Bài 1 (THINH_VUONG_CHAMBER) = "Thịnh Vượng Việt Nam Sáng Ngời" giao hưởng hòa tấu
-     *   Bài 2 (NGHE_XUA_HON_NAY)    = "Hello Vietnam" – Phạm Quỳnh Anh
-     *   Nút bật/tắt và nút "Đổi Bài" trên thanh trên dùng đúng 2 bài này; file tự nạp khi bấm phát (preload none).
+     *   5 bài (xem PLAYLIST bên dưới); nút bật/tắt và nút "Đổi Bài" trên thanh trên dùng danh sách này; file tự nạp khi bấm phát (preload none).
      *   Muốn đổi bài: thay file trong assets/music và giữ nguyên tên (hoặc sửa đường dẫn bên dưới).
      * ================================================================================= */
     (function () {
         const mkTrack = src => { const a = new Audio(); a.preload = 'none'; a.loop = true; a.volume = .85; a.src = src; return a; };
-        uploadedTracks.THINH_VUONG_CHAMBER = mkTrack('assets/music/thinh-vuong.m4a');
-        uploadedTracks.NGHE_XUA_HON_NAY = mkTrack('assets/music/hello-vietnam.m4a');
+        // danh sách bài: nút "Đổi Bài" chuyển lần lượt qua từng bài rồi quay lại bài đầu
+        const PLAYLIST = [
+            { key: 'THINH_VUONG_CHAMBER', src: 'assets/music/thinh-vuong.m4a', label: 'Thịnh Vượng VN (Giao Hưởng)', msg: '🎻 Đang phát Bài 1: Thịnh Vượng Việt Nam Sáng Ngời (Giao Hưởng Hòa Tấu)' },
+            { key: 'NGHE_XUA_HON_NAY', src: 'assets/music/hello-vietnam.m4a', label: 'Hello Vietnam (Phạm Quỳnh Anh)', msg: '🎤 Đang phát Bài 2: Hello Vietnam – Phạm Quỳnh Anh' },
+            { key: 'MY_HOME_SAO', src: 'assets/music/my-home.m4a', label: 'My Home (Sáo)', msg: '🪈 Đang phát Bài 3: VIETNAM | My Home – Masew, MyoMouse, Nguyễn Lợi (Sáo)' },
+            { key: 'BEO_DAT_MAY_TROI', src: 'assets/music/beo-dat-may-troi.m4a', label: 'Bèo Dạt Mây Trôi (Giao Hưởng)', msg: '🎼 Đang phát Bài 4: Bèo Dạt Mây Trôi (Giao hưởng dân gian)' },
+            { key: 'NHA_TOI_CO_LA_CO', src: 'assets/music/nha-toi-co-treo-la-co.m4a', label: 'Nhà Tôi Có Treo Một Lá Cờ', msg: '🇻🇳 Đang phát Bài 5: Nhà Tôi Có Treo Một Lá Cờ – DTAP x Hà Anh Tuấn' }
+        ];
+        PLAYLIST.forEach(t => { uploadedTracks[t.key] = mkTrack(t.src); });
+        switchMusicStyle = function () {
+            initAudioContext();
+            const cur = PLAYLIST.findIndex(t => t.key === musicStyle), nxt = PLAYLIST[(cur + 1) % PLAYLIST.length];
+            musicStyle = nxt.key;
+            const label = document.getElementById('audio-label'); if (label) label.textContent = nxt.label;
+            if (!bgmEnabled) { bgmEnabled = true; const ic = document.getElementById('audio-icon'); if (ic) ic.className = 'fa-solid fa-volume-high text-emerald-400'; }
+            startSelectedMusicSource();
+            showBanner(nxt.msg, '🎵', 2400);
+        };
     })();
 
     /* ---------- Nút dừng / tiếp tục + thanh chỉnh âm lượng (thanh trên, cạnh nút loa) ---------- */
     (function () {
-        const tracks = () => [uploadedTracks.THINH_VUONG_CHAMBER, uploadedTracks.NGHE_XUA_HON_NAY].filter(Boolean);
+        const tracks = () => Object.values(uploadedTracks).filter(Boolean);
         let vol = .85;
         try { const v = parseFloat(localStorage.getItem('dkln_music_vol')); if (v >= 0 && v <= 1) vol = v; } catch (e) { }
         const applyVol = () => { tracks().forEach(t => { t.volume = vol; }); try { localStorage.setItem('dkln_music_vol', String(vol)); } catch (e) { } };
