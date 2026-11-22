@@ -293,7 +293,7 @@
                         <i id="audio-icon" class="fa-solid fa-volume-xmark text-amber-300/70"></i>
                         <span class="hidden 2xl:inline text-[10px]" id="audio-label">Thịnh Vượng VN</span>
                     </button>
-                    <button onclick="switchMusicStyle()" class="text-[10px] bg-amber-600 hover:bg-amber-500 text-amber-950 px-1.5 py-0.5 rounded font-extrabold shadow" title="Đổi giữa bài Thịnh Vượng Việt Nam Sáng Ngời & Nghề Xưa Hồn Nay">
+                    <button onclick="switchMusicStyle()" class="text-[10px] bg-amber-600 hover:bg-amber-500 text-amber-950 px-1.5 py-0.5 rounded font-extrabold shadow" title="Đổi giữa bài Thịnh Vượng Việt Nam Sáng Ngời & Hello Vietnam">
                         <i class="fa-solid fa-repeat"></i> <span class="hidden sm:inline">Đổi Bài</span>
                     </button>
                     <label class="text-[10px] bg-emerald-600 hover:bg-emerald-500 px-1.5 py-0.5 rounded text-white cursor-pointer font-extrabold flex items-center gap-1 shadow" title="Chọn 2 file Video MP4 gốc từ máy để phát 100% âm thanh gốc">
@@ -1017,24 +1017,7 @@
         let nextStepTime = 0;
         let currentStepIdx = 0;
 
-        // Pre-bind the two exact video filenames provided by the user in case they sit in the same directory
-        (function preloadDefaultVideoSources() {
-            const vidThinhVuong = document.createElement('video');
-            vidThinhVuong.src = '1793283300918_2229897038500251833_6623083679471081122.mp4';
-            vidThinhVuong.loop = true;
-            vidThinhVuong.preload = 'auto';
-            vidThinhVuong.addEventListener('canplaythrough', () => {
-                uploadedTracks.THINH_VUONG_CHAMBER = vidThinhVuong;
-            }, { once: true });
-
-            const vidNgheXua = document.createElement('video');
-            vidNgheXua.src = '1793283300926_2229897038500251833_6623083679471081122.mp4';
-            vidNgheXua.loop = true;
-            vidNgheXua.preload = 'auto';
-            vidNgheXua.addEventListener('canplaythrough', () => {
-                uploadedTracks.NGHE_XUA_HON_NAY = vidNgheXua;
-            }, { once: true });
-        })();
+        // (nhạc nền có sẵn được nạp trong src/k12_music.js từ assets/music/*.m4a)
 
         function midiToFreq(midi) {
             return 440 * Math.pow(2, (midi - 69) / 12);
@@ -1511,8 +1494,8 @@
             const label = document.getElementById('audio-label');
             if (label) {
                 label.textContent = musicStyle === 'THINH_VUONG_CHAMBER'
-                    ? 'Thịnh Vượng VN (Thính Phòng)'
-                    : 'Nghề Xưa Hồn Nay (Đàn Nhị)';
+                    ? 'Thịnh Vượng VN (Giao Hưởng)'
+                    : 'Hello Vietnam (Phạm Quỳnh Anh)';
             }
 
             if (!bgmEnabled) {
@@ -1523,8 +1506,8 @@
 
             showBanner(
                 musicStyle === 'THINH_VUONG_CHAMBER'
-                    ? '🎻 Đang phát Bài 1: Thịnh Vượng Việt Nam Sáng Ngời (Bản Thính Phòng)'
-                    : '🪕 Đang phát Bài 2: Nghề Xưa Hồn Nay (Phách Tre, Trống Sấm & Đàn Nhị)',
+                    ? '🎻 Đang phát Bài 1: Thịnh Vượng Việt Nam Sáng Ngời (Giao Hưởng Hòa Tấu)'
+                    : '🎤 Đang phát Bài 2: Hello Vietnam – Phạm Quỳnh Anh',
                 '🎵', 2400
             );
         }
