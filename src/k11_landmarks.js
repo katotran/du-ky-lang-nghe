@@ -53,7 +53,7 @@
         { title: 'Đồi chè Tân Cương', prov: 'Thái Nguyên', desc: 'Được mệnh danh là "đệ nhất danh trà", vùng chè Tân Cương gây ấn tượng mạnh với những đồi chè xanh mướt uốn lượn như bát úp dưới chân dãy Tam Đảo. Nhờ khí hậu, thổ nhưỡng đặc thù cùng kỹ thuật sao chè thủ công điêu luyện của người dân địa phương, trà Tân Cương sở hữu hương cốm non thanh tao, vị chát dịu và hậu ngọt sâu lắng khó quên.' },
     ];
 
-    /* ---------- Giao diện: nút "Tìm hiểu địa danh" + thẻ địa danh lật mặt ---------- */
+    /* ---------- Giao diện: nút "Tìm hiểu thẻ tài sản" + thẻ địa danh lật mặt ---------- */
     (function () {
         const tr = s => (typeof __t === 'function' ? __t(s) : s);
         const css = `
@@ -92,8 +92,33 @@
         .lm-btn.alt{background:linear-gradient(180deg,#f6e6bd,#e5c98c);color:#6b2a12}
         .lm-learn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:6px;padding:7px 10px;border-radius:12px;font:900 11.5px/1 "Nunito",sans-serif;cursor:pointer;color:#fff3cf;border:2px solid #c8963e;background:linear-gradient(180deg,#9a3412,#7c2d12);box-shadow:0 2px 0 #4a1a08;transition:transform .12s,filter .12s}
         .lm-learn:hover{filter:brightness(1.12)}.lm-learn:active{transform:translateY(1px)}
+        .lm-stage{width:min(88vw,380px);height:min(80vh,590px)}
+        .lm-face{background:#f8ecc9 var(--lm-bg) center/cover no-repeat}
+        .lm-front,.lm-back{background:#f8ecc9 var(--lm-bg) center/cover no-repeat}
+        .lm-back{background-image:var(--lm-bg),linear-gradient(180deg,#fff8e6,#f4e3bb)}
+        .lm-head{position:relative;padding:13px 14px 12px;text-align:center;color:#fff3cf;background:linear-gradient(180deg,var(--lm-c,#b91c1c),#5a1d12);border-bottom:3px solid #c8963e}
+        .lm-head .t{font:800 24px/1.12 "Baloo 2","Nunito",sans-serif;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+        .lm-head .p{margin-top:7px;display:flex;justify-content:center}
+        .lm-head .p span{padding:5px 16px;border-radius:999px;font:800 13px/1 "Nunito",sans-serif;background:linear-gradient(180deg,#9a3412,#6b2a12);box-shadow:0 2px 0 #3d1508,inset 0 0 0 1px rgba(255,220,150,.35)}
+        .lm-medal{width:212px;height:212px;margin:16px auto 4px;flex:none;position:relative;border-radius:50%;box-shadow:0 8px 18px rgba(80,40,10,.35);background:#fdf6e2;overflow:hidden}
+        .lm-medal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+        .lm-medal-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:96px}
+        .lm-price{position:relative;align-self:center;margin:8px 0 2px;padding:9px 30px;border-radius:999px;font:900 20px/1 "Baloo 2","Nunito",sans-serif;color:#fff3cf;background:linear-gradient(180deg,#a53a14,#7c2d12);box-shadow:0 3px 0 #4a1a08,inset 0 0 0 1px rgba(255,220,150,.35);white-space:pre}
+        .lm-fees{position:relative;padding:0 14px;margin-top:2px}
+        .lm-row{display:flex;align-items:baseline;gap:8px;padding:2px 0;font:italic 700 15px/1.25 "Baloo 2","Nunito",sans-serif;color:#7c3a12}
+        .lm-row b{flex:0 0 118px;font-style:normal;font-weight:800;color:#6b2a12;text-align:right;font-size:14.5px}
+        .lm-row span{flex:1;letter-spacing:.01em}
+        .lm-stars span{font-size:13px;letter-spacing:.05em}
+        .lm-tool{padding:2px 14px 0}
+        .lm-tool b{flex:0 0 auto}
+        .lm-quote{position:relative;margin:6px 20px 0;text-align:center;font:italic 600 13px/1.35 "Nunito",sans-serif;color:#6b3a14}
+        .lm-hint{margin-top:auto}
+        .lm-desc{padding:20px 22px 8px;font:700 16.5px/1.62 "Nunito",sans-serif;text-align:left}
+        .lm-desc:first-letter{font:900 50px/.9 "Baloo 2",serif;color:#9a3412;float:left;margin:3px 7px 0 0}
         @media (prefers-reduced-motion:reduce){.lm-card{transition-duration:.01s}.lm-stage,.lm-wrap,.lm-hint b{animation:none}}`;
-        const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+        const cloud = (x, y, k) => `<g transform="translate(${x} ${y}) scale(${k})" fill="none" stroke="#c9a55f" stroke-width="3" stroke-linecap="round"><path d="M10 70c-12 0-12-20 2-22 0-16 22-22 32-8 8-14 34-10 36 8 18-2 24 22 6 22z" fill="#e7cf99" fill-opacity=".55"/><path d="M26 56c6-8 16-6 18 2M50 52c6-6 16-4 18 4"/><path d="M80 70c20 2 40-6 62-4" /><path d="M140 66c8-2 14 2 12 8"/></g>`;
+        const bgSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="380" height="590" viewBox="0 0 380 590">${cloud(-10, 110, 1.6)}${cloud(190, 250, 1.3)}${cloud(-30, 400, 1.4)}${cloud(210, 470, 1.2)}<g fill="none" stroke="#c9a55f" stroke-width="2" opacity=".6">${[0,1,2,3,4,5].map(i => [0,1,2,3].map(j => `<path d="M${i*70-20+(j%2)*35} ${600-j*18}a35 35 0 0 1 70 0M${i*70-8+(j%2)*35} ${600-j*18}a23 23 0 0 1 46 0"/>`).join('')).join('')}</g></svg>`;
+        const st = document.createElement('style'); st.textContent = '.lm-overlay{--lm-bg:url("data:image/svg+xml,' + encodeURIComponent(bgSvg) + '")}' + css; document.head.appendChild(st);
 
         let ov = null;
         const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -116,26 +141,38 @@
             ov = el('div', 'lm-overlay'); ov.style.setProperty('--lm-c', color);
             const wrap = el('div', 'lm-wrap'), stage = el('div', 'lm-stage'), card = el('div', 'lm-card');
 
-            // mặt trước: tên địa danh
+            const num = idx + 1, hasFee = tile.type === 'PROPERTY' && tile.starCost && tile.starRent;
+            const mkHead = cls => { const h = el('div', cls); h.appendChild(el('div', 't', num + '. ' + tr(info.title))); const pv = el('div', 'p'); pv.appendChild(el('span', null, '📍 ' + tr(info.prov))); h.appendChild(pv); return h; };
+
+            // mặt trước: tranh minh họa + bảng giá của thẻ tài sản
             const front = el('div', 'lm-face lm-front');
-            front.appendChild(el('div', 'lm-band', 'Địa danh #' + idx));
-            const medal = el('div', 'lm-medal'), cv = document.createElement('canvas'); cv.width = cv.height = 344;
-            { const g = cv.getContext('2d'), W = cv.width, H = cv.height, gr = g.createRadialGradient(W / 2, H * .45, 10, W / 2, H / 2, W / 2);
-              gr.addColorStop(0, '#fffaf0'); gr.addColorStop(1, '#ecd7a6'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
-              g.strokeStyle = color; g.lineWidth = W * .045; g.beginPath(); g.arc(W / 2, H / 2, W * .44, 0, 7); g.stroke();
-              g.strokeStyle = 'rgba(139,90,43,.4)'; g.lineWidth = W * .012; g.beginPath(); g.arc(W / 2, H / 2, W * .37, 0, 7); g.stroke();
-              g.setLineDash([W * .02, W * .03]); g.beginPath(); g.arc(W / 2, H / 2, W * .33, 0, 7); g.stroke(); g.setLineDash([]);
-              g.font = Math.round(W * .42) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = 'rgba(80,40,10,.35)'; g.shadowBlur = W * .03; g.shadowOffsetY = W * .02;
-              g.fillText(tile.icon || '🏯', W / 2, H / 2 + W * .02); }
-            medal.appendChild(cv); front.appendChild(medal);
-            front.appendChild(el('div', 'lm-title', tr(info.title)));
-            front.appendChild(el('div', 'lm-prov', '📍 ' + tr(info.prov)));
-            front.appendChild(el('div', 'lm-orn', '✦'));
+            front.appendChild(mkHead('lm-head'));
+            const medal = el('div', 'lm-medal');
+            const img = document.createElement('img'); img.alt = ''; img.draggable = false; img.src = 'assets/landmarks/' + String(num).padStart(2, '0') + '.jpg';
+            const fb = el('div', 'lm-medal-fb', tile.icon || '🏯');
+            img.onerror = () => { img.remove(); };
+            medal.appendChild(fb); medal.appendChild(img); front.appendChild(medal);
+            if (hasFee) {
+                const cum = []; let acc = 0; for (let s = 1; s <= 5; s++) { acc += tile.starCost[s]; cum.push(acc); }
+                front.appendChild(el('div', 'lm-price', tr('Phí đầu tư:') + '  ' + tile.price));
+                const tb = el('div', 'lm-fees');
+                const stars = el('div', 'lm-row lm-stars'); stars.appendChild(el('span', null, '')); const sv = el('span'); sv.textContent = '⭐ ⭐ ⭐ ⭐ ⭐'; stars.appendChild(sv); tb.appendChild(stars);
+                const row = (lab, arr) => { const r = el('div', 'lm-row'); r.appendChild(el('b', null, tr(lab))); r.appendChild(el('span', null, arr.join(' - '))); tb.appendChild(r); };
+                row('Phí dịch vụ:', tile.starRent.slice(1));
+                row('Phí nâng cấp:', tile.starCost.slice(2));
+                row('Giá trị cầm cố:', cum);
+                front.appendChild(tb);
+                const tl = el('div', 'lm-row lm-tool'); tl.appendChild(el('b', null, tr('Công cụ miễn phí:'))); tl.appendChild(el('span', null, tr(tile.toolSpec))); front.appendChild(tl);
+                if (tile.situation) front.appendChild(el('div', 'lm-quote', '\u201c' + tr(tile.situation) + '\u201d'));
+            } else {
+                if (tile.subtitle) front.appendChild(el('div', 'lm-price', tr(tile.subtitle)));
+                if (tile.desc) front.appendChild(el('div', 'lm-quote', tr(tile.desc)));
+            }
             const hint = el('div', 'lm-hint'); hint.appendChild(el('span', null, 'Chạm vào thẻ để lật ')); hint.appendChild(el('b', null, '↻')); front.appendChild(hint);
 
-            // mặt sau: mô tả
+            // mặt sau: lời giới thiệu
             const back = el('div', 'lm-face lm-back');
-            const bh = el('div', 'lm-back-h'); bh.appendChild(el('div', 't', tr(info.title))); bh.appendChild(el('div', 'p', '📍 ' + tr(info.prov))); back.appendChild(bh);
+            back.appendChild(mkHead('lm-head'));
             back.appendChild(el('div', 'lm-desc', tr(info.desc)));
             back.appendChild(el('div', 'lm-foot', 'Chạm để lật lại'));
 
@@ -154,13 +191,13 @@
         }
         window.openLandmarkCard = openLandmarkCard; window.closeLandmarkCard = closeLandmarkCard;
 
-        // nút "Tìm hiểu địa danh" nằm trong thẻ thông tin ô
+        // nút "Tìm hiểu thẻ tài sản" nằm trong thẻ thông tin ô
         function ensureLearnBtn() {
             let b = document.getElementById('insp-learn-btn');
             if (b) return b;
             const wrapEl = document.getElementById('insp-body-wrap'); if (!wrapEl) return null;
             b = el('button', 'lm-learn'); b.id = 'insp-learn-btn'; b.type = 'button';
-            b.appendChild(el('span', null, '📖')); b.appendChild(el('span', null, 'Tìm hiểu địa danh'));
+            b.appendChild(el('span', null, '📖')); b.appendChild(el('span', null, 'Tìm hiểu thẻ tài sản'));
             b.onclick = () => openLandmarkCard(gameState.selectedTileIndex);
             wrapEl.appendChild(b); return b;
         }
