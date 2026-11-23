@@ -84,7 +84,6 @@
         .lm-back-h .t{font:900 18px/1.15 "Baloo 2","Nunito",sans-serif}
         .lm-back-h .p{margin-top:3px;font:700 11px/1 "Nunito",sans-serif;opacity:.9;letter-spacing:.06em}
         .lm-desc{position:relative;flex:1;overflow-y:auto;padding:16px 20px 8px;font:600 14.5px/1.62 "Nunito",sans-serif;text-align:justify;color:#4a2510}
-        .lm-desc:first-letter{font:900 34px/1 "Baloo 2",serif;color:#9a3412;float:left;margin:2px 6px 0 0}
         .lm-foot{position:relative;padding:8px 10px 14px;text-align:center;font:800 11px/1 "Nunito",sans-serif;color:#8a5a2b;letter-spacing:.05em;border-top:1px dashed rgba(139,90,43,.4);margin:0 18px}
         .lm-btns{display:flex;gap:10px}
         .lm-btn{padding:9px 18px;border-radius:14px;font:900 13px/1 "Nunito",sans-serif;cursor:pointer;border:2px solid #c8963e;color:#fff3cf;background:linear-gradient(180deg,#9a3412,#7c2d12);box-shadow:0 3px 0 #4a1a08;transition:transform .12s}
@@ -114,11 +113,9 @@
         .lm-quote{position:relative;margin:6px 20px 0;text-align:center;font:italic 600 13px/1.35 "Nunito",sans-serif;color:#6b3a14}
         .lm-hint{margin-top:auto}
         .lm-desc{padding:20px 22px 8px;font:700 16.5px/1.62 "Nunito",sans-serif;text-align:left}
-        .lm-desc:first-letter{font:900 50px/.9 "Baloo 2",serif;color:#9a3412;float:left;margin:3px 7px 0 0}
+        .lm-desc:first-letter{font-weight:900;color:#9a3412}
         @media (prefers-reduced-motion:reduce){.lm-card{transition-duration:.01s}.lm-stage,.lm-wrap,.lm-hint b{animation:none}}`;
-        const cloud = (x, y, k) => `<g transform="translate(${x} ${y}) scale(${k})" fill="none" stroke="#c9a55f" stroke-width="3" stroke-linecap="round"><path d="M10 70c-12 0-12-20 2-22 0-16 22-22 32-8 8-14 34-10 36 8 18-2 24 22 6 22z" fill="#e7cf99" fill-opacity=".55"/><path d="M26 56c6-8 16-6 18 2M50 52c6-6 16-4 18 4"/><path d="M80 70c20 2 40-6 62-4" /><path d="M140 66c8-2 14 2 12 8"/></g>`;
-        const bgSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="380" height="590" viewBox="0 0 380 590">${cloud(-10, 110, 1.6)}${cloud(190, 250, 1.3)}${cloud(-30, 400, 1.4)}${cloud(210, 470, 1.2)}<g fill="none" stroke="#c9a55f" stroke-width="2" opacity=".6">${[0,1,2,3,4,5].map(i => [0,1,2,3].map(j => `<path d="M${i*70-20+(j%2)*35} ${600-j*18}a35 35 0 0 1 70 0M${i*70-8+(j%2)*35} ${600-j*18}a23 23 0 0 1 46 0"/>`).join('')).join('')}</g></svg>`;
-        const st = document.createElement('style'); st.textContent = '.lm-overlay{--lm-bg:url("data:image/svg+xml,' + encodeURIComponent(bgSvg) + '")}' + css; document.head.appendChild(st);
+        const st = document.createElement('style'); st.textContent = '.lm-overlay{--lm-bg:none}.lm-face:before{display:none}' + css; document.head.appendChild(st);
 
         let ov = null;
         const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -157,7 +154,7 @@
                 front.appendChild(el('div', 'lm-price', tr('Phí đầu tư:') + '  ' + tile.price));
                 const tb = el('div', 'lm-fees');
                 const stars = el('div', 'lm-row lm-stars'); stars.appendChild(el('span', null, '')); const sv = el('span'); sv.textContent = '⭐ ⭐ ⭐ ⭐ ⭐'; stars.appendChild(sv); tb.appendChild(stars);
-                const row = (lab, arr) => { const r = el('div', 'lm-row'); r.appendChild(el('b', null, tr(lab))); r.appendChild(el('span', null, arr.join(' - '))); tb.appendChild(r); };
+                const row = (lab, arr) => { const r = el('div', 'lm-row'); r.appendChild(el('b', null, tr(lab))); r.appendChild(el('span', null, arr.join('\u2003'))); tb.appendChild(r); };
                 row('Phí dịch vụ:', tile.starRent.slice(1));
                 row('Phí nâng cấp:', tile.starCost.slice(2));
                 row('Giá trị cầm cố:', cum);
@@ -173,7 +170,7 @@
             // mặt sau: lời giới thiệu
             const back = el('div', 'lm-face lm-back');
             back.appendChild(mkHead('lm-head'));
-            back.appendChild(el('div', 'lm-desc', tr(info.desc)));
+            back.appendChild(el('div', 'lm-desc', tr(info.desc).replace(/\s+[–—-]\s+/g, ', ')));
             back.appendChild(el('div', 'lm-foot', 'Chạm để lật lại'));
 
             card.appendChild(front); card.appendChild(back); stage.appendChild(card); wrap.appendChild(stage);
